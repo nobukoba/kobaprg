@@ -1,5 +1,5 @@
 # kobamac
-An extended TBrowser "HistBrowser" and usefull ROOT macros to hadle the histograms
+An extended TBrowser "HistBrowser" and useful ROOT macros to hadle the histograms
 
 ## How to install the macros from GitHub
 On the terminal, clone the macros by the following command.
