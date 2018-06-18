@@ -5,6 +5,8 @@ An extended TBrowser and usefull ROOT macros to hadle the histograms
 On the terminal, clone the macros by the following command.
 ```
 $ git clone https://github.com/nobukoba/kobamac.git
+$ ls
+$ ... kobamac ...
 ```
 Then you can use the macros. You do not have to compile the macros at this moment.
 
