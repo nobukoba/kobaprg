@@ -149,20 +149,16 @@ public:
     TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
     if (cl->InheritsFrom(TDirectory::Class())) {
       TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-      //TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
+      TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
       const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
       const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-      //      TGListTreeItem *cur_ListTreeItem =
-      //	hist_fListTree->AddItem(fListLevel, obj->GetName(), obj, pic_ofolder, pic_folder, 0);
       TGListTreeItem *cur_ListTreeItem =
-	hist_fListTree->AddItem(fListLevel, obj->GetName(), pic_ofolder, pic_folder, 0);
-      
+	hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
       //cur_ListTreeItem->SetUserData(cur_ListTreeItem);
       if (open_cnt <=1) {
 	hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
       }
       TList *lst = ((TDirectory *)obj)->GetListOfKeys();
-
       if ((lst==0)||(lst->At(0)==0)) {
 	lst = ((TDirectory *)obj)->GetList();
       }
@@ -231,27 +227,59 @@ void writeTDirectoryFile(TObject* c){
   //delete local;
   return;
 }
+
+//TGListTreeItem *FindItemByData (TGListTreeItem *cur_item, TObject* c) {
+//  cur_item->
+//  while () {
+//    
+//    
+//  }
+//}
+
 void writeTFolder(TObject* c){
-  TString file_in_str = c->GetTitle();
-  if(file_in_str.EndsWith(".hb")){
-    file_in_str.Resize(file_in_str.Length()-3);
-  }
-  if(file_in_str.EndsWith(".hbk")){
-    file_in_str.Resize(file_in_str.Length()-4);
-  }
-  if(file_in_str.EndsWith(".hbook")){
-    file_in_str.Resize(file_in_str.Length()-6);
-  }
-  file_in_str += ".root";
+  printf("c 0x%x\n",c);
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");  
+  TGListTreeItem * item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
+  //if (strcmp(item->GetParent()->GetText().Date(),))
+  //printf("item %s\n",item->GetText());
+  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
+  TString fullpath = hist_browser->FullPathName(item);
+  printf("fullpath %s\n",fullpath.Data());
   
-  TFile *local = TFile::Open(file_in_str,"recreate");
-  TIter next(((TDirectoryFile*)c)->GetList());
-  TObject *obj;
-  while (obj=next()) {
-    obj->Write();
+  Int_t memo_file_flag = 0;
+  if (fullpath.BeginsWith("ROOT_Memory/")){
+    memo_file_flag = 1;
+  }else if(fullpath.BeginsWith("ROOT_Files/")){
+    memo_file_flag = 2;
   }
-  //delete local;
-  return;
+  
+  //  
+  //}
+  //TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
+  //printf("item full path name %s\n",hist_browser->FullPathName(item).Data());
+  //printf("item dir name %s\n",hist_browser->DirName(item).Data());
+
+  
+//  TString file_in_str = c->GetTitle();
+//  if(file_in_str.EndsWith(".hb")){
+//    file_in_str.Resize(file_in_str.Length()-3);
+//  }
+//  if(file_in_str.EndsWith(".hbk")){
+//    file_in_str.Resize(file_in_str.Length()-4);
+//  }
+//  if(file_in_str.EndsWith(".hbook")){
+//    file_in_str.Resize(file_in_str.Length()-6);
+//  }
+//  file_in_str += ".root";
+//  
+//  TFile *local = TFile::Open(file_in_str,"recreate");
+//  TIter next(((TDirectoryFile*)c)->GetList());
+//  TObject *obj;
+//  while (obj=next()) {
+//    obj->Write();
+//  }
+//  //delete local;
+//  return;
 }
 
 class HistBrowser : public TBrowser {
