@@ -34,6 +34,7 @@ void plot_panels(){
   canvas->cd(1);
 
   TList *current_checked_item  = (TList *)gROOT->Get("current_checked_item");
+  if(current_checked_item->GetEntries()==0){return;}
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *)current_checked_item->At(1);
   Int_t i = 0;
