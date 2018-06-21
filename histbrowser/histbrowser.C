@@ -96,6 +96,7 @@ public:
       item_root_memo =
 	hist_fListTree->AddItem(0,tf->GetName(),tf,pic_ofolder,pic_folder,0);
       hist_fListTree->DoubleClicked(item_root_memo,1); item_root_memo->SetOpen(1);
+      item_root_memo->CheckItem(0);
     }
 
     TGListTreeItem *item_root_file = hist_fListTree->FindChildByName(0, "ROOT_Files");
@@ -106,6 +107,7 @@ public:
       item_root_file =
 	hist_fListTree->AddItem(0,tf->GetName(),tf,pic_ofolder,pic_folder,0);
       hist_fListTree->DoubleClicked(item_root_file,1); item_root_file->SetOpen(1);
+      item_root_file->CheckItem(0);
     }
     
     TObject *obj = 0;
@@ -154,6 +156,7 @@ public:
       const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
       TGListTreeItem *cur_ListTreeItem =
 	hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
+      cur_ListTreeItem->CheckItem(0);
       //cur_ListTreeItem->SetUserData(cur_ListTreeItem);
       if (open_cnt <=1) {
 	hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
@@ -228,25 +231,17 @@ void writeTDirectoryFile(TObject* c){
   return;
 }
 
-//TGListTreeItem *FindItemByData (TGListTreeItem *cur_item, TObject* c) {
-//  cur_item->
-//  while () {
-//    
-//    
-//  }
-//}
-
 void writeTFolder(TObject* c){
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");  
   TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
   TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
   TString fullpath = hist_browser->FullPathName(item);
-  printf("fullpath %s\n",fullpath.Data());
   
   TDirectory *cur_dir = 0;
   Int_t memo_file_flag = 0;
   TString filename = "";
   if (fullpath.BeginsWith("ROOT_Memory/")){
+    memo_file_flag = 1;
     fullpath.Replace(0,12,"");
     cur_dir = (TDirectory *)gROOT->Get(fullpath);
     filename = fullpath;
@@ -269,9 +264,11 @@ void writeTFolder(TObject* c){
       }
     }
   }
-  printf("fullpath %s\n",fullpath.Data());
-  printf("filename %s\n",filename.Data());
-  printf("cur_dir 0x%x\n",cur_dir);
+  printf("Fullpath: %s\n",fullpath.Data());
+  printf("Filename: %s\n",filename.Data());
+  if (cur_dir==0) {
+    return;
+  }
   
   TString file_in_str = filename;
   if(file_in_str.EndsWith(".hb")){
@@ -286,13 +283,22 @@ void writeTFolder(TObject* c){
   file_in_str += ".root";
   
   TFile *local = TFile::Open(file_in_str,"recreate");
-  TIter next(((TDirectory*)cur_dir)->GetList());
-  TObject *obj;
-  while (obj=next()) {
-    printf("aa\n");
-    obj->Write();
+  TCollection* col = 0;
+  if (memo_file_flag==1) {
+    col = ((TDirectory*)cur_dir)->GetList();
+  }else if (memo_file_flag==2){
+    col = ((TDirectory*)cur_dir)->GetListOfKeys();
   }
-  //delete local;
+  TIter nextobj(col);
+  TObject *obj, *objw;
+  while (obj=nextobj()) {
+    if (memo_file_flag==2) {
+      objw = ((TKey*)obj)->ReadObj();
+    }else{
+      objw = obj;
+    }
+    objw->Write();
+  }
   return;
 }
 
@@ -590,7 +596,7 @@ public:
 					   "Write","writeTDirectoryFile",0,"TObject*",2);
     ml->AddFirst(n);
   }
-
+  
   void cumtomTFolderMenu(){
     TClass *cl = gROOT->GetClass("TFolder");
     TList  *ml = cl->GetMenuList();
@@ -598,13 +604,18 @@ public:
 					   "Write","writeTFolder",0,"TObject*",2);
     ml->AddFirst(n);
   }
-
+  
   void MyClicked2(TGListTreeItem *item, Int_t /*btn*/){
     item->SetOpen(!item->IsOpen());
   }
   
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
     TGListTree *lt = (TGListTree*)gTQSender;
+    TObject *userdata = (TObject*)item->GetUserData();
+    if (userdata->InheritsFrom("TKey")){
+      item->SetUserData(((TKey*)userdata)->ReadObj());
+    }
+    
     if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
        strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0
        ){return;}
