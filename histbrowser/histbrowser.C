@@ -615,7 +615,6 @@ public:
     if (userdata->InheritsFrom("TKey")){
       item->SetUserData(((TKey*)userdata)->ReadObj());
     }
-    
     if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
        strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0
        ){return;}
@@ -626,17 +625,13 @@ public:
       canvas->SetClickSelectedPad(0);
       return;
     }
-    TList* list     = canvas->GetListOfPrimitives();
-    if (list->At(0)==0) {return;}
-    if (strcmp(list->At(0)->GetName(),"Canvas_1_1")==0){
-      Int_t  cur_pad  = gPad->GetNumber();
-      TList* selpad_list = ((TVirtualPad*)list->At(cur_pad-1))->GetListOfPrimitives();
-      if(selpad_list->At(0)){
-	Int_t    no_pads  = list->GetSize();
-	Int_t    next_pad = cur_pad + 1;
-	if (next_pad > no_pads) {next_pad = 1;}
-	canvas->cd(next_pad);
+    if (canvas->GetPad(1)==0) {return;}
+    if (strcmp(canvas->GetPad(1)->GetName(),"Canvas_1_1")==0){
+      Int_t next_pad = gPad->GetNumber() + 1;
+      if (canvas->GetPad(next_pad) == 0) {
+	next_pad = 1;
       }
+      canvas->cd(next_pad);
     }
   }
 
