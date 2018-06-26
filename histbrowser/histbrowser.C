@@ -115,6 +115,10 @@ public:
     TList *lst = gROOT->GetList();
     TIter next(lst);
     while (obj=next()) {
+      //printf("obj address: 0x%x\n",obj);
+      //printf("here1\n");
+      //printf("obj->GetName(): %s\n",obj->GetName());
+      //printf("here2\n");
       if(hist_fListTree->FindChildByName(item_root_memo, obj->GetName())){
 	//printf("converted found %s\n",obj->GetName());
 	continue;
@@ -381,6 +385,8 @@ public:
   void CloseWindow(){
     delete timer_manager;
     gApplication->Terminate();
+    //this->GetBrowserImp()->GetMainFrame()->CloseWindow();
+    
     //this->Delete();
     //delete this;
     //gClient->Delete();
