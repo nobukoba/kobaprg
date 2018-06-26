@@ -2,18 +2,8 @@
 #include "TPad.h"
 #include "TCanvas.h"
 #include "TList.h"
-class DisplayDialog {
- public:
-  DisplayDialog(){
-    printf("dialog\n");
-  }
-  ~DisplayDialog(){}
- private:
-};
 
 void GaussianFit(){
-  DisplayDialog * aa = new DisplayDialog();
-  delete aa;
   TCanvas* canvas = gPad->GetCanvas();
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {return;}
@@ -21,7 +11,10 @@ void GaussianFit(){
   if (list == 0) {return;}
   TH1 *hist = (TH1*) list->At(1);
   if (hist == 0) {return;}
-  if (hist->InheritsFrom("TH2")) {return;}
+  if (hist->InheritsFrom("TH2")) {
+    printf("This script can not handle TH2 histograms.\n");
+    return;
+  }
   if (hist->InheritsFrom("TH1") == 0) {return;}
   Double_t lw = hist->GetXaxis()->GetBinLowEdge(hist->GetXaxis()->GetFirst());
   Double_t up = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
@@ -49,9 +42,10 @@ void GaussianFit(){
   }else{
     str += TString::Format("{FWHM: %g}",fwhm);
   }
-  TLatex *prev_tlatex_pnt = (TLatex *)gROOT->Get("p_latex_GaussianFit");
+  
+  TLatex *prev_tlatex_pnt = (TLatex *)list->FindObject("p_latex_GaussianFit");
+  
   if (prev_tlatex_pnt) {
-    gROOT->Remove(prev_tlatex_pnt);
     prev_tlatex_pnt->Delete();
   }
   TLatex tlatex_obj;
@@ -60,8 +54,7 @@ void GaussianFit(){
   tlatex_obj.SetTextAlign(13);
   TLatex *tlatex_pnt = tlatex_obj.DrawLatexNDC(0.14,0.88,str);
   tlatex_pnt->SetName("p_latex_GaussianFit");
-  printf("tlatex_pnt : %s\n",tlatex_pnt->GetName());
-  gROOT->Add(tlatex_pnt);
+  //printf("tlatex_pnt : %s\n",tlatex_pnt->GetName());
   gPad->Modified();
   gPad->Update();
   gPad->Update();
