@@ -99,7 +99,7 @@ void plot_checked_x_y(const Int_t nx = 2, const Int_t ny = 2){
   }
   
   if (num_checked > (nx*ny)) {
-    timer = new TTimer();
+    TTimer *timer = new TTimer();
     timer->Connect("Timeout()",0,0,"plot_panels()");
     timer->Timeout();
     timer->Start(3000,kFALSE);
