@@ -49,15 +49,20 @@ void GaussianFit(){
   }else{
     str += TString::Format("{FWHM: %g}",fwhm);
   }
-  TLatex text;
-  //text.DrawLatex();
-  text.SetTextColor(kRed);
-  text.SetTextSize(0.05);
-  text.SetTextAlign(13);
-  TLatex *textp;
-  textp = text.DrawLatexNDC(0.14,0.88,str);
+  TLatex *prev_tlatex_pnt = (TLatex *)gROOT->Get("p_latex_GaussianFit");
+  if (prev_tlatex_pnt) {
+    gROOT->Remove(prev_tlatex_pnt);
+    prev_tlatex_pnt->Delete();
+  }
+  TLatex tlatex_obj;
+  tlatex_obj.SetTextColor(kRed);
+  tlatex_obj.SetTextSize(0.05);
+  tlatex_obj.SetTextAlign(13);
+  TLatex *tlatex_pnt = tlatex_obj.DrawLatexNDC(0.14,0.88,str);
+  tlatex_pnt->SetName("p_latex_GaussianFit");
+  printf("tlatex_pnt : %s\n",tlatex_pnt->GetName());
+  gROOT->Add(tlatex_pnt);
   gPad->Modified();
   gPad->Update();
   gPad->Update();
-  textp->Delete();
 }
