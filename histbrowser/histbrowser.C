@@ -633,11 +633,15 @@ public:
     }
     if (canvas->GetPad(1)==0) {return;}
     if (strcmp(canvas->GetPad(1)->GetName(),"Canvas_1_1")==0){
-      Int_t next_pad = gPad->GetNumber() + 1;
-      if (canvas->GetPad(next_pad) == 0) {
-	next_pad = 1;
+      Int_t  cur_pad  = gPad->GetNumber();
+      TList* selpad_list = canvas->GetPad(cur_pad)->GetListOfPrimitives();
+      if(selpad_list->At(0)){
+	Int_t next_pad = cur_pad + 1;
+	if (canvas->GetPad(next_pad) == 0) {
+	  next_pad = 1;
+	}
+	canvas->cd(next_pad);
       }
-      canvas->cd(next_pad);
     }
   }
 
