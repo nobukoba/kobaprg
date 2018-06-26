@@ -2,13 +2,14 @@
 #include "TPad.h"
 #include "TCanvas.h"
 #include "TList.h"
+#include "TTimer.h"
 void fitting(){
   gROOT->ProcessLine("GaussianFit()");
 }
 
 void GaussianFitLoop(){
   gROOT->ProcessLine(".L GaussianFit.C");
-  timer = new TTimer();
+  TTimer *timer = new TTimer();
   timer->Connect("Timeout()",0,0,"fitting()");
   timer->Timeout();
   timer->Start(1000,kFALSE);
