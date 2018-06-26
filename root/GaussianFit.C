@@ -2,20 +2,23 @@
 #include "TPad.h"
 #include "TCanvas.h"
 #include "TList.h"
+#include "TLatex.h"
+#include "TMath.h"
+#include "TF1.h"
 
-void GaussianFit(){
+TH1 * GaussianFit(){
   TCanvas* canvas = gPad->GetCanvas();
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {return;}
+  if (sel_pad == 0) {return 0;}
   TList * list = sel_pad->GetListOfPrimitives();
-  if (list == 0) {return;}
+  if (list == 0) {return 0;}
   TH1 *hist = (TH1*) list->At(1);
-  if (hist == 0) {return;}
+  if (hist == 0) {return 0;}
   if (hist->InheritsFrom("TH2")) {
     printf("This script can not handle TH2 histograms.\n");
-    return;
+    return 0;
   }
-  if (hist->InheritsFrom("TH1") == 0) {return;}
+  if (hist->InheritsFrom("TH1") == 0) {return 0;}
   Double_t lw = hist->GetXaxis()->GetBinLowEdge(hist->GetXaxis()->GetFirst());
   Double_t up = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
   hist->Fit("gaus", "R", "", lw, up);
@@ -44,7 +47,6 @@ void GaussianFit(){
   }
   
   TLatex *prev_tlatex_pnt = (TLatex *)list->FindObject("p_latex_GaussianFit");
-  
   if (prev_tlatex_pnt) {
     prev_tlatex_pnt->Delete();
   }
@@ -58,4 +60,5 @@ void GaussianFit(){
   gPad->Modified();
   gPad->Update();
   gPad->Update();
+  return hist;
 }
