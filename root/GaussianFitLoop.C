@@ -1,56 +1,47 @@
-#include "TGObject.h"
 #include "TROOT.h"
-#include "TGFrame.h"
+//#include "RQ_OBJECT.h"
+#include "TGClient.h"
 #include "TGString.h"
 #include "TGPicture.h"
-#include "TGWidget.h"
 #include "TGButton.h"
-#include "TGIcon.h"
 #include "TGLabel.h"
 #include "TList.h"
-#include "TGClient.h"
-#include "KeySymbols.h"
+#include "TCanvas.h"
 #include "TTimer.h"
 #include "TMath.h"
 #include "TH1.h"
 #include "TF1.h"
 
-class TGMsgBoxMod : public TGTransientFrame {
-public:
-  TGMsgBoxMod(const TGWindow *p_in, const TGWindow *main_in,
-	      const char *title_in, const char *msg_in,
-	      UInt_t options_in = kVerticalFrame,
-	      Int_t text_align_in = kTextCenterX | kTextCenterY) :
-    TGTransientFrame(p_in, main_in, 10, 10, options_in),
-    p(p_in), main(main_in), title(title_in),msg(msg_in),
-    options(options_in),text_align(text_align_in) {
-    label1 = 0;
-    label2 = 0;
-    label3 = 0;
-    label4 = 0;
-  }
-  virtual ~TGMsgBoxMod(){
-    delete fClose;
-    delete fButtonFrame;
-    delete fLabelFrame;
-    delete label1; delete label2; delete label3; delete label4;
-    delete fL1; delete fL2; delete fL3; delete fL4;
-  }
-  void Start(){
+class TGMsgBoxMod {
+  //RQ_OBJECT("TGMsgBoxMod")
+  public:
+  TGMsgBoxMod(const TGWindow *p, const TGWindow *main,
+	      const char *title, const char *msg,
+	      UInt_t options = kVerticalFrame,
+	      Int_t text_align = kTextCenterX | kTextCenterY) {
+    fMain = new TGTransientFrame(p, main, 10, 10, options);
+
+    fMain->Connect("CloseWindow()", "TGMsgBoxMod", this, "CloseWindow()");
+    fMain->DontCallClose(); // to avoid double deletions.
+    
+    // use hierarchical cleaning
+    fMain->SetCleanup(kDeepCleanup);
+    
     UInt_t width, height;
-    fClose = 0;
     width = 0;
-    fButtonFrame = new TGHorizontalFrame(this, 60, 20, kFixedWidth);
-    fL1 = new TGLayoutHints(kLHintsCenterY | kLHintsExpandX, 3, 3, 0, 0);
-    fClose = new TGTextButton(fButtonFrame, new TGHotString("C&lose"));
-    fClose->Connect("Pressed()", "TGTransientFrame", this, "DeleteWindow()");
+    TGHorizontalFrame *fButtonFrame = new TGHorizontalFrame(fMain, 60, 20, kFixedWidth);
+    TGLayoutHints *fL1 = new TGLayoutHints(kLHintsCenterY | kLHintsExpandX, 3, 3, 0, 0);
+    TGButton *fClose = new TGTextButton(fButtonFrame, new TGHotString("C&lose"));
+    fClose->Connect("Clicked()", "TGMsgBoxMod", this, "Stop()");
+    fClose->Connect("Clicked()", "TGMsgBoxMod", this, "DoClose()");
+    
     fButtonFrame->AddFrame(fClose, fL1);
-    fL2 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
-    AddFrame(fButtonFrame, fL2);
-    fLabelFrame = new TGVerticalFrame(this, 60, 20);
-    fL3 = new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,
-			    4, 2, 2, 2);
-    fL4 = new TGLayoutHints(kLHintsTop | kLHintsExpandX, 10, 10, 7, 2);
+    TGLayoutHints *fL2 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
+    fMain->AddFrame(fButtonFrame, fL2);
+    TGVerticalFrame *fLabelFrame = new TGVerticalFrame(fMain, 60, 20);
+    TGLayoutHints *fL3 = new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,
+					   4, 2, 2, 2);
+    TGLayoutHints *fL4 = new TGLayoutHints(kLHintsTop | kLHintsExpandX, 10, 10, 7, 2);
     // make one label per line of the message
     TGLabel *label;
     TGFont *fLabelFont = gClient->GetFont("-*-*-*-*-*-20-*-*-*-*-*-*-*", kFALSE);
@@ -69,26 +60,34 @@ public:
     label2->SetTextJustify(text_align);
     fLabelFrame->AddFrame(label2, fL3);
     
-    label3 = new TGLabel(fLabelFrame, "Integ. cnt:");
+    label3 = new TGLabel(fLabelFrame, "Integ. counts:");
     label3->SetTextJustify(text_align);
     fLabelFrame->AddFrame(label3, fL3);
 
     label4 = new TGLabel(fLabelFrame, msg);
     fLabelFrame->AddFrame(label4, fL3);
-    AddFrame(fLabelFrame, fL4);
-    MapSubwindows();
-    width  = GetDefaultWidth();
-    height = GetDefaultHeight();
-    Resize(width, height);
-    AddInput(kKeyPressMask);
-    CenterOnParent();
-    SetWMSize(width, height);
-    SetWMSizeHints(width, height, width, height, 0, 0);
-    SetWindowName(title);
-    MapRaised();
-    gClient->WaitFor(this);
+    fMain->AddFrame(fLabelFrame, fL4);
+    fMain->MapSubwindows();
+    width  = fMain->GetDefaultWidth();
+    height = fMain->GetDefaultHeight();
+    fMain->Resize(width, height);
+    fMain->AddInput(kKeyPressMask);
+    fMain->CenterOnParent();
+    fMain->SetWMSize(width, height);
+    fMain->SetWMSizeHints(width, height, width, height, 0, 0);
+    fMain->SetWindowName(title);
+    fMain->MapWindow();
   }
-
+  virtual ~TGMsgBoxMod(){
+    fMain->DeleteWindow();
+  }
+  void Stop(){
+    delete mem_timer;
+  }
+  void Start(TTimer *timer){
+    mem_timer = timer;
+    gClient->WaitFor(fMain);
+  }
   void fitting(){
     TH1 * hist = (TH1 *) gROOT->ProcessLine("GaussianFit();");
     TF1 * gaus = hist->GetFunction("gaus");
@@ -108,26 +107,19 @@ public:
 	label1->SetText(TString::Format("FWHM: %g",fwhm));
 	label2->SetText("");
       }
-      label3->SetText(TString::Format("Integ. cnt:  %.2g",integ_counts));
+      label3->SetText(TString::Format("Integ. counts:  %.5g",integ_counts));
     }
   }
+  void DoClose() { CloseWindow(); }
+  void CloseWindow() { delete this; }
   
 private:
-  TGButton            *fClose;   // buttons in dialog box
-  TGHorizontalFrame   *fButtonFrame;                // frame containing buttons
-  TGVerticalFrame     *fLabelFrame;                 // frame containing text
-  TGLayoutHints       *fL1, *fL2, *fL3, *fL4; // layout hints
+  TGTransientFrame    *fMain;
   TGLabel             *label1, *label2, *label3, *label4; // labels
-  const TGWindow *p; 
-  const TGWindow *main;
-  const char *title;
-  const char *msg;
-  UInt_t options;
-  Int_t text_align;
+  TTimer              *mem_timer;
   ClassDef(TGMsgBoxMod,0)  // A message dialog box
 };
 ClassImp(TGMsgBoxMod);
-
 
 void GaussianFitLoop(){
   TCanvas* canvas = gPad->GetCanvas();
@@ -142,13 +134,12 @@ void GaussianFitLoop(){
     return;
   }
   if (hist->InheritsFrom("TH1") == 0) {return;}
-
+  
   gROOT->ProcessLine(".L GaussianFit.C");
   TGMsgBoxMod *msgb = new TGMsgBoxMod(gClient->GetRoot(),0, "Script is running!!", "GaussianFitLoop.C is now running!!\nDo you stop it?");
   TTimer *timer = new TTimer();
   timer->Connect("Timeout()", "TGMsgBoxMod", msgb, "fitting()");
   timer->Timeout();
   timer->Start(1000,kFALSE);
-  msgb->Start();
-  delete timer;
+  msgb->Start(timer);
 }
