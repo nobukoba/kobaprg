@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <fstream>
 #include "TPad.h"
 #include "TCanvas.h"
 #include "TList.h"
@@ -49,18 +51,43 @@ void hout4() {
     }
   }
   static TString dir("../../"); 
+  static TString fname("temp.hst");
   TGFileInfo fileinfo;
-  fileinfo.fIniDir="temp.hst";
   const char *filetypes[] = {"hst files", "*.hst",
 			     "All files", "*",
 			     0, 0};
   fileinfo.fFileTypes = filetypes;
   fileinfo.fIniDir    = StrDup(dir);
+  fileinfo.fFilename  = StrDup(fname);
+  
   TGFileDialog* dialog = new TGFileDialog(gClient->GetRoot(),0,kFDSave,&fileinfo);
-  //cout << "selected file is " << fileinfo.fFilename << endl;
-  printf("Save file: %s (dir: %s)\n", fileinfo.fFilename, fileinfo.fIniDir); 
+  std::cout << "Save file: " << fileinfo.fFilename << " (dir: " << fileinfo.fIniDir << ")" << std::endl;
   dir = fileinfo.fIniDir; 
-  //if (fileinfo.fFilename) 
-  //  SaveFile(fileinfo.fFilename);
-
+  
+  if (fileinfo.fFilename == 0) {
+    std::cout << "The file name is null." << std::endl;
+    return;
+  }
+  
+  ifstream ifs(fileinfo.fFilename);
+  if((!ifs.fail())&&(!fileinfo.fOverwrite)) {
+    std::cout << "The file " << fileinfo.fFilename << " exits and fOverwrite is false!" << std::endl;
+    return;
+  }
+  ifs.close();
+  
+  ofstream ofs(fileinfo.fFilename);
+  ofs << std::fixed << std::showpoint;
+  for (Int_t i = 1; i <= nbinsx; i++) {
+    for (Int_t j = 0; j < 4; j++) {
+      ofs << std::setw(8)
+	  << std::setprecision(0)
+	  << hist[j]->GetBinContent(i);
+    }
+    ofs << std::endl;
+  }
+  ofs.close();
+  std::cout << "The file " << fileinfo.fFilename << " was created." << std::endl;
+  
+ return;
 }
