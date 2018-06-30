@@ -1,7 +1,7 @@
 #include "TROOT.h"
 
-void hout4(){
+void hout6(){
   gROOT->ProcessLine(".L ./houtn.C");
-  gROOT->ProcessLine("houtn(4)");
+  gROOT->ProcessLine("houtn(6)");
   return;
 }
