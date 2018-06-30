@@ -1,0 +1,40 @@
+macro main
+  cpro;prx;figa;
+  exe common_export
+  mean  = fitparv(1)
+  sigma = fitparv(2)
+
+*  mess mean=[mean] sigma=[sigma]
+  do i=1,10
+    lower = [mean] - [i]*[sigma]
+    upper = [mean] + [i]*[sigma]
+    mess [i]s [lower],[upper]
+  enddo
+  vec/del fitparv
+return
+
+
+******************************
+* kumac submacro start
+******************************
+macro common_export
+  Application COMIS Quit
+       SUBROUTINE export_rout
+* NPFITS  Number of points used in the fit
+* NFPAR   Number of free parameters
+* FITCHI  Chisquare
+* FITPAR  Values of parameters
+* FITSIG  Errors on parameters
+         COMMON/HCFITS/NCFITS,NPFITS,NFPAR,FITCHI,FITPAR(35),FITSIG(35)
+     +   ,FITDER(35)
+         vector fitparv(2)
+         fitparv(1)=fitpar(2)
+         fitparv(2)=fitpar(3)
+       END
+  Quit
+  Call export_rout
+return
+
+******************************
+* kumac submacro end
+******************************

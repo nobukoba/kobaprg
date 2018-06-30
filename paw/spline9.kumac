@@ -1,0 +1,87 @@
+ macro spline9 [hid]
+* 
+* make spline function spl9(x) (fortran function) from histogram
+* note: xbins of histogram <= 5000
+* 
+   xbins = $hinfo([hid],'xbins')
+   
+   vec/cre xbins9(1) 'i'
+   vec/cre x_spl9([xbins]) r
+   vec/cre y_spl9([xbins]) r
+   vec/cre c_spl9([xbins],3) r
+   get/abs [hid] x_spl9
+   get/con [hid] y_spl9
+   vec/input xbins9(1) [xbins]
+   
+   app comis quit
+      subroutine spl_sub(x,a,c,n)
+        integer n,i,j
+        real x(0:n), a(0:n), c(0:n,3)
+        real h(0:5000), al(0:5000), l(0:5000), mu(0:5000), z(0:5000)
+	
+        do i=0,n-1
+          h(i) = x(i+1) - x(i)
+        enddo
+        do i=1,n-1
+          al(i) = 3.*(a(i+1)-a(i))/h(i) - 3.*(a(i)-a(i-1))/h(i-1)
+c          write (*,*) al(i)
+        enddo
+        l(0)  = 1.
+        mu(0) = 0.
+        z(0)  = 0.
+        do i=1,n-1
+          l(i)  = 2.*(x(i+1)-x(i-1)) - h(i-1)*mu(i-1)
+          mu(i) = h(i)/l(i)
+          z(i)  = (al(i)-h(i-1)*z(i-1))/l(i)
+c          write (*,*) l(i),mu(i),z(i)
+        enddo
+        l(n)   = 1.
+        z(n)   = 0.
+        c(n,2) = 0.
+        do j=n-1,0,-1
+          c(j,2) = z(j)-mu(j)*c(j+1,2)
+          c(j,1) = (a(j+1)-a(j))/h(j) - h(j)*(c(j+1,2)+2.*c(j,2))/3.
+          c(j,3) = (c(j+1,2)-c(j,2))/h(j)/3.
+c          write (*,*) j,x(j),a(j),c(j,1),c(j,2),c(j,3)
+        enddo
+      end
+      
+      program main
+        vector xbins9,x_spl9,y_spl9,c_spl9
+        call spl_sub(x_spl9,y_spl9,c_spl9,xbins9(1)-1)
+      end
+	
+      real function spl9(x)
+        vector xbins9,x_spl9,y_spl9,c_spl9
+        real x
+        integer i
+        do i=2,xbins9(1)
+          if (x .lt. x_spl9(i)) then
+            goto 10
+	  endif
+        enddo
+10      continue
+	i = i-1
+        spl9 = y_spl9(i) + c_spl9(i,1)*(x-x_spl9(i))
+     &                 + c_spl9(i,2)*(x-x_spl9(i))**2
+     &                 + c_spl9(i,3)*(x-x_spl9(i))**3
+      end
+   quit
+   
+* hid2 = 900
+* while $hexist([hid2]) .eq. 1 do
+* hid2 = [hid2] + 1
+* endwhile
+* fun1 [hid2] spl9(x) $hinfo([hid],'xbins') $hinfo([hid],'xmin') $hinfo([hid],'xmax') s
+* hi/del [hid2]
+   
+   mess
+   mess '#########################################################'
+   mess '# macro spl9 is finished                                #'
+   mess '#                                                       #'
+   mess '# COMIS function SPL9(X) is defined                     #'
+   mess '# vector xbins9, x_spl9, y_spl9, c_spl9 is also defined #'
+   mess '#########################################################'
+   mess
+
+ return

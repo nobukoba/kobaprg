@@ -1,0 +1,59 @@
+ macro main [hid] [hid2] [sgm]
+   
+   if $hexist([hid]) .eq. 0 then
+     mess
+     mess hid=[hid] is not exist! BAD END!
+     mess
+     exitm
+   endif
+
+   if $hexist([hid2]) .eq. 1 then
+     mess
+     mess hid=[hid2] exist! BAD END!
+     mess
+     exitm
+   endif   
+
+   if [sgm] .eq. ' ' then
+     mess
+     mess input sigma ! BAD END!
+     mess
+     exitm
+   endif   
+   
+   vec/del *
+   vec/cre z($hinfo([hid],'xbins'),$hinfo([hid],'ybins'))
+   vec/cre r($hinfo([hid],'xbins'))
+   vec/cre dr($hinfo([hid],'xbins'))
+   
+   get/con [hid] z
+   
+   ybins = $hinfo([hid],'ybins')
+   ymax = $hinfo([hid],'ymax')
+   ymin = $hinfo([hid],'ymin')
+   dy = ([ymax] - ([ymin])) / [ybins]
+   y1 = [ymin] + ([dy]) / 2
+   y2 = [ymax] - ([dy]) / 2
+   sigma y=array([ybins],[y1]#[y2])
+   
+   xbins = $hinfo([hid],'xbins')
+   xmax = $hinfo([hid],'xmax')
+   xmin = $hinfo([hid],'xmin')
+   
+   do i=1,[xbins]
+     vec/copy z([i],1:[ybins]) z_p
+     sigma ave=vsum(z_p*y)/vsum(z_p)
+     sigma dave=[sgm]*sqrt(vsum(z_p*z_p))/vsum(z_p)
+     
+     vec/input r([i]) $sigma(ave)
+     vec/input dr([i]) $sigma(dave)
+   enddo
+   
+   1d [hid2] result [xbins] [xmin]  [xmax]
+   put/con [hid2] r
+   put/err [hid2] dr
+   
+    
+* hi/pl [hid2]
+ return
+ 

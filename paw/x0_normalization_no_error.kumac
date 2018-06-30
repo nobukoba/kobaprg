@@ -1,0 +1,32 @@
+ macro area_normalization_no_error  [hid1] [hid2]
+   if [hid1] = '' .or. [hid2] = '' then
+     message
+     message please input HID newHID !
+     message
+     exitm
+   endif
+   
+   xbins = $hinfo([hid1],'xbins')
+   xmax = $hinfo([hid1],'xmax')
+   xmin = $hinfo([hid1],'xmin')
+   dx  = ([xmax] - [xmin])/[xbins]
+
+   vec/cre anrm_y([xbins]) r
+   vec/cre anrm_x([xbins]) r
+   get/con [hid1] anrm_y
+   get/abs [hid1] anrm_x
+   
+   do i=1,[xbins]
+     if (anrm_x([i]) .eq. 0) then
+       breakl
+     endif
+* mess $sigma(anrm_x([i]))
+   enddo
+ 
+   sigma anrm_y=anrm_y/anrm_y([i])
+   
+   hi/copy [hid1] [hid2]
+   put/con [hid2] anrm_y
+   
+   vec/del anrm_y
+ return

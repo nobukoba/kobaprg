@@ -1,0 +1,26 @@
+macro main x1=0.5 x2=0.6 y1=0.5 y2=0.6
+   
+  xmin = $GRAFINFO('WNXMIN')
+  xmax = $GRAFINFO('WNXMAX')
+  ymin = $GRAFINFO('WNYMIN')
+  ymax = $GRAFINFO('WNYMAX')
+  
+  
+  
+  x1 = [x1] * ([xmax]-[xmin]) + [xmin]
+  x2 = [x2] * ([xmax]-[xmin]) + [xmin]
+  y1 = [y1] * ([ymax]-[ymin]) + [ymin]
+  y2 = [y2] * ([ymax]-[ymin]) + [ymin]
+  
+   if $OPTION('LOGY') = 1 then
+    y1 = $sigma(10**([y1]))
+    y2 = $sigma(10**([y2]))
+  endif
+  
+  if $OPTION('LOGX') = 1 then
+    x1 = $sigma(10**([x1]))
+    x2 = $sigma(10**([x2]))
+  endif
+
+  dline [x1] [x2] [y1] [y2]
+ return

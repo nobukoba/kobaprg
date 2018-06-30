@@ -1,0 +1,73 @@
+macro main [hid] [hid2] [sigma]
+  if [hid] = '' .or. [hid2] = '' .or. [sigma] = '' then
+     message
+     message please input HID newHID SIGMA !
+     message
+     exitm
+  endif
+
+*  hid2 = 101
+*  while $hexist([hid2]) .eq. 1 do
+*    hid2 = [hid2] + 1
+*  endwhile
+
+  xbins = $hinfo([hid],'xbins')
+  xmax = $hinfo([hid],'xmax')
+  xmin = $hinfo([hid],'xmin')
+  dx  = ([xmax] - [xmin])/[xbins]
+  nvec = $sigma(int(4*[sigma]/[dx]))+2
+  
+ mess vec/del *
+  vec/del *
+  
+  vec/cre y_fold([xbins]) r
+  vec/cre y_ufold([xbins]) r
+  vec/cre y_tmp1([xbins]) r
+  vec/cre y_tmp2([xbins]) r
+  vec/cre y_gauss([nvec]) r
+  hi/get/con [hid] y_ufold
+
+  do i=1,[nvec]
+    x_prm = [dx] * ([i]-1)
+    vec/input y_gauss([i]) $EXEC('fold_func [x_prm] [sigma]')
+  enddo
+
+  sigma y_sum=2*vsum(y_gauss)-1
+  sigma y_gauss=y_gauss/y_sum
+
+
+  if [nvec] .lt. [xbins] then
+    chng = [nvec]
+  else
+    chng = [xbins]
+  endif
+
+  do i=1,[chng]-1
+    tmp1 = 1-[i]
+    tmp2 = [xbins]-[i]
+    j = [i]+1
+    amp = y_gauss([j])
+    sigma tf1=array([xbins],[tmp1]#[tmp2])
+    sigma tf2=array([xbins],[tmp2]#[tmp1])
+    sigma tf1=tf1 GT 0
+    sigma tf2=tf2 GT 0
+    sigma y_tmp1=ls(y_ufold,-[i])*tf1
+    sigma y_tmp2=ls(y_ufold,[i])*tf2
+    sigma y_fold=y_fold+([amp])*y_tmp1+([amp])*y_tmp2
+  enddo
+
+
+  amp = y_gauss(1)
+  sigma y_fold=([amp])*y_ufold+y_fold
+
+  title = $htitle([hid])
+  1dhist [hid2] 'Fold.('//$QUOTE([title])//')' [xbins] [xmin] [xmax]
+  hi/put/con [hid2] y_fold
+  ht [hid2]
+
+return
+
+
+macro fold_func [x] [sigma]
+  y = $sigma(exp(-0.5*[x]**2/[sigma]**2))
+exitm [y]

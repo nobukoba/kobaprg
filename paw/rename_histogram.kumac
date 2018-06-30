@@ -1,0 +1,13 @@
+ macro rename hid=999 titl='title'
+   
+   hid2 = 900
+   while $hexist([hid2]) .eq. 1 do
+     hid2 = [hid2] + 1
+   endwhile
+   
+   hi/copy [hid] [hid2] [titl]
+   hi/del  [hid]
+   hi/copy [hid2] [hid]
+   hi/del  [hid2]
+   
+ return

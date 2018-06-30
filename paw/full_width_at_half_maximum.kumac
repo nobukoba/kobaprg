@@ -1,0 +1,68 @@
+ macro main [hid]
+  if [hid] = '' then
+     message
+     message 'Usage getfwhm HID'
+     message
+     exitm
+  endif
+  if ($hexist([hid]) .ne. 1) then
+     message
+     message 'No such histgram (HID: '//[hid]//')!!'
+     message
+     exitm    
+  endif
+  
+  xbins = $hinfo([hid],'xbins')
+  xmax  = $hinfo([hid],'xmax')
+  xmin  = $hinfo([hid],'xmin')
+  xdiv  = ([xmax] - [xmin])/[xbins]
+  
+  vec/cre xx([xbins]) r
+  vec/cre yy([xbins]) r
+  get/abs [hid] xx
+  get/con [hid] yy
+  
+  
+  mkspl1 [hid]
+  
+  val = $hinfo([hid],'max') / 2.
+  
+  k = 1
+  do i = 1, [xbins]-1
+    ip = [i] + 1
+    yyi  = yy([i])
+    yyip = yy([ip])
+    
+    if (((([val] .ge. [yyi])) .and. ([val] .lt. [yyip])) .or. (([val] .le. [yyi]) .and. ([val] .gt. [yyip]))) then      
+      xtmp = xx([i]) + ([xdiv]/2)
+      if ([val] .ge. yy([i])) then
+	dx = [xdiv]/4
+      else
+	dx = -([xdiv])/4
+      endif
+* mess xtmp [xtmp]
+      str = spl1($rsigma([xtmp]))
+      do j = 1, 20
+	str = spl1($rsigma([xtmp]))
+* mess val [j] [dx] [str] $call([str])
+	if ([val] .gt. $call([str])) then
+	  xtmp = [xtmp] + ([dx])
+	else
+	  xtmp = [xtmp] - ([dx])
+	endif
+	dx = [dx]/2
+      enddo
+      x[k] = [xtmp]
+      k = [k] + 1
+    endif
+  enddo
+  
+  k = [k]-1
+  mess maximum value : [val]
+  mess half maximum value : $sigma([val]/2)
+  mess the number of half ponts : [k]
+  do i = 1, [k]
+    mess half point #[i] -> x = [x[i]]
+  enddo
+  mess FWHM = $sigma([x[k]] - ([x1]))
+ return $sigma([x[k]] - ([x1]))

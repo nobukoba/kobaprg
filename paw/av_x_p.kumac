@@ -1,0 +1,48 @@
+ macro main [hid]
+   
+   if $hexist([hid]) .eq. 0 then
+     mess
+     mess hid=[hid] is not exist! BAD END!
+     mess
+     exitm
+   endif
+   
+   vec/del *
+   vec/cre z($hinfo([hid],'xbins'),$hinfo([hid],'ybins'))
+   vec/cre x($hinfo([hid],'xbins'))
+   vec/cre r($hinfo([hid],'ybins'))
+   vec/cre dr($hinfo([hid],'ybins'))
+   
+   get/con [hid] z
+   get/abs [hid] x
+   
+   xbins = $hinfo([hid],'xbins')
+   ybins = $hinfo([hid],'ybins')
+   ymax = $hinfo([hid],'ymax')
+   ymin = $hinfo([hid],'ymin')
+   
+   do i=1,[ybins]
+     vec/copy z(1:[xbins],[i]) z_p
+     sigma av=vsum(z_p*x)/vsum(z_p)
+     sigma dav=sqrt(vsum(z_p*z_p))/vsum(z_p)
+     
+     vec/input r([i]) $sigma(av)
+     vec/input dr([i]) $sigma(dav)
+     
+   enddo
+   
+   
+   hid2=900
+   while $hexist([hid2]) .eq. 1 do
+   hid2= [hid2]+1 
+   endwhile
+
+   
+   1d [hid2] result [ybins] [ymin]  [ymax]
+   put/con [hid2] r
+   put/err [hid2] dr
+   
+    
+   ht [hid2]
+ return
+ 

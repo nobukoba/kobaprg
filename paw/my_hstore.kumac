@@ -1,0 +1,5 @@
+ macro my_hstore fname
+   hi/file 0 [fname] ! n
+   hrout 0
+   close 0
+ return

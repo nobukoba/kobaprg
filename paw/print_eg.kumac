@@ -1,0 +1,21 @@
+ macro main
+   
+   for str in 'nfpar' 'npfits' 'fitchi' 'fitpar' 'fitsig' 'lowup'
+     tmp = $vexist([str])
+     if ([tmp] .eq. 0) then
+       message
+       message please exe getfp HID
+       message
+       exitm
+     endif
+   endfor
+  
+   tmp = $hexist(9999)
+   if ([tmp] .eq. 1) then
+     hi/del 9999
+   endif
+   p1 = fitpar(1)
+   p2 = fitpar(2)
+   fun1 9999 exp([p1]+([p2])*x) 100 $eval(lowup(1)) $eval(lowup(2)) s
+   
+ return

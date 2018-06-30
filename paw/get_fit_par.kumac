@@ -1,0 +1,54 @@
+ macro main hid
+  
+  for str in [hid]
+    if [str] = '' then
+      message
+      message please input ID
+      message
+      exitm
+    endif
+  endfor
+
+  for str in 'gfphid' 'nfpar' 'npfits' 'fitchi' 'fitpar' 'fitsig' 'lowup' 'gfpxxx' 'gfpyyy'
+    tmp = $vexist([str])
+    if ([tmp] .ge. 1) then
+      vec/del [str]
+    endif
+  endfor
+  
+  xbins = $hinfo([hid],'xbins')
+  
+  vec/cre gfphid(1)  'i' [hid]
+  vec/cre nfpar(1)   'i'
+  vec/cre npfits(1)  'i'
+  vec/cre fitchi(1)  'r'
+  vec/cre fitpar(34) 'r'
+  vec/cre fitsig(34) 'r'
+  vec/cre lowup(2)   'r'
+  vec/cre gfpxxx([xbins])   'r'
+  vec/cre gfpyyy([xbins])   'r'
+  
+  get/fun [hid] gfpyyy
+  get/abs [hid] gfpxxx
+  
+  do i = 1, [xbins]
+    if (gfpyyy([i]) .ne. 0) then
+      vec/inp lowup(1) gfpxxx([i])
+      breakl
+    endif
+  enddo
+  
+  do i = [xbins], 1, -1
+    if (gfpyyy([i]) .ne. 0) then
+      vec/inp lowup(2) gfpxxx([i])
+      breakl
+    endif
+  enddo
+  
+  message
+  message created vector : gfphid,nfpar,npfits,fitchi,fitpar,fitsig,lowup,gfpxxx,gfpyyy
+  message
+  
+  CALL HGFIT(gfphid,nfpar,npfits,fitchi,fitpar,fitsig,'dummy')
+   
+ return

@@ -1,0 +1,53 @@
+ macro xyzdat2histo [hid] [dat]
+   if (([hid] .eq. '') .or. ([dat] .eq. '') .or. _
+        ($OS .ne. 'UNIX')) then
+     message
+     message Please input HID xyz_dat_file
+     message Linux only
+     message
+     exitm
+   endif
+   
+   nyp = $shell('head -1 '//[dat]//'| wc -w')
+   wd  = $shell('cat '//[dat]//'|wc -w')
+   nxp = [wd]/[nyp]
+   
+   nx = [nxp] -  1
+   ny = [nyp] -  1
+   
+   vec/cre cxyz([nx],[ny]) r
+   do i=1,[nyp]
+     vec/cre vread[i]([nxp]) r
+   enddo 
+   
+   str='vread1'
+   do i=2,[nyp]
+     str=[str],vread[i]
+   enddo 
+   
+   vec/read [str] [dat]
+   
+   do i=1,[ny]
+     j=[i]+1
+     vec/copy vread[j](2:[nxp]) cxyz(1:[nx],[i])
+   enddo
+   
+
+   dx    = vread1(3) - vread1(2)
+   xmin  = vread1(2) - ([dx])/2.
+   xmax  = vread1([nxp])+([dx])/2.
+   dy    = vread3(1) - vread2(1)
+   ymin  = vread2(1)-([dy])/2.
+   ymax  = vread[nyp](1)+([dy])/2.
+   
+*   if ($hexist([hid])) then
+*     
+*     hi/del [hid]
+*   endif
+   
+   2d [hid] [dat] [nx] [xmin] [xmax] [ny] [ymin] [ymax]
+   put/con [hid] cxyz
+   
+   vec/del [str],cxyz
+
+ return

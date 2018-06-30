@@ -1,0 +1,92 @@
+ macro main
+   
+   ana_str = siv2
+   hid1 = 21
+   hid2 = 22
+   hid3 = 23
+   hid4 = 24
+   
+   hfb [ana_str] 2066
+   h/copy [hid1] 501
+   h/copy [hid2] 502
+   h/copy [hid3] 503
+   h/copy [hid4] 504
+   
+   for str in                           2067 2068 2069 _
+     2070 2071 2072 2073 2074 2075 2076 2077 2078 2079 _
+     2080 2081 2082 2083 2084 2085 2086 2087 2088 2089 _
+     2090 2091      2093 2094 2095 2096 2097 2098 2099 _
+     2100 2101 
+     mess [str]
+     hfb [ana_str] [str]
+     add [hid1] 501 501
+     add [hid2] 502 502
+     add [hid3] 503 503
+     add [hid4] 504 504
+     /HISTOGRAM/FILE 60 hb/pb_4_5.hb ! n
+     hi/hrout 0
+     for/clo 60
+   endfor
+   
+   
+   hfb [ana_str] 2102
+   h/copy [hid1] 501
+   h/copy [hid2] 502
+   h/copy [hid3] 503
+   h/copy [hid4] 504
+   for str in       2103 2104 2105 2106 2107 2108 2109 _
+     2110 2111 2112 2113 2114 2115 2116 2117 2118 2119 _
+     2120 2121 2122 2123 2124 2125 2126 2127 2128 2129 _
+     2130 2131 
+     mess [str]
+     hfb [ana_str] [str]
+     add [hid1] 501 501
+     add [hid2] 502 502
+     add [hid3] 503 503
+     add [hid4] 504 504
+     /HISTOGRAM/FILE 60 hb/pb_6_63.hb ! n
+     hi/hrout 0
+     for/clo 60
+   endfor
+   
+   hfb [ana_str] 2132
+   h/copy [hid1] 501
+   h/copy [hid2] 502
+   h/copy [hid3] 503
+   h/copy [hid4] 504
+   for str in        2133 2134 2135 2136 2137 2138 2139 _
+     2140 2141 2142 2143 2144 2145 2146 2147 2148 2149 _
+     2150 2151 2152 2153 2154 2155 2156 2157 2158 2159 _
+     2160 
+     mess [str]
+     hfb [ana_str] [str]
+     add [hid1] 501 501
+     add [hid2] 502 502
+     add [hid3] 503 503
+     add [hid4] 504 504
+     /HISTOGRAM/FILE 60 hb/pb_8_84.hb ! n
+     hi/hrout 0
+     for/clo 60
+   endfor
+   
+   hfb [ana_str] 2162
+   h/copy [hid1] 501
+   h/copy [hid2] 502
+   h/copy [hid3] 503
+   h/copy [hid4] 504
+   for str in       2163 2164 2165 2166 2167 2168 2169 _
+     2170 2171 2172 2173 2174 2175 2176 2177 2178 2179 _
+     2180 2181 2182 2183 
+     mess [str]
+     hfb [ana_str] [str]
+     add [hid1] 501 501
+     add [hid2] 502 502
+     add [hid3] 503 503
+     add [hid4] 504 504
+     /HISTOGRAM/FILE 60 hb/pb_11_17.hb ! n
+     hi/hrout 0
+     for/clo 60
+   endfor
+   
+ return
+ 

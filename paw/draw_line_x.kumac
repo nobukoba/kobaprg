@@ -1,0 +1,15 @@
+macro main
+
+  ymin = $GRAFINFO('WNYMIN')
+  ymax = $GRAFINFO('WNYMAX')
+
+  if $OPTION('LOGY') = 1 then
+    ymin = $sigma(10**([ymin]))
+    ymax = $sigma(10**([ymax]))
+  endif
+
+  do i = 1,[#]
+    dline [[i]] [[i]] [ymin] [ymax]
+  enddo
+
+return

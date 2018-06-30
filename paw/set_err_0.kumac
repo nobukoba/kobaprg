@@ -1,0 +1,22 @@
+ macro main [hid]
+   
+   if ([hid] .eq. '') then
+     mess
+     mess 'err0 [hid]! BAD END!'
+     mess
+     exitm
+   endif
+
+   if (([hid] .eq. '') .or. ($hexist([hid]) .eq. 0)) then
+     mess
+     mess hid=[hid] is not exist! BAD END!
+     mess
+     exitm
+   endif
+   
+   vec/cre v_err0($hinfo([hid],'xbins')) r
+   put/err [hid] v_err0
+   
+   vec/del v_err0   
+ return
+ 

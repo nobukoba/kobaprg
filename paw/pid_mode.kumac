@@ -1,0 +1,16 @@
+ macro pid_mode
+   pub
+*   set xlab 1.15		| y axis <-> label
+*   set ylab 0.90		| x axis <-> label
+*   set xval 0.15		| y axis <-> value
+*   set yval 0.25		| x axis <-> value
+   set xmgr 1.40		| right margin
+   set xmgl 1.60		| left margin
+   set ymgu 1.50		| upper margin
+   set ymgl 1.50		| lower margin
+   
+   set cwid 0.2			| color map width
+   set cmmg 0.1			| color map <-> frame
+   set cval 0.1			| color map <-> value
+   
+ return

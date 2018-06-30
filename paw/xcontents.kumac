@@ -1,0 +1,20 @@
+macro main [hid]
+  if [hid] = '' then
+     message
+     message please input ID !
+     message
+     exitm
+  endif
+
+  xbins = $hinfo([hid],'xbins')
+  xmax = $hinfo([hid],'xmax')
+  xmin = $hinfo([hid],'xmin')
+  dx  = ([xmax] - [xmin])/[xbins]
+  vec/cre tmpvec([xbins]) r
+  hi/get/con [hid] tmpvec
+  do i=1,[xbins]
+    tmpval = tmpvec([i])
+    x = [xmin] + ([i]-1)*[dx]
+    mess $FORMAT([x],F10.3)//': '//[tmpval]
+  enddo
+exitm

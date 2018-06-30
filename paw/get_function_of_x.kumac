@@ -1,0 +1,48 @@
+ macro main vecx vecy xval
+   for str in [vecx] [vecy]
+     tmp = $vexist([str])
+     if ($vexist([tmp]) .eq. 1) then
+       message
+       message 'No such vector ('//[tmp]//')!!'
+       message
+       exitm    
+     endif
+   endfor
+   tmp1 = $vdim([vecx],1)
+   tmp2 = $vdim([vecy],1)
+   
+   if ( [tmp1] .ne. [tmp2]) then
+     message
+     message 'Vector length is different between '//[vecx]//' and '//[vecy]//'!!'
+     message
+     exitm    
+   endif
+
+   
+   if ([xval] .eq. '[xval]') then
+     message
+     message 'Enter xval !!'
+     message
+     exitm    
+   endif
+   
+   tmp = $vlen([vecx],1)
+   do j = 1, [tmp]
+     tmp2 = $eval([vecx]([j]))
+     if ( [tmp2] .ge. [xval] ) then
+       breakl 1
+     endif
+   enddo
+   if ([j] .eq. 1) then
+     val = $eval([vecy](1))
+   elseif ([j] .gt. [tmp]) then
+     val = $eval([vecy]([tmp]))
+   else
+     j1 = [j] - 1
+     j2 = [j]
+     ang = $eval(([vecy]([j2]) - [vecy]([j1])) / ([vecx]([j2]) - [vecx]([j1])))
+     val = $eval([ang] * ([xval] - [vecx]([j1])) + [vecy]([j1]))
+   endif
+* mess [val]
+   
+ return [val]

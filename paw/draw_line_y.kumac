@@ -1,0 +1,15 @@
+macro main
+
+  xmin = $GRAFINFO('WNXMIN')
+  xmax = $GRAFINFO('WNXMAX')
+
+  if $OPTION('LOGX') = 1 then
+    xmin = $sigma(10**([xmin]))
+    xmax = $sigma(10**([xmax]))
+  endif
+
+  do i = 1,[#]
+    dline [xmin] [xmax] [[i]] [[i]]
+  enddo
+
+return

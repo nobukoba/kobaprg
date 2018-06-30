@@ -1,0 +1,42 @@
+ macro main
+   exe def_sub
+   
+   npar = [#] - 1
+   hid = [1]
+   do i =2,[#]
+     j = [i] - 1
+     call name_add([j],$QUOTE([[i]]))
+   enddo
+   call put_name([hid],[npar])
+   
+ return
+ 
+  
+ macro def_sub  
+   Application COMIS Quit 
+      SUBROUTINE name_add(nn, str)
+      Parameter (npar=35)
+      CHARACTER*8 chpnam(npar)
+      COMMON/SAVE/chpnam
+      
+      INTEGER nn
+      CHARACTER*8 str
+      
+      chpnam(nn) = str
+      
+      END
+      
+      SUBROUTINE put_name(id,nn)
+      Parameter (npar=35)
+      CHARACTER*8 chpnam(npar)
+      COMMON/SAVE/chpnam
+      
+      INTEGER id,nn
+      
+      CALL HFINAM(id,chpnam,nn)
+      
+      END
+      
+   Quit 
+ 
+ return

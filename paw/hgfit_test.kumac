@@ -1,0 +1,32 @@
+ macro hgfit_test
+      
+* とりあえず今ある histogram をすべて削除
+   hi/del 0
+   
+* HBOOK ファイル (hgfit_test.hbk) の読み込み
+* ANAPAW ならば、cle f; fetch hgfit_test.hbk でもOK
+   hi/file 3 ./hgfit_test.hbk
+   hrin *
+   f/clo 3
+   
+* とりあえず今ある vector をすべて削除
+   vec/del *
+   
+* フィットパラメータなどを格納するための vector をつくる
+   vec/cre nfpar(1)   'i'
+   vec/cre npfits(1)  'i'
+   vec/cre fitchi(1)  'r'
+   vec/cre fitpar(35)  'r'
+   vec/cre fitsig(35)  'r'
+   
+* vector にフィット情報を代入
+   CALL HGFIT(101,nfpar,npfits,fitchi,fitpar,fitsig,'dummy')
+   
+* vector の中身を表示
+   vec/pri nfpar
+   vec/pri npfits
+   vec/pri fitchi
+   vec/pri fitpar
+   vec/pri fitsig
+   
+ return

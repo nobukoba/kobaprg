@@ -1,0 +1,79 @@
+ macro main [hid]
+* xfetch hbk/momd_fnl/pb_1st/31ne30ne_pb.hbk
+* cle f;
+* fetch hbk/cnv_test.hbk
+   exe def_sub
+   If [hid] .ne. '' THEN
+     call cnv([hid])
+   ENDIF
+ return
+ 
+ macro def_sub
+   app comis quit
+   
+      SUBROUTINE cnv(hid)
+      IMPLICIT NONE
+      INTEGER hid
+      
+      CHARACTER*32 ttl
+      INTEGER xbins,ybins,ndum
+      REAL xmin,xmax,ymin,ymax
+      
+      REAL HIJ,RNDM
+      
+      INTEGER i,j,k
+      REAL xlow,dx,rndx
+      REAL ylow,dy,rndy
+      REAL cnt
+      
+      CALL HGIVE (hid,ttl,xbins,xmin,
+     &                  xmax,ybins,ymin,ymax,ndum,ndum)
+     
+      dx = (xmax - xmin) / xbins
+      dy = (ymax - ymin) / ybins
+      
+      CALL def_hist(1.0) ! define histograms
+      
+      DO i = 1,xbins
+	DO j = 1,ybins
+	  cnt = hij(hid,i,j)
+	  DO k = 1, cnt
+	    CALL HIJXY(hid,i,j,xlow,ylow)
+	    rndx = xlow + rndm(1.0)*dx
+	    rndy = ylow + rndm(1.0)*dy
+c	    write(*,*) k,i,j,xlow,ylow,rndx,rndy,hij(hid,i,j)
+            CALL sub_fill(rndx,rndy) ! convert & fill histograms
+	  ENDDO
+	ENDDO
+      ENDDO
+      
+      RETURN
+      END
+      
+      
+      SUBROUTINE def_hist(dummy)
+      
+      CALL HBOOK1(205,'shift',100,-150.,150.,0)
+c      CALL HBOOK2(901,'test2d',100,240.,255.,100,0.,1000.,0)
+c      CALL HBOOK2(902,'test2d',100,240.,255.,100,7.,13.,0)
+c      CALL HBOOK1(903,'test1d',100,7.,13.,0)
+      
+      RETURN
+      END
+      
+      SUBROUTINE sub_fill(x,y)
+      IMPLICIT NONE
+      REAL x,y,xs
+      
+      xs = x -72.9
+      
+      CALL HFILL(205,xs,0.,1.)
+c      CALL HFILL(901,x,y,1.)
+c      CALL HFILL(902,x,z,1.)
+c      CALL HFILL(903,z,0.,1.)
+      
+      RETURN
+      END
+      
+   quit
+ return

@@ -1,0 +1,78 @@
+macro main hidstr=1 sig=16.
+   ind = $index([hidstr],'(') - 1
+   hid = $substring([hidstr],1,[ind])
+   hi/pl [hidstr]
+   if ($vexist(vx)) then
+     vec/del vx
+   endif
+   if ($vexist(vy)) then
+     vec/del vy
+   endif
+   vlocate vx vy
+   
+   np = $vlen(vx,1)
+   do i=1,[np]
+     vx[i]= vx([i])
+     vy[i]= vy([i])
+   enddo
+   
+   lg_yi = $sigma(log([vy1]))
+   lg_yf = $sigma(log([vy[np]]))
+   p1 = ([vx1]*[lg_yf]-[vx[np]]*[lg_yi])/([vx1]-[vx[np]])
+   p2 = ([lg_yi]-[lg_yf])/([vx1]-[vx[np]])
+   
+   do i=2,[np]-1
+     cons[i]  = $sigma([vy[i]]-exp([p1]+([p2])*([vx[i]])))
+     mean[i]  = [vx[i]]
+     sigma[i] = [sig]
+   enddo
+   
+   npar = 2 + 3*([np]-2)
+   vec/cre par([npar])   r
+   vec/cre epar([npar])  r
+   
+   vec/input par(1:2) [p1] [p2]
+   
+   str = 'e'
+   do i=2,[np]-1
+     tmp1 = ([i]-1)*3
+     tmp2 = ([i]-1)*3 + 2
+     vec/input par([tmp1]:[tmp2]) [cons[i]] [mean[i]] [sigma[i]]
+     str = [str]//'+g'
+   enddo
+   vec/pri par
+   hi/fit [hid]([vx1]:[vx[np]]) [str] es [npar] par ! ! ! epar
+   
+   hid2 = 101
+   while $hexist([hid2]) .eq. 1 do
+     hid2 = [hid2] + 1
+   endwhile
+   
+   p1 = par(1)
+   p2 = par(2)
+   fun1 [hid2] exp([p1]+([p2])*x) 100 [vx1] [vx[np]] s
+   hi/del [hid2]
+   
+   xbins = $hinfo([hid],'xbins')
+   xmax = $hinfo([hid],'xmax')
+   xmin = $hinfo([hid],'xmin')
+   dx  = ([xmax] - [xmin])/[xbins]
+   
+   do i=1,[np]-2
+     tmp1 = [i]*3
+     tmp2 = [i]*3 + 2
+     cons  = par([tmp1])
+     sigma = par([tmp2])
+     econs  = epar([tmp1])
+     esigma = epar([tmp2])
+     
+     area  = $sigma(abs([cons]*[sigma]*sqrt(2*3.141592)))
+     earea = $sigma([area]*sqrt(([econs]/[cons])**2+([esigma]/[sigma])**2))
+     cnts  = [area] / [dx]
+     ecnts = [earea] / [dx]
+     
+     mess region [i]: area = [area] +/- [earea], counts: [cnts] +/- [ecnts]    
+   enddo
+ return
+ 
+ 

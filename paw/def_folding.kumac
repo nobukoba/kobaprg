@@ -1,0 +1,73 @@
+ macro def_folding
+   APP COMIS QUIT
+      SUBROUTINE folding(hid1,hid2,a,b)
+      INTEGER hid1,hid2
+      REAL a,b
+      
+      INTEGER nmax
+      PARAMETER(nmax = 5000)
+      
+      CHARACTER*32 titl
+      INTEGER xbins,ndum
+      REAL xmin,xmax,dum
+      
+      REAL xx(nmax),yy(nmax),yfold(nmax),dx
+      
+      CALL HGIVE(hid1,titl,xbins,xmin,xmax,ndum,dum,dum,ndum,ndum)
+      
+      dx=(xmax-xmin)/xbins
+      DO i=1,xbins
+        xx(i)=xmin+dx*(i-0.5)
+      ENDDO
+      CALL HUNPAK(hid1,yy,'HIST',1)
+      
+      call cal_fld(a,b,xx,yy,yfold,xbins)
+      
+      IF HEXIST(hid2) THEN
+	CALL HDELET(hid2)
+      ENDIF
+      CALL HCOPY(hid1,hid2,'fold')
+      CALL HPAK(hid2,yfold)
+      
+      RETURN
+      END
+      
+      SUBROUTINE cal_fld(a,b,xx,yy,yfold,nn)
+      
+      INTEGER nn
+      REAL a,b,xx(nn),yy(nn),yfold(nn)
+      REAL sigma,hdx,xshf,xup,xlow
+      
+      hdx = (xx(2) - xx(1))/2.
+      
+      IF (a .eq. 0.) THEN
+	DO i=1,nn
+	  yfold(i) = yy(i)
+	ENDDO
+        RETURN
+      ENDIF
+      
+      
+      DO i=1,nn
+        yfold(i) = 0.
+      ENDDO
+
+      DO i=1,nn
+	DO j=1,nn
+	  IF (b .eq. 0.) THEN
+	    sigma=a
+	  ELSE
+	    sigma=a*xx(i)**b
+	  ENDIF
+	  xshf = xx(j) - xx(i)
+	  xup  = (xshf+hdx)/(sqrt(2.)*sigma)
+	  xlow = (xshf-hdx)/(sqrt(2.)*sigma)
+	  yfold(j) = yfold(j) + yy(i)*0.5*(erf(xup)-erf(xlow))
+	ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+    QUIT
+ return

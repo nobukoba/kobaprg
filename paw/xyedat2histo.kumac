@@ -1,0 +1,31 @@
+ macro xyedat2histo [hid] [dat]
+   if [hid] = '' .or. [dat] = '' then
+     message
+     message please input HID xye_dat_file !
+     message
+     exitm
+   endif
+   
+   if $vexist(xy2h_x) .ne. 0 then
+     vec/del xy2h_x
+   endif
+   if $vexist(xy2h_y) .ne. 0 then
+     vec/del xy2h_y
+   endif
+   if $vexist(xy2h_ey) .ne. 0 then
+     vec/del xy2h_ey
+   endif
+   
+   vec/read xy2h_x,xy2h_y,xy2h_ey [dat]
+   
+   xbins = $vdim(xy2h_x,1)
+   dx    = $sigma(xy2h_x(2)-xy2h_x(1))
+   xmin  = $sigma(xy2h_x(1)-([dx])/2.)
+   xmax  = $sigma(xy2h_x([xbins])+([dx])/2.)
+   
+   1d [hid] [dat] [xbins] [xmin] [xmax]
+   put/con [hid] xy2h_y
+   put/err [hid] xy2h_ey
+   
+   vec/del xy2h_x,xy2h_y,xy2h_ey
+ return

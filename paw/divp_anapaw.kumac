@@ -1,0 +1,51 @@
+    prox [1]
+    prox [2]
+    hist/project [1]
+    hist/project [2]
+    hist/copy [1].prox [next_hid_1] [tit_p_1]
+    hist/copy [2].prox [next_hid_2] [tit_p_2]
+  else
+    banx [1] $rsigma([5]) $rsigma([6])
+    banx [2] $rsigma([5]) $rsigma([6])
+    hist/project [1]
+    hist/project [2]
+    hist/copy [1].banx [next_hid_1] [tit_b_1]
+    hist/copy [2].banx [next_hid_2] [tit_b_2]
+  endif
+
+  if ([3] = ' ' .or. [3] = '!') .and. ([4] = ' ' .or. [4] = '!')  then
+    proy [1]
+    proy [2]
+    hist/project [1]
+    hist/project [2]
+    hist/copy [1].proy [next_hid_4] [tit_p_4]
+    hist/copy [2].proy [next_hid_5] [tit_p_5]
+  else
+    bany [1] $rsigma([3]) $rsigma([4])
+    bany [2] $rsigma([3]) $rsigma([4])
+    hist/project [1]
+    hist/project [2]
+    hist/copy [1].bany [next_hid_4] [tit_b_4]
+    hist/copy [2].bany [next_hid_5] [tit_b_5]
+  endif
+
+  hi/del [1]
+  hi/del [2]
+  hist/copy 999 [1]
+  hist/copy 998 [2]
+  hi/del 999
+  hi/del 998
+
+  div [1] [2] 999
+  hi/copy 999 [next_hid_0] [tit_0]
+  hi/del 999
+
+  div [next_hid_1] [next_hid_2] 999
+  hi/copy 999 [next_hid_3] [tit_3]
+  hi/del 999
+
+  div [next_hid_4] [next_hid_5] 999
+  hi/copy 999 [next_hid_6] [tit_6]
+  hi/del 999
+
+return
