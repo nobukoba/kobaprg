@@ -7,13 +7,7 @@
 #include "TH1.h"
 #include "TGFileDialog.h"
 
-extern void houtn(const Int_t);
-void houtn() {
-  houtn(4);
-  return;
-}
-
-void houtn(const Int_t n_hist = 4) {
+void houtn(const Int_t n_hist) {
   TCanvas* canvas = gPad->GetCanvas();
   TList* list     = canvas->GetListOfPrimitives();
   if (list->At(0)==0) {return;}
@@ -22,8 +16,10 @@ void houtn(const Int_t n_hist = 4) {
     std::cout << "Number of pads should be " << n_hist << ". Stopped now." << std::endl;
     return;
   }
-  TH1 *hist[n_hist] = {};
+  
+  TH1 **hist = new TH1*[n_hist];
   for (Int_t i=0; i < n_hist; i++){
+    hist[i] = 0;
     TVirtualPad *sel_pad = canvas->GetPad(i+1);
     TList *listofpri = sel_pad->GetListOfPrimitives();
     if (listofpri == 0) {
@@ -56,17 +52,18 @@ void houtn(const Int_t n_hist = 4) {
     }
   }
   TString dir("../../"); 
+  //const TString dir("."); 
   TString fname("temp.hst");
   TGFileInfo fileinfo;
   char *filetypes[] = {"hst files", "*.hst",
 		       "All files", "*",
 		       0, 0};
   fileinfo.fFileTypes = (const char**)filetypes;
+  //fileinfo.fFileTypes = filetypes;
   fileinfo.fIniDir    = StrDup(dir);
   fileinfo.fFilename  = StrDup(fname);
-  TGFileDialog* dialog = new TGFileDialog(gClient->GetRoot(),0,kFDSave,&fileinfo);
-  dir = fileinfo.fIniDir; 
-  if (dir == 0) {
+  TGFileDialog* dialog = new TGFileDialog(gClient->GetRoot(),gClient->GetRoot(),kFDSave,&fileinfo);
+  if (fileinfo.fIniDir == 0) {
     std::cout << "The directory is null." << std::endl;
     return;
   }
@@ -75,7 +72,7 @@ void houtn(const Int_t n_hist = 4) {
     std::cout << "Canceled." << std::endl;
     return;
   }
-
+  
   ifstream ifs(fileinfo.fFilename);
   if((!ifs.fail())&&(!fileinfo.fOverwrite)) {
     std::cout << "The file " << fileinfo.fFilename << " exits and fOverwrite is false!" << std::endl;
@@ -87,7 +84,8 @@ void houtn(const Int_t n_hist = 4) {
   ofs << std::fixed << std::showpoint;
   for (Int_t i = 1; i <= 1024; i++) {
     for (Int_t j = 0; j < n_hist; j++) {
-      ofs << std::setw(8)
+      ofs << " "
+	  << std::setw(7)
 	  << std::setprecision(0);
       if (i <= nbinsx) {
 	ofs << hist[j]->GetBinContent(i);
@@ -99,5 +97,11 @@ void houtn(const Int_t n_hist = 4) {
   }
   ofs.close();
   std::cout << "The file " << fileinfo.fFilename << " was created." << std::endl;
+  delete [] hist;
+  return;
+}
+
+void houtn() {
+  houtn(4);
   return;
 }
