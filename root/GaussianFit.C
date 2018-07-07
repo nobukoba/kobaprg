@@ -1,3 +1,4 @@
+#include <iostream>
 #include "TH1.h"
 #include "TPad.h"
 #include "TCanvas.h"
@@ -9,16 +10,33 @@
 TH1 * GaussianFit(){
   TCanvas* canvas = gPad->GetCanvas();
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {return 0;}
-  TList * list = sel_pad->GetListOfPrimitives();
-  if (list == 0) {return 0;}
-  TH1 *hist = (TH1*) list->At(1);
-  if (hist == 0) {return 0;}
-  if (hist->InheritsFrom("TH2")) {
-    printf("This script can not handle TH2 histograms.\n");
+  if (sel_pad == 0) {
+    std::cout << "There is no sel_pad." << std::endl;
+    return;
+  }
+  TList *listofpri = sel_pad->GetListOfPrimitives();
+  if (listofpri == 0) {
+    std::cout << "The pad includes nothing." << std::endl;
     return 0;
   }
-  if (hist->InheritsFrom("TH1") == 0) {return 0;}
+  TIter next(listofpri);
+  TObject *obj;
+  TH1 *hist = 0;
+  while (obj = next()){
+    if (obj->InheritsFrom("TH2")) {
+      std::cout << "This script can not handle TH2 histograms." << std::endl;
+      return 0;
+    }
+    if (obj->InheritsFrom("TH1")) {
+      hist = (TH1*)obj;
+      break;
+    }
+  }
+  if(hist == 0){
+    std::cout << "TH1 histogram was not found in this pad." << std::endl;
+    return 0;
+  }
+  
   Double_t lw = hist->GetXaxis()->GetBinLowEdge(hist->GetXaxis()->GetFirst());
   Double_t up = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
   hist->Fit("gaus", "R", "", lw, up);
@@ -46,7 +64,7 @@ TH1 * GaussianFit(){
     str += TString::Format("{FWHM: %g}",fwhm);
   }
   
-  TLatex *prev_tlatex_pnt = (TLatex *)list->FindObject("p_latex_GaussianFit");
+  TLatex *prev_tlatex_pnt = (TLatex *)listofpri->FindObject("p_latex_GaussianFit");
   if (prev_tlatex_pnt) {
     prev_tlatex_pnt->Delete();
   }
