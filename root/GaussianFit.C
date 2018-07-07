@@ -12,7 +12,7 @@ TH1 * GaussianFit(){
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {
     std::cout << "There is no sel_pad." << std::endl;
-    return;
+    return 0;
   }
   TList *listofpri = sel_pad->GetListOfPrimitives();
   if (listofpri == 0) {
