@@ -1,3 +1,6 @@
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <TROOT.h>
 #include <TClass.h>
 #include <TApplication.h>
@@ -6,185 +9,174 @@
 #include <TGButton.h>
 #include <TGTextEdit.h>
 #include <TGFrame.h>
+#include <TF2.h>
+#include <TMath.h>
 
-const char *editortxt1 =
-"This is the ROOT text edit widget TGTextEdit. It is not intended as\n"
-"a full developers editor, but it is relatively complete and can ideally\n"
-"be used to edit scripts or to present users editable config files, etc.\n\n"
-"The text edit widget supports standard emacs style ctrl-key navigation\n"
-"in addition to the arrow keys. By default the widget has under the right\n"
-"mouse button a popup menu giving access to several built-in functions.\n\n"
-"Cut, copy and paste between different editor windows and any other\n"
-"standard text handling application is supported.\n\n"
-"Text can be selected with the mouse while holding the left button\n"
-"or with the arrow keys while holding the shift key pressed. Use the\n"
-"middle mouse button to paste text at the current mouse location."
-;
-const char *editortxt2 =
-"Mice with scroll-ball are properly supported.\n\n"
-"This are the currently defined key bindings:\n"
-"Left Arrow\n"
-"    Move the cursor one character leftwards.\n"
-"    Scroll when cursor is out of frame.\n"
-"Right Arrow\n"
-"    Move the cursor one character rightwards.\n"
-"    Scroll when cursor is out of frame.\n"
-"Backspace\n"
-"    Deletes the character on the left side of the text cursor and moves the\n"
-"    cursor one position to the left. If a text has been marked by the user"
-;
-const char *editortxt3 =
-"    (e.g. by clicking and dragging) the cursor will be put at the beginning\n"
-"    of the marked text and the marked text will be removed.\n"
-"Home\n"
-"    Moves the text cursor to the left end of the line. If mark is TRUE text\n"
-"    will be marked towards the first position, if not any marked text will\n"
-"    be unmarked if the cursor is moved.\n"
-"End\n"
-"    Moves the text cursor to the right end of the line. If mark is TRUE text\n"
-"    will be marked towards the last position, if not any marked text will\n"
-"    be unmarked if the cursor is moved.\n"
-"Delete"
-;
-const char *editortxt4 =
-"    Deletes the character on the right side of the text cursor. If a text\n"
-"    has been marked by the user (e.g. by clicking and dragging) the cursor\n"
-"    will be put at the beginning of the marked text and the marked text will\n"
-"    be removed.\n"
-"Shift - Left Arrow\n"
-"    Mark text one character leftwards.\n"
-"Shift - Right Arrow\n"
-"    Mark text one character rightwards.\n"
-"Control-A\n"
-"    Select the whole text.\n"
-"Control-B\n"
-"    Move the cursor one character leftwards."
-;
-const char *editortxt5 =
-"Control-C\n"
-"    Copy the marked text to the clipboard.\n"
-"Control-D\n"
-"    Delete the character to the right of the cursor.\n"
-"Control-E\n"
-"    Move the cursor to the end of the line.\n"
-"Control-F\n"
-"    Start Search Dialog.\n"
-"Control-H\n"
-"    Delete the character to the left of the cursor.\n"
-"Control-K\n"
-"    Delete marked text if any or delete all\n"
-"    characters to the right of the cursor.\n"
-"Control-L\n"
-"    Start GoTo Line Dialog"
-;
-const char *editortxt6 =
-"Control-U\n"
-"    Delete all characters on the line.\n"
-"Control-V\n"
-"    Paste the clipboard text into line edit.\n"
-"Control-X\n"
-"    Cut the marked text, copy to clipboard.\n"
-"Control-Y\n"
-"    Paste the clipboard text into line edit.\n"
-"Control-Z\n"
-"    Undo action.\n\n"
-"All other keys with valid ASCII codes insert themselves into the line.";
+Double_t func_xy(Double_t *xy, Double_t *par){
+  Int_t npar = par[0];
+  Double_t x = xy[0];
+  Double_t y = xy[1];
+  Double_t ret = 0.;
+  for (Int_t i = 0; i < npar/3; i++) {
+    ret += par[i*3+3]
+      * TMath::Power(x,par[i*3+1])
+      * TMath::Power(y,par[i*3+2]);
+  }
+  return ret;
+}
 
 class Editor {
 private:
-   TGTransientFrame *fMain;   // main frame of this widget
-   TGHorizontalFrame *fHframe1, *fHframe2;
-   TGTextEdit       *fEdit1, *fEdit2;
-   TGTextButton     *fOK, *fClose;
-   TGLayoutHints    *fL1, *fL2, *fL3;
-
+  TGTransientFrame *fMain;   // main frame of this widget
+  TGTextEdit *fEdit;
+  TF2 *f_xy, *g_xy;
 public:
-   Editor(const TGWindow *main, UInt_t w, UInt_t h);
-   virtual ~Editor();
-   void   LoadBuffer(const char *buffer);
-   void   AddBuffer(const char *buffer);
-   TGTextEdit *GetEditor1() const { return fEdit1; }
-   TGTextEdit *GetEditor2() const { return fEdit2; }
-   void   Popup();
-   void   CloseWindow();
-   void   DoOK();
-   void   DoClose();
+  Editor(const TGWindow *main, UInt_t w, UInt_t h) :
+    f_xy(0), g_xy(0){
+    fMain = new TGTransientFrame(gClient->GetRoot(), main, w, h);
+    fMain->Connect("CloseWindow()", "Editor", this, "CloseWindow()");
+    fMain->DontCallClose(); // to avoid double deletions.
+    fMain->SetCleanup(kDeepCleanup); // use hierarchical cleaning
+    fEdit = new TGTextEdit(fMain, w, h, kSunkenFrame | kDoubleBorder);
+    TGLayoutHints *fL1 = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 3, 3, 3, 3);
+    fMain->AddFrame(fEdit,fL1);
+    TGHorizontalFrame *fHframe = new TGHorizontalFrame(fMain, 0, 0, 0);
+    TGTextButton *fTransform  = new TGTextButton(fHframe, "&Transform");
+    fTransform->Connect("Clicked()", "Editor", this, "DoTransform()");
+    TGTextButton *fClose      = new TGTextButton(fHframe, "  &Close  ");
+    fClose->Connect("Clicked()", "Editor", this, "DoClose()");
+    fHframe->AddFrame(fTransform, fL1);
+    fHframe->AddFrame(fClose, fL1);
+    TGLayoutHints *fL2 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
+    fMain->AddFrame(fHframe, fL2);
+    fMain->SetWindowName("f(x,y) g(x,y)");
+    fMain->SetIconName("f(x,y) g(x,y)");
+    fMain->MapSubwindows();
+    fMain->Resize();
+    fMain->CenterOnParent(kTRUE, TGTransientFrame::kCenter);
+    InitBuffer();
+    fMain->MapWindow();
+    gClient->WaitFor(fMain);
+  }
+  virtual ~Editor(){
+    fMain->DeleteWindow();  // deletes fMain
+  }
+  void CloseWindow(){
+    //if(f_xy){delete f_xy;}
+    //if(g_xy){delete g_xy;}
+    delete this;
+  }
+  void InitBuffer() {
+    const char *initext =
+      "0 0 2 1.0\n"
+      "1 0 0 1.0\n";
+      fEdit->LoadBuffer(initext);
+  }
+  void DoTransform(){
+    std::cout << "DoTransform" << std::endl;
+    TGText* fText = fEdit->GetText();
+    char   *buf1, *buf2;
+    Long_t  len;
+    ULong_t i = 0;
+    TGLongPosition pos;
+    pos.fX = pos.fY = 0;
+    Long_t rowcount = fText->RowCount();
+    Double_t *f_xy_par = new Double_t[rowcount*3+1];
+    Double_t *g_xy_par = new Double_t[rowcount*3+1];
+    Int_t i_f = 1;
+    Int_t i_g = 1;
+    while (pos.fY < rowcount) {
+      len = fText->GetLineLength(pos.fY);
+      if (len < 0) len = 0;
+      buf1 = fText->GetLine(pos, len);
+      buf2 = new char[len + 2];
+      if (buf1 != 0) {
+	strncpy(buf2, buf1, (UInt_t)len);
+      }
+      if (len == 0) {
+	if (pos.fY == (rowcount-1)){
+	  rowcount--;
+	}
+      }
+      //buf2[len] = '\0';
+      buf2[len]   = '\n';
+      buf2[len+1] = '\0';
+      while (buf2[i] != '\0') {
+      	if (buf2[i] == '\t') {
+      	  ULong_t j = i+1;
+      	  while (buf2[j] == 16)
+      	    j++;
+      	  // coverity[secure_coding]
+      	  strcpy(buf2+i+1, buf2+j);
+      	}
+      	i++;
+      }
+      //fwrite(buf2, sizeof(char), strlen(buf2)+1, p);
+      //printf("%s",buf2);
+      TString str = buf2;
+      str.ReplaceAll("\t"," ");
+      str.ReplaceAll(","," ");
+      std::stringstream ss(str.Data());
+      Int_t fg;
+      Double_t xo, yo, val;
+      if(ss >> fg >> xo >> yo >> val) {
+	std::cout
+	  << fg << ", "
+	  << xo << ", "
+	  << yo << ", "
+	  << val
+	  << std::endl;
+	if (fg == 0) {
+	  f_xy_par[i_f++] = xo;
+	  f_xy_par[i_f++] = yo;
+	  f_xy_par[i_f++] = val;
+	}
+	if (fg == 1) {
+	  g_xy_par[i_g++] = xo;
+	  g_xy_par[i_g++] = yo;
+	  g_xy_par[i_g++] = val;
+	}
+      }
+      delete [] buf1;
+      delete [] buf2;
+      pos.fY++;
+    }
+    if (f_xy != 0) {
+      delete f_xy;
+    } 
+    if (g_xy != 0) {
+      delete g_xy;
+    } 
+    f_xy = new TF2("f_xy",func_xy,-1,1,-1,1,i_f);
+    g_xy = new TF2("g_xy",func_xy,-1,1,-1,1,i_g);
+    f_xy_par[0] = i_f;
+    g_xy_par[0] = i_g;
+    f_xy->SetParameters(f_xy_par);
+    g_xy->SetParameters(g_xy_par);
+    f_xy->Draw("surf");
+    TCanvas* canvas = gPad->GetCanvas();
+    canvas->Modified();
+    canvas->Update();
+    delete [] f_xy_par;
+    delete [] g_xy_par;
+  }
+  void DoClose(){ CloseWindow(); }
 };
 
-Editor::Editor(const TGWindow *main, UInt_t w, UInt_t h)
-{
-   // Create an editor in a dialog.
-   fMain = new TGTransientFrame(gClient->GetRoot(), main, w, h);
-   fMain->Connect("CloseWindow()", "Editor", this, "CloseWindow()");
-   fMain->DontCallClose(); // to avoid double deletions.
-
-   // use hierarchical cleaning
-   fMain->SetCleanup(kDeepCleanup);
-
-   fHframe1 = new TGHorizontalFrame(fMain, 0, 0, 0);
-
-   fEdit1 = new TGTextEdit(fHframe1, w/2., h, kSunkenFrame | kDoubleBorder);
-   fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
-   fHframe1->AddFrame(fEdit1, fL1);
-   fEdit2 = new TGTextEdit(fHframe1, w/2., h, kSunkenFrame | kDoubleBorder);
-   fHframe1->AddFrame(fEdit2, fL1);
-   fL2 = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 3, 3, 3, 3);
-   fMain->AddFrame(fHframe1,fL2);
-
-   // set selected text colors
-   Pixel_t pxl;
-   gClient->GetColorByName("#3399ff", pxl);
-   fEdit1->SetSelectBack(pxl);
-   fEdit1->SetSelectFore(TGFrame::GetWhitePixel());
-   fEdit2->SetSelectBack(pxl);
-   fEdit2->SetSelectFore(TGFrame::GetWhitePixel());
-
-   fHframe2 = new TGHorizontalFrame(fMain, 0, 0, 0);
-   fOK = new TGTextButton(fHframe2, "  &OK  ");
-   fOK->Connect("Clicked()", "Editor", this, "DoOK()");
-   fClose = new TGTextButton(fHframe2, "  &Close  ");
-   fClose->Connect("Clicked()", "Editor", this, "DoClose()");
-
-   fHframe2->AddFrame(fOK, fL1);
-   fHframe2->AddFrame(fClose, fL1);
-
-   fL3 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
-   fMain->AddFrame(fHframe2, fL3);
-
-   fMain->SetWindowName("f(x,y) g(x,y)");
-   fMain->SetIconName("f(x,y) g(x,y)");
-   fMain->MapSubwindows();
-   fMain->Resize();
-   // editor covers right half of parent window
-   fMain->CenterOnParent(kTRUE, TGTransientFrame::kRight);
-}
-
-Editor::~Editor(){
-   fMain->DeleteWindow();  // deletes fMain
-}
-void Editor::Popup(){
-   fMain->MapWindow();
-}
-void Editor::LoadBuffer(const char *buffer){
-   fEdit1->LoadBuffer(buffer);
-}
-void Editor::AddBuffer(const  char *buffer) {
-   TGText txt;
-   txt.LoadBuffer(buffer);
-   fEdit1->AddText(&txt);
-}
-void Editor::CloseWindow(){ delete this; }
-void Editor::DoOK(){ CloseWindow(); }
-void Editor::DoClose(){ CloseWindow(); }
-
 void transform_2d(){
-   // Handle button click.
-   Editor *ed = new Editor(0, 600, 400);
-   ed->LoadBuffer(editortxt1);
-   ed->AddBuffer(editortxt2);
-   ed->AddBuffer(editortxt3);
-   ed->AddBuffer(editortxt4);
-   ed->AddBuffer(editortxt5);
-   ed->AddBuffer(editortxt6);
-   ed->Popup();
+  TCanvas* canvas = gPad->GetCanvas();
+  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+  if (sel_pad == 0) {return;}
+  TList * list = sel_pad->GetListOfPrimitives();
+  if (list == 0) {return;}
+  TH1 *hist = (TH1*) list->At(1);
+  if (hist == 0) {return;}
+  if (hist->InheritsFrom("TH2") == 0) {
+    printf("This script can handle only TH2 histograms.\n");
+    return;
+  }
+  
+  Editor *ed = new Editor(gClient->GetRoot(), 600, 400);
+  
+  
 }
