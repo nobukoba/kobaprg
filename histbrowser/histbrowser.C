@@ -244,7 +244,11 @@ void writeTFolder(TObject* c){
   TDirectory *cur_dir = 0;
   Int_t memo_file_flag = 0;
   TString filename = "";
-  if (fullpath.BeginsWith("ROOT_Memory/")){
+  if (fullpath.EqualTo("ROOT_Memory")){
+    memo_file_flag = 1;
+    cur_dir = gROOT;
+    filename = fullpath;
+  }else if (fullpath.BeginsWith("ROOT_Memory/")){
     memo_file_flag = 1;
     fullpath.Replace(0,12,"");
     cur_dir = (TDirectory *)gROOT->Get(fullpath);
@@ -285,6 +289,8 @@ void writeTFolder(TObject* c){
     file_in_str.Resize(file_in_str.Length()-6);
   }
   file_in_str += ".root";
+
+  
   
   TFile *local = TFile::Open(file_in_str,"recreate");
   TCollection* col = 0;
