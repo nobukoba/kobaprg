@@ -4,11 +4,16 @@
 #include <TROOT.h>
 #include <TClass.h>
 #include <TApplication.h>
+#include <TCanvas.h>
 #include <TGClient.h>
 #include <TGLabel.h>
+#include <TGListTree.h>
 #include <TGButton.h>
 #include <TGTextEdit.h>
 #include <TGFrame.h>
+#include <TString.h>
+#include <TKey.h>
+#include <TH2.h>
 #include <TF2.h>
 #include <TMath.h>
 
@@ -41,10 +46,13 @@ public:
     TGLayoutHints *fL1 = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 3, 3, 3, 3);
     fMain->AddFrame(fEdit,fL1);
     TGHorizontalFrame *fHframe = new TGHorizontalFrame(fMain, 0, 0, 0);
+    TGTextButton *fDraw       = new TGTextButton(fHframe, "&DrawInvFn");
+    fDraw->Connect("Clicked()", "Editor", this, "PlotInverseFunc()");
     TGTextButton *fTransform  = new TGTextButton(fHframe, "&Transform");
     fTransform->Connect("Clicked()", "Editor", this, "DoTransform()");
     TGTextButton *fClose      = new TGTextButton(fHframe, "  &Close  ");
     fClose->Connect("Clicked()", "Editor", this, "DoClose()");
+    fHframe->AddFrame(fDraw, fL1);
     fHframe->AddFrame(fTransform, fL1);
     fHframe->AddFrame(fClose, fL1);
     TGLayoutHints *fL2 = new TGLayoutHints(kLHintsBottom | kLHintsCenterX, 0, 0, 5, 5);
@@ -68,11 +76,11 @@ public:
   }
   void InitBuffer() {
     const char *initext =
-      "0 0 2 1.0\n"
-      "1 0 0 1.0\n";
+      "0 1 0 1.0\n"
+      "1 0 1 1.0\n";
       fEdit->LoadBuffer(initext);
   }
-  void DoTransform(){
+  void MakeFunc(){
     std::cout << "DoTransform" << std::endl;
     TGText* fText = fEdit->GetText();
     char   *buf1, *buf2;
@@ -111,8 +119,6 @@ public:
       	}
       	i++;
       }
-      //fwrite(buf2, sizeof(char), strlen(buf2)+1, p);
-      //printf("%s",buf2);
       TString str = buf2;
       str.ReplaceAll("\t"," ");
       str.ReplaceAll(","," ");
@@ -153,30 +159,85 @@ public:
     g_xy_par[0] = i_g;
     f_xy->SetParameters(f_xy_par);
     g_xy->SetParameters(g_xy_par);
-    f_xy->Draw("surf");
-    TCanvas* canvas = gPad->GetCanvas();
-    canvas->Modified();
-    canvas->Update();
     delete [] f_xy_par;
     delete [] g_xy_par;
   }
+  void DoTransform (){
+    MakeFunc();
+    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+    if (hist_fListTree==0) {return;}
+    if (hist_fListTree->GetFirstItem()==0){return;}
+    if (hist_fListTree->GetSelected()==0) {
+      std::cout << "Select a TH2 histogram." << std::endl;
+      return;
+    }
+    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetSelected();
+    TObject *obj = (TObject*)cur_ListTreeItem->GetUserData();
+    if (obj->InheritsFrom("TKey")){
+      obj = ((TKey*)obj)->ReadObj();
+      cur_ListTreeItem->SetUserData(obj);
+    }
+    TH2* hist = 0;
+    if (obj->InheritsFrom("TH2") == 0) {
+      std::cout << "Selected object is not a TH2 histogram." << std::endl;
+      return;
+    }else{
+      hist = (TH2*)obj;
+    }
+
+    gROOT->cd();
+    TString str = hist->GetName();
+    str += "_trs";
+    TString str_n = str;
+    Int_t num = 1;
+    while (gROOT->Get(str_n.Data())) {
+      str_n.Form("%s%d",str.Data(),num);
+      num++;
+    }
+    TH2 *hout = (TH2*)hist->Clone(str_n);
+    hout->Reset();
+    gROOT->ProcessLine(".L ./transform_2d_func.C+");
+    gROOT->ProcessLine(Form("doTransformationTH2D((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hout,f_xy,g_xy));
+    hout->Draw("colz");
+    TCanvas* canvas = gPad->GetCanvas();
+    canvas->Modified();
+    canvas->Update();
+  }
+
+  void PlotInverseFunc(){
+    MakeFunc();
+    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+    if (hist_fListTree==0) {return;}
+    if (hist_fListTree->GetFirstItem()==0){return;}
+    if (hist_fListTree->GetSelected()==0) {
+      std::cout << "Select a TH2 histogram." << std::endl;
+      return;
+    }
+    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetSelected();
+    TObject *obj = (TObject*)cur_ListTreeItem->GetUserData();
+    if (obj->InheritsFrom("TKey")){
+      obj = ((TKey*)obj)->ReadObj();
+      cur_ListTreeItem->SetUserData(obj);
+    }
+    TH2* hist = 0;
+    if (obj->InheritsFrom("TH2") == 0) {
+      std::cout << "Selected object is not a TH2 histogram." << std::endl;
+      return;
+    }else{
+      hist = (TH2*)obj;
+    }
+    hist_fListTree->Clicked(cur_ListTreeItem,0);
+
+    gROOT->ProcessLine(".L ./transform_2d_func.C+");
+    gROOT->ProcessLine(Form("drawInverseFunc((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hist,f_xy,g_xy));
+    TCanvas* canvas = gPad->GetCanvas();
+    canvas->Modified();
+    canvas->Update();
+  }
+
   void DoClose(){ CloseWindow(); }
 };
 
 void transform_2d(){
-  TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {return;}
-  TList * list = sel_pad->GetListOfPrimitives();
-  if (list == 0) {return;}
-  TH1 *hist = (TH1*) list->At(1);
-  if (hist == 0) {return;}
-  if (hist->InheritsFrom("TH2") == 0) {
-    printf("This script can handle only TH2 histograms.\n");
-    return;
-  }
-  
-  Editor *ed = new Editor(gClient->GetRoot(), 600, 400);
-  
-  
+  Editor *ed = new Editor(gClient->GetRoot(), 400, 600);
 }
