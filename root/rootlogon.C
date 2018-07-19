@@ -3,9 +3,9 @@
   //gEnv->SetValue("Print.Printer","-Pa3c4476 -o PageSize=A4 -o PageRegion=A4");
   gEnv->SetValue("Print.Printer","-Pa3c4476");
   gEnv->SetValue("Print.FileType","ps");
-  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); //this does not work for root.exe
-  //gEnv->SetValue("Unix.*.Root.UseTTFonts","true"); //this does not work for root.exe
-  //gEnv->SetValue("Unix.*.Root.TTFontPath",""); //this does not work for root.exe
+  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); // If TTFonts are disabled, the TH2::SetShowProjectionX() will causes segv.
+  //gEnv->SetValue("Unix.*.Root.UseTTFonts","true");
+  //gEnv->SetValue("Unix.*.Root.TTFontPath","");
   gEnv->SetValue("Canvas.ShowEventStatus", "false");
   gEnv->SetValue("Canvas.ShowToolTips", "true");
   gEnv->SetValue("Canvas.ShowToolBar", "true");
