@@ -295,16 +295,20 @@ void  getInverseXY(const Int_t nbinx_in,  const Double_t xmin_in,  const Double_
 
 void drawInverseFunc(const TH2* hin, const TH2* hout,
 		     const TF2* fx,   const TF2* fy) {
-  Int_t    nbinx_in  = hin->GetNbinsX();
+  //Int_t    nbinx_in  = hin->GetNbinsX();
+  Int_t    nbinx_in  = 50;
   Double_t xmin_in   = hin->GetXaxis()->GetXmin();
   Double_t xmax_in   = hin->GetXaxis()->GetXmax();
-  Int_t    nbiny_in  = hin->GetNbinsY();
+  //Int_t    nbiny_in  = hin->GetNbinsY();
+  Int_t    nbiny_in  = 50;
   Double_t ymin_in   = hin->GetYaxis()->GetXmin();
   Double_t ymax_in   = hin->GetYaxis()->GetXmax();
-  Int_t    nbinx_out = hout->GetNbinsX();
+  //Int_t    nbinx_out = hout->GetNbinsX();
+  Int_t    nbinx_out = 50;
   Double_t xmin_out  = hout->GetXaxis()->GetXmin();
   Double_t xmax_out  = hout->GetXaxis()->GetXmax();
-  Int_t    nbiny_out = hout->GetNbinsY();
+  //Int_t    nbiny_out = hout->GetNbinsY();
+  Int_t    nbiny_out = 50;
   Double_t ymin_out  = hout->GetYaxis()->GetXmin();
   Double_t ymax_out  = hout->GetYaxis()->GetXmax();
 
