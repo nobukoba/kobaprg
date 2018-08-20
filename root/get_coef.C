@@ -1,32 +1,60 @@
-#include <iostream>
-#include "TROOT.h"
-#include "TH2D.h"
-#include "TProfile.h"
-#include "TFile.h"
-#include "TCutG.h"
-#include "TMatrixD.h"
-#include "TPad.h"
-#include "TF1.h"
-#include "TF2.h"
+//#include <iostream>
+//#include "TROOT.h"
+//#include "TH2D.h"
+//#include "TProfile.h"
+//#include "TFile.h"
+//#include "TCutG.h"
+//#include "TMatrixD.h"
+//#include "TPad.h"
+//#include "TF1.h"
+//#include "TF2.h"
 
 void get_coef(){
-  TFile *filein  = new TFile("run5023_thir_thcxyg_cut.root","READ");
-  TFile *fileout = new TFile("run5023_thir_thcxyg_coef.root","RECREATE");
-  TH2D  *hin     = (TH2D*)filein->Get("hin");
-
-  const Int_t number_of_peaks = 3;
+  TCanvas* canvas = gPad->GetCanvas();
+  if (canvas == 0) {
+    std::cout << "There is no canvas." << std::endl;
+    return;
+  }
+  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+  if (sel_pad == 0) {
+    std::cout << "There is no sel_pad." << std::endl;
+    return;
+  }
+  TList *listofpri = sel_pad->GetListOfPrimitives();
+  if (listofpri == 0) {
+    std::cout << "The pad includes nothing." << std::endl;
+    return;
+  }
+  TIter next(listofpri);
+  TObject *obj;
+  TH2 *hist = 0;
+  while (obj = next()){
+    if (obj->InheritsFrom("TH2")) {
+      hist = (TH2*)obj;
+      std::cout << "TH2 hist was found." << std::endl;
+      break;
+    }
+  }
+  if(hist == 0){
+    std::cout << "TH2 histogram was not found in this pad." << std::endl;
+    return;
+  }
+  hist->Print();
+  
+  const Int_t number_of_peaks = 2;
   const Int_t degree_of_polN  = 4;
   TF1 *fit_func  = new TF1("fit_func",Form("pol%d",degree_of_polN),-10.,10.);
   for (Int_t i = 0; i < number_of_peaks; i++) {
-    hin->Draw("colz");
+    hist->Draw("colz");
+    gROOT->cd();
     TCutG    *cutg = (TCutG*)gPad->WaitPrimitive("CUTG","CutG");
-    TProfile *pfy  = hin->ProfileY(Form("pfy_%d",i),1,-1,"[CUTG]");
+    TProfile *pfy  = hist->ProfileY(Form("pfy_%d",i),1,-1,"[CUTG]");
     pfy->Fit(fit_func);
     cutg->SetName(Form("CUTG_%d",i));
-    cutg->Write();
-    pfy->Write();
+    //cutg->Write();
+    //pfy->Write();
   }
-  hin->Write();
+  //hin->Write();
   
   TMatrixD fit_pars(number_of_peaks, degree_of_polN+1);
   for (Int_t i = 0; i < number_of_peaks; i++) {
@@ -66,5 +94,5 @@ void get_coef(){
       coef[i][0] = 0.;
     }
   }
-  coef.Write("coef");
+  //coef.Write("coef");
 }
