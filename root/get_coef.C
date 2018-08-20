@@ -94,5 +94,11 @@ void get_coef(){
       coef[i][0] = 0.;
     }
   }
+  for (Int_t j = 0; j < degree_of_polN+1; j++) {
+    for (Int_t i = 0; i < number_of_peaks; i++) {
+      std::cout << "0, " << i << ", " << j << ", " << coef[i][j] << std::endl;
+    }
+  }
+  std::cout << "1, 0, 1, 1"  << std::endl;
   //coef.Write("coef");
 }
