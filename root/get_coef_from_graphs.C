@@ -14,67 +14,65 @@ void get_coef_from_graphs(){
     std::cout << "The pad includes nothing." << std::endl;
     return;
   }
-
   Int_t ngraphs = 0;
   while(listofpri->FindObject(Form("Graph_%d",ngraphs))){
     ngraphs++;
   }
-
   if (ngraphs == 0) {
     std::cout << "Graph_n was not found in the current pad." << std::endl;
     return;
   }
-
-  TGraph gr();
   
-  for (Int_t i = 0; i < number_of_peaks; i++) {
-    pfy->Fit(fit_func);
-    cutg->SetName(Form("CUTG_%d",i));
+  const Int_t degree_of_polN  = 4;
+  TMatrixD fit_pars(ngraphs, degree_of_polN+1);
+  for (Int_t i = 0; i < ngraphs; i++) {
+    TGraph *gr = (TGraph *)listofpri->FindObject(Form("Graph_%d",i));
+    if (degree_of_polN+1 > gr->GetN()) {
+      std::cout << "Warning: the number of parameters of polN: " << degree_of_polN+1 << " is larger than the number of the points of " << Form("Graph_%d",i) << ": " << gr->GetN() << std::endl;
+    }
+    TGraph *grinv = new TGraph(gr->GetN(),gr->GetY(),gr->GetX());
+    TF1 *fit_func = new TF1("fit_func", Form("pol%d",degree_of_polN), 0., 1.);
+    grinv->Fit(fit_func);
+    for (Int_t j = 0; j < degree_of_polN+1; j++) {
+      fit_pars[i][j] = fit_func->GetParameter(j);
+      std::cout << "i, j, fit_pars: " << i << ", " << j << ", " << fit_pars[i][j] << std::endl;
+    }
+    delete grinv;
+    delete fit_func;
   }
-
-
-  //TMatrixD fit_pars(number_of_peaks, degree_of_polN+1);
-  //for (Int_t i = 0; i < number_of_peaks; i++) {
-  //  TProfile *pfy      = (TProfile *)gROOT->FindObject(Form("pfy_%d",i));
-  //  TF1      *tf1_ptr  = pfy->GetFunction("fit_func");
-  //  for (Int_t j = 0; j < degree_of_polN+1; j++) {
-  //    fit_pars[i][j] = tf1_ptr->GetParameter(j);
-  //    std::cout << "i, j, fit_pars: " << i << ", " << j << ", " << fit_pars[i][j] << std::endl;
-  //  }
-  //}
-  //
-  //TMatrixD m(number_of_peaks, number_of_peaks);
-  //for (Int_t i = 0; i < number_of_peaks; i++) {
-  //  for (Int_t j = 0; j < number_of_peaks; j++) {
-  //    m[i][j] = pow(fit_pars[i][0],j);
-  //    std::cout << "i, j, m: " << i << ", " << j << ", " << m[i][j] << std::endl;
-  //  }      
-  //}
-  //
-  //TMatrixD m_inv(number_of_peaks, number_of_peaks);
-  //m_inv = m.Invert();
-  //
-  //TMatrixD coef(number_of_peaks, degree_of_polN+1);
-  //for (Int_t j = 0; j < degree_of_polN+1; j++) {
-  //  for (Int_t i = 0; i < number_of_peaks; i++) {
-  //    coef[i][j] = 0.;
-  //    for (Int_t k = 0; k < number_of_peaks; k++) {
-  //	coef[i][j] += m_inv[i][k] * -fit_pars[k][j];
-  //    }
-  //    std::cout << "i, j, coef: " << i << ", " << j << ", " << coef[i][j] << std::endl;
-  //  }
-  //}
-  //for (Int_t i = 0; i < number_of_peaks; i++) {
-  //  if (i == 1) {
-  //    coef[i][0] = 1.;
-  //  }else{
-  //    coef[i][0] = 0.;
-  //  }
-  //}
-  //for (Int_t j = 0; j < degree_of_polN+1; j++) {
-  //  for (Int_t i = 0; i < number_of_peaks; i++) {
-  //    std::cout << "0, " << i << ", " << j << ", " << coef[i][j] << std::endl;
-  //  }
-  //}
-  //std::cout << "1, 0, 1, 1"  << std::endl;
+  
+  TMatrixD m(ngraphs, ngraphs);
+  for (Int_t i = 0; i < ngraphs; i++) {
+    for (Int_t j = 0; j < ngraphs; j++) {
+      m[i][j] = pow(fit_pars[i][0],j);
+      std::cout << "i, j, m: " << i << ", " << j << ", " << m[i][j] << std::endl;
+    }      
+  }
+  
+  TMatrixD m_inv(ngraphs, ngraphs);
+  m_inv = m.Invert();
+  
+  TMatrixD coef(ngraphs, degree_of_polN+1);
+  for (Int_t j = 0; j < degree_of_polN+1; j++) {
+    for (Int_t i = 0; i < ngraphs; i++) {
+      coef[i][j] = 0.;
+      for (Int_t k = 0; k < ngraphs; k++) {
+  	coef[i][j] += m_inv[i][k] * -fit_pars[k][j];
+      }
+      std::cout << "i, j, coef: " << i << ", " << j << ", " << coef[i][j] << std::endl;
+    }
+  }
+  for (Int_t i = 0; i < ngraphs; i++) {
+    if (i == 1) {
+      coef[i][0] = 1.;
+    }else{
+      coef[i][0] = 0.;
+    }
+  }
+  for (Int_t j = 0; j < degree_of_polN+1; j++) {
+    for (Int_t i = 0; i < ngraphs; i++) {
+      std::cout << "0, " << i << ", " << j << ", " << coef[i][j] << std::endl;
+    }
+  }
+  std::cout << "1, 0, 1, 1"  << std::endl;
 }
