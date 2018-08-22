@@ -39,7 +39,6 @@ void get_coef(){
     std::cout << "TH2 histogram was not found in this pad." << std::endl;
     return;
   }
-  hist->Print();
   
   const Int_t number_of_peaks = 2;
   const Int_t degree_of_polN  = 4;
@@ -51,10 +50,7 @@ void get_coef(){
     TProfile *pfy  = hist->ProfileY(Form("pfy_%d",i),1,-1,"[CUTG]");
     pfy->Fit(fit_func);
     cutg->SetName(Form("CUTG_%d",i));
-    //cutg->Write();
-    //pfy->Write();
   }
-  //hin->Write();
   
   TMatrixD fit_pars(number_of_peaks, degree_of_polN+1);
   for (Int_t i = 0; i < number_of_peaks; i++) {
@@ -100,5 +96,4 @@ void get_coef(){
     }
   }
   std::cout << "1, 0, 1, 1"  << std::endl;
-  //coef.Write("coef");
 }

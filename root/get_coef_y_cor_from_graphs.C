@@ -72,5 +72,5 @@ void get_coef_y_cor_from_graphs(){
       std::cout << "1, " << j << ", " << i << ", " << coef[i][j] << std::endl;
     }
   }
-  std::cout << "0, 0, 1, 1"  << std::endl;
+  std::cout << "0, 1, 0, 1"  << std::endl;
 }
