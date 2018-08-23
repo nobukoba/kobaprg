@@ -23,8 +23,9 @@ void get_coef_y_cor_from_graphs(){
     return;
   }
   
-  const Int_t degree_of_polN  = 4;
+  const Int_t degree_of_polN  = 1;
   TMatrixD fit_pars(ngraphs, degree_of_polN+1);
+  TMatrixD m(ngraphs, ngraphs);
   for (Int_t i = 0; i < ngraphs; i++) {
     TGraph *gr = (TGraph *)listofpri->FindObject(Form("Graph_%d",i));
     if (degree_of_polN+1 > gr->GetN()) {
@@ -36,15 +37,11 @@ void get_coef_y_cor_from_graphs(){
       fit_pars[i][j] = fit_func->GetParameter(j);
       std::cout << "i, j, fit_pars: " << i << ", " << j << ", " << fit_pars[i][j] << std::endl;
     }
-    delete fit_func;
-  }
-  
-  TMatrixD m(ngraphs, ngraphs);
-  for (Int_t i = 0; i < ngraphs; i++) {
     for (Int_t j = 0; j < ngraphs; j++) {
       m[i][j] = pow(fit_pars[i][0],j);
       std::cout << "i, j, m: " << i << ", " << j << ", " << m[i][j] << std::endl;
     }      
+    delete fit_func;
   }
   
   TMatrixD m_inv(ngraphs, ngraphs);
