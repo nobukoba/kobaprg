@@ -32,6 +32,22 @@ void get_coef_x_cor_from_points(){
     std::cout << "Graph_* was not found in the current pad." << std::endl;
     return;
   }
+
+  if (ngraphs == 1) {
+    TGraph *gr = (TGraph *)listofpri->FindObject("Graph_0");
+    TGraph *grinv = new TGraph(gr->GetN(),gr->GetY(),gr->GetX());
+    TF1 *fit_func = new TF1("fit_func", Form("pol%d",degree_of_polN), 0., 1.);
+    grinv->Fit(fit_func);
+    std::cout << "0, 1, 0, 1"  << std::endl;
+    for (Int_t i = 1; i < degree_of_polN+1; i++) {
+      std::cout << "0, 0, " << i  << ", "<< -fit_func->GetParameter(i) << std::endl;
+    }
+    std::cout << "1, 0, 1, 1"  << std::endl;
+    delete grinv;
+    delete fit_func;
+    return;
+  }
+
   
   TMatrixD fit_pars(degree_of_polN+1, ngraphs);
   TMatrixD m((degree_of_polN+1)*ngraphs, (degree_of_polN+1)*ngraphs);
