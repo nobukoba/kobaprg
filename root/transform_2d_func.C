@@ -332,7 +332,7 @@ void drawInverseFunc(const TH2* hin, const TH2* hout,
   g1->SetLineWidth(1);
   g2->SetLineWidth(1);
   Int_t di = 1;
-  Int_t dj = 1;
+  Int_t dj = 1;  
   for (Int_t i = 1; i <= nbinx_out+1; i+=di) {
   Int_t k = 0;
     for (Int_t j = 1; j <= nbiny_out+1; j+=dj) {

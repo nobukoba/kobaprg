@@ -29,10 +29,15 @@ void plot_graphs(){
     return;
   }
 
+  TGraph *gr;
+  while(gr = (TGraph*)listofpri->FindObject("Graph")){
+    gr->Delete();
+  }
+  
   Int_t j = 0;
   while(listofpri->FindObject(Form("Graph_%d",j))){
     j++;
   }
-  TGraph *gr = (TGraph*)sel_pad->WaitPrimitive("Graph","PolyLine");
+  gr = (TGraph*)sel_pad->WaitPrimitive("Graph","PolyLine");
   gr->SetName(Form("Graph_%d",j));
 }

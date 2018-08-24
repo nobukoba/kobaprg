@@ -6,7 +6,7 @@ void plot_graphs_clear(){
   }
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
+    std::cout << "There is no selected pad." << std::endl;
     return;
   }
   TList *listofpri = sel_pad->GetListOfPrimitives();
@@ -21,4 +21,5 @@ void plot_graphs_clear(){
     gr->Delete();
   }
   canvas->Update();
+  return;
 }

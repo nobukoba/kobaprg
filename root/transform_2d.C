@@ -46,7 +46,7 @@ public:
     TGLayoutHints *fL1 = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 3, 3, 3, 3);
     fMain->AddFrame(fEdit,fL1);
     TGHorizontalFrame *fHframe = new TGHorizontalFrame(fMain, 0, 0, 0);
-    TGTextButton *fDraw       = new TGTextButton(fHframe, "&DrawInvFn");
+    TGTextButton *fDraw       = new TGTextButton(fHframe, "&Draw");
     fDraw->Connect("Clicked()", "Editor", this, "PlotInverseFunc()");
     TGTextButton *fTransform  = new TGTextButton(fHframe, "&Transform");
     fTransform->Connect("Clicked()", "Editor", this, "DoTransform()");
@@ -164,25 +164,34 @@ public:
   }
   void DoTransform (){
     MakeFunc();
-    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-    if (hist_fListTree==0) {return;}
-    if (hist_fListTree->GetFirstItem()==0){return;}
-    if (hist_fListTree->GetSelected()==0) {
-      std::cout << "Select a TH2 histogram." << std::endl;
+    TCanvas* canvas = gPad->GetCanvas();
+    if (canvas == 0) {
+      std::cout << "There is no canvas." << std::endl;
       return;
     }
-    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetSelected();
-    TObject *obj = (TObject*)cur_ListTreeItem->GetUserData();
-    if (obj->InheritsFrom("TKey")){
-      obj = ((TKey*)obj)->ReadObj();
-      cur_ListTreeItem->SetUserData(obj);
-    }
-    TH2* hist = 0;
-    if (obj->InheritsFrom("TH2") == 0) {
-      std::cout << "Selected object is not a TH2 histogram." << std::endl;
+    TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+    if (sel_pad == 0) {
+      std::cout << "There is no sel_pad." << std::endl;
       return;
-    }else{
-      hist = (TH2*)obj;
+    }
+    TList *listofpri = sel_pad->GetListOfPrimitives();
+    if (listofpri == 0) {
+      std::cout << "The pad includes nothing." << std::endl;
+      return;
+    }
+    TIter next(listofpri);
+    TObject *obj;
+    TH2 *hist = 0;
+    while (obj = next()){
+      if (obj->InheritsFrom("TH2")) {
+	hist = (TH2*)obj;
+	std::cout << "TH2 hist was found." << std::endl;
+	break;
+      }
+    }
+    if(hist == 0){
+      std::cout << "TH2 histogram was not found in this pad." << std::endl;
+      return;
     }
 
     gROOT->cd();
@@ -206,28 +215,41 @@ public:
 
   void PlotInverseFunc(){
     MakeFunc();
-    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-    if (hist_fListTree==0) {return;}
-    if (hist_fListTree->GetFirstItem()==0){return;}
-    if (hist_fListTree->GetSelected()==0) {
-      std::cout << "Select a TH2 histogram." << std::endl;
-      return;
-    }
-    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetSelected();
-    TObject *obj = (TObject*)cur_ListTreeItem->GetUserData();
-    if (obj->InheritsFrom("TKey")){
-      obj = ((TKey*)obj)->ReadObj();
-      cur_ListTreeItem->SetUserData(obj);
-    }
-    TH2* hist = 0;
-    if (obj->InheritsFrom("TH2") == 0) {
-      std::cout << "Selected object is not a TH2 histogram." << std::endl;
-      return;
-    }else{
-      hist = (TH2*)obj;
-    }
-    hist_fListTree->Clicked(cur_ListTreeItem,0);
 
+    TCanvas* canvas = gPad->GetCanvas();
+    if (canvas == 0) {
+      std::cout << "There is no canvas." << std::endl;
+      return;
+    }
+    TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+    if (sel_pad == 0) {
+      std::cout << "There is no sel_pad." << std::endl;
+      return;
+    }
+    TList *listofpri = sel_pad->GetListOfPrimitives();
+    if (listofpri == 0) {
+      std::cout << "The pad includes nothing." << std::endl;
+      return;
+    }
+    TIter next(listofpri);
+    TObject *obj;
+    TH2 *hist = 0;
+    while (obj = next()){
+      if (obj->InheritsFrom("TH2")) {
+	hist = (TH2*)obj;
+	std::cout << "TH2 hist was found." << std::endl;
+	break;
+      }
+    }
+    if(hist == 0){
+      std::cout << "TH2 histogram was not found in this pad." << std::endl;
+      return;
+    }
+
+    TGraph *gr;
+    while(gr = (TGraph*)listofpri->FindObject("Graph")){
+      gr->Delete();
+    }
     gROOT->ProcessLine(".L ./transform_2d_func.C+");
     gROOT->ProcessLine(Form("drawInverseFunc((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hist,f_xy,g_xy));
     TCanvas* canvas = gPad->GetCanvas();
