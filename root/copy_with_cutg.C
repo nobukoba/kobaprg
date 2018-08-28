@@ -16,24 +16,23 @@ void copy_with_cutg(){
   }
   TIter next(listofpri);
   TObject *obj;
-  TH1 *hist = 0;
+  TH2 *hist = 0;
   while (obj = next()){
-    if (obj->InheritsFrom("TH1")) {
-      hist = (TH1*)obj;
-      std::cout << "hist was found." << std::endl;
+    if (obj->InheritsFrom("TH2")) {
+      hist = (TH2*)obj;
+      std::cout << "TH2 hist was found." << std::endl;
       break;
     }
   }
   if(hist == 0){
-    std::cout << "Histogram was not found in this pad." << std::endl;
+    std::cout << "TH2 histogram was not found in this pad." << std::endl;
     return;
   }
 
-  TCutG *cutg = (TCutg*)listofpri->FindObject("CUTG");
+  TCutG *cutg = (TCutG*)listofpri->FindObject("CUTG");
   if (cutg != 0){
     cutg->Delete();
   }
-  
   cutg  = (TCutG*)sel_pad->WaitPrimitive("CUTG","CutG");
 
   gROOT->cd();
@@ -46,8 +45,8 @@ void copy_with_cutg(){
     num++;
   }
   TH2 *hout = (TH2*)hist->Clone(str_n);
-  hout->Reset();
-  Double_t xx, yy, zz;
+  //hout->Reset();
+  Double_t xx, yy;
   for (Int_t i = 0; i <= hist->GetNbinsX()+1; i++) {
     for (Int_t j = 0; j <= hist->GetNbinsY()+1; j++) {
       xx = hist->GetXaxis()->GetBinCenter(i);
@@ -58,4 +57,6 @@ void copy_with_cutg(){
     }
   }
   hout->Draw("colz");
+  canvas->Update();
+  return;
 }
