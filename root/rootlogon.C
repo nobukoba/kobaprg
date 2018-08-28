@@ -10,7 +10,7 @@
   gEnv->SetValue("Canvas.ShowToolTips", "true");
   gEnv->SetValue("Canvas.ShowToolBar", "true");
   gEnv->SetValue("Canvas.ShowEditor", "false");
-  gROOT->SetMacroPath(".:../..:./kobamac/root");
+  gROOT->SetMacroPath(".:./kobamac/root:../..");
 
   gROOT->SetStyle("Plain");
   gStyle->SetHistFillColor(0);
