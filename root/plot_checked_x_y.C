@@ -79,7 +79,7 @@ void plot_checked_x_y(const Int_t nx = 2, const Int_t ny = 2){
   canvas->Divide(nx,ny);
   for(Int_t j = 0; j<=nx*ny; j++){
     canvas->GetPad(j)->SetBit(TBox::kCannotMove);
-    canvas->GetPad(j)->GetFrame()->SetBit(TBox::kCannotMove);
+    //  canvas->GetPad(j)->SetFillStyle(4000);
   }
   canvas->cd(1);
   canvas->Update();

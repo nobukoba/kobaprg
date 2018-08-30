@@ -6,6 +6,8 @@
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "TPad.h"
+#include "TBox.h"
+#include "TFrame.h"
 #include "TEnv.h"
 #include "TBrowser.h"
 #include "TRootBrowser.h"
@@ -371,6 +373,9 @@ public:
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "TGFileBrowserMod", hist_browser,
 			    "DoubleClicked(TGListTreeItem *, Int_t)");
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+			    "HistBrowser",this,
+			    "SetCannotMove(TGListTreeItem *, Int_t)");
     
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser",this,"change_canvas(Int_t,Int_t,Int_t,TObject*)");
@@ -649,6 +654,20 @@ public:
 	canvas->cd(next_pad);
       }
     }
+  }
+
+  void SetCannotMove(TGListTreeItem *item, Int_t /*btn*/){
+      TCanvas* canvas = gPad->GetCanvas();
+      if (canvas == 0) {
+	std::cout << "There is no canvas." << std::endl;
+	return;
+      }
+      TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+      if (sel_pad == 0) {
+	std::cout << "There is no sel_pad." << std::endl;
+	return;
+      }
+      sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
   }
 
   void change_canvas(Int_t event, Int_t x, Int_t y, TObject* selected) {

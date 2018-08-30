@@ -24,11 +24,8 @@ void plot_selected_x_y(const Int_t nx = 2, const Int_t ny = 2){
   canvas->Divide(nx,ny);
   for(Int_t j = 0; j<=nx*ny; j++){
     canvas->GetPad(j)->SetBit(TBox::kCannotMove);
-    canvas->GetPad(j)->GetFrame()->SetBit(TBox::kCannotMove);
+    //  canvas->GetPad(j)->SetFillStyle(4000);
   }
-  //for (Int_t j = 1; j<=nx*ny; j++) {
-  //  canvas->GetPad(j)->SetFillStyle(4000);
-  //}
   canvas->cd(1);
   canvas->Update();
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
