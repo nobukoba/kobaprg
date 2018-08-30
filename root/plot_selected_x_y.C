@@ -1,6 +1,7 @@
 #include "TPad.h"
 #include "TROOT.h"
 #include "TCanvas.h"
+#include "TBox.h"
 #include "TGListTree.h"
 
 void plot_selected_x_y(){
@@ -21,8 +22,9 @@ void plot_selected_x_y(const Int_t nx = 2, const Int_t ny = 2){
   TCanvas* canvas = gPad->GetCanvas();
   canvas->Clear();
   canvas->Divide(nx,ny);
-  for(Int_t j = 0; j<nx*ny; j++){
+  for(Int_t j = 0; j<=nx*ny; j++){
     canvas->GetPad(j)->SetBit(TBox::kCannotMove);
+    canvas->GetPad(j)->GetFrame()->SetBit(TBox::kCannotMove);
   }
   //for (Int_t j = 1; j<=nx*ny; j++) {
   //  canvas->GetPad(j)->SetFillStyle(4000);
