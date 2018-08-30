@@ -339,65 +339,52 @@ void photo_peak_fit(){
     std::cout << "TH1 histogram was not found in this pad." << std::endl;
     return;
   }
-
-  //TGraph *gr;
-  //while(gr = (TGraph*)listofpri->FindObject("photo_peak_fit_Graph")){
-  //  gr->Delete();
-  //}
-
-  TMarker *mk;
-  while(mk = (TGraph*)listofpri->FindObject("TMarker1")){
-    mk->Delete();
-  }
-  while(mk = (TGraph*)listofpri->FindObject("TMarker2")){
-    mk->Delete();
-  }
   
   gPad->SetCrosshair();
-
   TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
-  //mk1->SetName("TMarker1");
   Double_t x0 = mk->GetX();
   delete mk;
+  TLine line;
+  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
   Double_t x1 = mk->GetX();
+  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
   delete mk;
-  //mk2->SetName("TMarker2");
-  //TGraph *grng = (TGraph*)sel_pad->WaitPrimitive("TMaker","Marker");
-  //grng->SetName("photo_peak_fit_Graph");
   
-  //Int_t np = grng->GetN();
-  //if (np != 2) {
-  //  std::cout << "Number of points: " << np << std::endl;
-  //  std::cout << "Number of points should be 2." << std::endl;
-  //  grng->Delete();
-  //  gPad->SetCrosshair(0);
-  //  return;
-  //}
-
   gPad->SetCrosshair(0);
-  //Double_t x0, x1, y0, y1;
-  //
-  //grng->GetPoint(0,x0,y0);
-  //grng->GetPoint(1,x1,y1);
 
   Int_t j = 0;
   while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
     j++;
   }
   TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
-
-//  if(j==1){
-//    ((TF1*)hist->GetListOfFunctions()->FindObject("photo_peak_fit_0"))->SetFunction(f);
-//}
+  f->SetLineWidth(1);
   
   photo_peak_fit_InitParams(hist, f);
   //photo_peak_fit_DoFit(hist,f,"Q+");
-  hist->Fit(f,"R+");
 
-  //gPad->Modified();
-  //gPad->Update();
-  //gPad->Update();
+  
+  if (j==0) {
+    hist->Fit(f,"R");
+    hist->GetListOfFunctions()->Last()->Delete();
+    hist->GetListOfFunctions()->Add(f->Clone());
+  }else{
+    hist->Fit(f,"R+");
+  }
 
+  TF1 *fbg = new TF1(Form("photo_peak_fit_bg_%d",j), photo_peak_fit_StepBG, x0, x1, 6);
+  fbg->SetLineWidth(1);
+  fbg->SetLineColor(1);
+  fbg->SetLineStyle(kDashed);
+  fbg->SetParameter(0,f->GetParameter(0));
+  fbg->SetParameter(1,f->GetParameter(1));
+  fbg->SetParameter(2,f->GetParameter(2));
+  fbg->SetParameter(3,f->GetParameter(5));
+  fbg->SetParameter(4,f->GetParameter(6));
+
+  hist->GetListOfFunctions()->Add(fbg->Clone());
+  
+  gPad->Modified();
+  gPad->Update();
   return;
 }
