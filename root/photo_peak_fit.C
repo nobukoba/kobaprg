@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <iostream>
 #include <string>
 #include "TMath.h"
@@ -11,15 +10,44 @@
 #include "TString.h"
 #include "TVirtualFitter.h"
 #include "TFitResult.h"
+#include "TGMsgBox.h"
+
+extern Double_t photo_peak_fit_PolyBg(Double_t *dim, Double_t *par, Int_t order);
+extern Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_StepBG(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_Gaus(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_SkewedGaus(Double_t *dim,Double_t *par);
+extern Double_t photo_peak_fit_PhotoPeak(Double_t *dim,Double_t *par);
+extern Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par);
+
+
+Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par) {
+  // - dim[0]: channels to fit
+  // - par[0]: height of peak
+  // - par[1]: cent of peak
+  // - par[2]: sigma
+  // - par[3]: relative height of skewed gaus to gaus
+  // - par[4]: "skewedness" of the skewed gaussin
+  // - par[5]: size of stepfunction step.
+
+  // - par[6]: base bg height.
+  // - par[7]: slope of bg.
+  
+  double spar[4];
+  spar[0] = par[0];
+  spar[1] = par[1];
+  spar[2] = par[2];
+  spar[3] = par[5];  //stepsize;
+  return photo_peak_fit_Gaus(dim,par) + photo_peak_fit_SkewedGaus(dim,par) + photo_peak_fit_StepFunction(dim,spar) + photo_peak_fit_PolyBg(dim,par+6,0);
+}
 
 Double_t photo_peak_fit_PolyBg(Double_t *dim, Double_t *par, Int_t order) {
   Double_t result = 0.0;
-  int j=0;
-  for(Int_t i=0;i<=order;i++) {
+  Int_t j = 0;
+  for(Int_t i = 0; i <= order; i++) {
     result += *(par+j) *TMath::Power(dim[0],i);
     j++;
   }
-  //result += par[i]*TMath::Power(dim[0]-par[order+1],i);
   return result;
 }
 
@@ -29,7 +57,7 @@ Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par) {
   //  -par[1]: centroid of peak
   //  -par[2]: sigma of peak
   //  -par[3]: size of step in step function.
-
+  
   Double_t x       = dim[0];
   
   Double_t height  = par[0];
@@ -37,7 +65,7 @@ Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par) {
   Double_t sigma   = par[2];
   //Double_t R       = par[4];
   Double_t step    = par[3];
-
+  
   //return TMath::Abs(step)*height/100.0*TMath::Erfc((x-cent)/(TMath::Sqrt(2.0)*sigma));
   return height*(step/100.0) *TMath::Erfc((x-cent)/(TMath::Sqrt(2.0)*sigma));
 }
@@ -88,26 +116,6 @@ Double_t photo_peak_fit_SkewedGaus(Double_t *dim,Double_t *par) {
 
 Double_t photo_peak_fit_PhotoPeak(Double_t *dim,Double_t *par) {
   return photo_peak_fit_Gaus(dim,par) + photo_peak_fit_SkewedGaus(dim,par);
-}
-
-Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par) {
-  // - dim[0]: channels to fit
-  // - par[0]: height of peak
-  // - par[1]: cent of peak
-  // - par[2]: sigma
-  // - par[3]: relative height of skewed gaus to gaus
-  // - par[4]: "skewedness" of the skewed gaussin
-  // - par[5]: size of stepfunction step.
-
-  // - par[6]: base bg height.
-  // - par[7]: slope of bg.
-  
-  double spar[4];
-  spar[0] = par[0];
-  spar[1] = par[1];
-  spar[2] = par[2];
-  spar[3] = par[5];  //stepsize;
-  return photo_peak_fit_Gaus(dim,par) + photo_peak_fit_SkewedGaus(dim,par) + photo_peak_fit_StepFunction(dim,spar) + photo_peak_fit_PolyBg(dim,par+6,0);
 }
 
 void photo_peak_fit_InitParams(TH1 *fithist, TF1 *fitfunc){
@@ -218,6 +226,7 @@ void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   if(fithist->GetSumw2()->fN!=fithist->GetNbinsX()+2)
     fithist->Sumw2();
   
+  //TFitResultPtr fitres = fithist->Fit(fitfunc,Form("%sLRSME",options.Data()));
   TFitResultPtr fitres = fithist->Fit(fitfunc,Form("%sLRSME",options.Data()));
   
   //fitres.Get()->Print();
@@ -295,8 +304,11 @@ void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
 }
 
 void photo_peak_fit(){
-  std::cout << std::endl << "Macro: kobamac/root/photophoto_peak_fit.C" << std::endl;
+  
+  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
+  
+
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {
     std::cout << "There is no sel_pad." << std::endl;
@@ -307,6 +319,9 @@ void photo_peak_fit(){
     std::cout << "The pad includes nothing." << std::endl;
     return;
   }
+
+
+
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
@@ -325,54 +340,64 @@ void photo_peak_fit(){
     return;
   }
 
-  TGraph *gr;
-  while(gr = (TGraph*)listofpri->FindObject("photo_peak_fit_Graph")){
-    gr->Delete();
+  //TGraph *gr;
+  //while(gr = (TGraph*)listofpri->FindObject("photo_peak_fit_Graph")){
+  //  gr->Delete();
+  //}
+
+  TMarker *mk;
+  while(mk = (TGraph*)listofpri->FindObject("TMarker1")){
+    mk->Delete();
+  }
+  while(mk = (TGraph*)listofpri->FindObject("TMarker2")){
+    mk->Delete();
   }
   
   gPad->SetCrosshair();
-  TGraph *grng = (TGraph*)gPad->WaitPrimitive("Graph","PolyLine");
-  grng->SetName("photo_peak_fit_Graph");
-  Int_t np = grng->GetN();
-  if (np != 2) {
-    std::cout << "Number of points: " << np << std::endl;
-    std::cout << "Number of points should be 2." << std::endl;
-    grng->Delete();
-    gPad->SetCrosshair(0);
-    return;
-  }
-  gPad->SetCrosshair(0);
-  Double_t x0, x1, y0, y1;
-  grng->GetPoint(0,x0,y0);
-  grng->GetPoint(1,x1,y1);
 
-  //TF1 *f = new TF1("photo_peak_fit", photo_peak_fit_PhotoPeakBG, x0, x1, 7);
-  TF1 *f = new TF1("photo_peak_fit", photo_peak_fit_PhotoPeakBG, x0, x1, 7);
+  TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
+  //mk1->SetName("TMarker1");
+  Double_t x0 = mk->GetX();
+  delete mk;
+  mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
+  Double_t x1 = mk->GetX();
+  delete mk;
+  //mk2->SetName("TMarker2");
+  //TGraph *grng = (TGraph*)sel_pad->WaitPrimitive("TMaker","Marker");
+  //grng->SetName("photo_peak_fit_Graph");
+  
+  //Int_t np = grng->GetN();
+  //if (np != 2) {
+  //  std::cout << "Number of points: " << np << std::endl;
+  //  std::cout << "Number of points should be 2." << std::endl;
+  //  grng->Delete();
+  //  gPad->SetCrosshair(0);
+  //  return;
+  //}
+
+  gPad->SetCrosshair(0);
+  //Double_t x0, x1, y0, y1;
+  //
+  //grng->GetPoint(0,x0,y0);
+  //grng->GetPoint(1,x1,y1);
+
+  Int_t j = 0;
+  while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
+    j++;
+  }
+  TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
+
+//  if(j==1){
+//    ((TF1*)hist->GetListOfFunctions()->FindObject("photo_peak_fit_0"))->SetFunction(f);
+//}
   
   photo_peak_fit_InitParams(hist, f);
-  photo_peak_fit_DoFit(hist,f,"Q+");
-  
-//  f->SetParameter(0,200.0);
-//  f->SetParameter(1,0.5);
-//  f->SetParameter(2,0.1);
-//  f->SetParameter(3,60.1);
-//  f->SetParameter(4,0.1);
-//  f->SetParameter(5,5.1);
-//  f->SetParameter(6,1.1);
-//  f->Draw("same");
+  //photo_peak_fit_DoFit(hist,f,"Q+");
+  hist->Fit(f,"R+");
 
-//  TF1 *f2 = new TF1("photo_peak_fit_bg", photo_peak_fit_StepBG, 0., 80., 6);
-  
-//  f2->SetParameter(0,200.0);
-//  f2->SetParameter(1,0.5);
-//  f2->SetParameter(2,0.1);
-//  f2->SetParameter(3,5.1);
-//  f2->SetParameter(4,1.1);
-//  f2->Draw("same");
-
-  canvas->Modified();
-  canvas->Update();
-  //f->Delete();
+  //gPad->Modified();
+  //gPad->Update();
+  //gPad->Update();
 
   return;
 }
