@@ -212,6 +212,16 @@ void photo_peak_fit_InitParams(TH1 *fithist, TF1 *fitfunc){
   return;
 }
 
+void photo_peak_fit_InitNames(TF1 *fitfunc){
+  fitfunc->SetParName(0,"Height");
+  fitfunc->SetParName(1,"centroid");
+  fitfunc->SetParName(2,"sigma");
+  fitfunc->SetParName(3,"R");
+  fitfunc->SetParName(4,"beta");
+  fitfunc->SetParName(5,"step");
+  fitfunc->SetParName(6,"bg_offset");
+}
+
 void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   TString options = opt;
   TVirtualFitter::SetMaxIterations(100000);
@@ -359,6 +369,7 @@ void photo_peak_fit(){
   TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
   f->SetLineWidth(1);
   
+  photo_peak_fit_InitNames(f);
   photo_peak_fit_InitParams(hist, f);
   //photo_peak_fit_DoFit(hist,f,"Q+");
 
