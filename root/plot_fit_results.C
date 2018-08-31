@@ -82,7 +82,7 @@ void plot_fit_results(const char * funcname){
     pname = funcobj->GetParName(i);
     pname += " "; /*In order to distinguish 'R' from 'RMS'*/
     tconst = ps->GetLineWith(pname);
-    std::cout << tconst->GetTitle() << std::endl;
+    //std::cout << tconst->GetTitle() << std::endl;
     pname += "= ";
     fmt = Form("%%%s #pm %%%s",ps->GetFitFormat(),ps->GetFitFormat());
     pname += Form(fmt.Data(),funcobj->GetParameter(i),funcobj->GetParError(i));
@@ -100,7 +100,8 @@ void plot_fit_results(const char * funcname){
   //Double_t fit_integ_e = funcobj->IntegralError(xmin, xmax);
   //TString fmt2 = Form("Fit Integ. = %%%s #pm %%%s",ps->GetFitFormat(),ps->GetFitFormat());
   TString fmt2 = Form("Fit Integ. = %%%s",ps->GetFitFormat());
-  TLatex *myt = new TLatex(0,0,Form(fmt2.Data(),fit_integ,fit_integ_e));
+  //TLatex *myt = new TLatex(0,0,Form(fmt2.Data(),fit_integ,fit_integ_e));
+  TLatex *myt = new TLatex(0,0,Form(fmt2.Data(),fit_integ));
   listOfLines->Add(myt);
   
   // the following line is needed to avoid that the automatic redrawing of stats
