@@ -32,6 +32,14 @@ void photo_peak_fit_clear(){
     std::cout << "TH1 histogram was not found in this pad. The script is terminated." << std::endl;
     return;
   }
+  
+  while (obj = next()){
+    TString objname = obj->GetName();
+    if (objname.EqualTo("TLine")) {
+      listofpri->Remove(obj);
+    } 
+  }
+  
   TList *funclist = hist->GetListOfFunctions();
   if(funclist == 0){
     std::cout << "The GetListOfFunctions() is null. The script is terminated." << std::endl;
@@ -42,13 +50,12 @@ void photo_peak_fit_clear(){
   TF1 *funcobj = 0;
   while (funcobj = (TF1*)nextfunc()){
     TString funcname = funcobj->GetName();
-    std::cout << "funcname: "<<funcname<< std::endl;
     if(funcname.BeginsWith("photo_peak_fit")){
-      std::cout << "funcname in the if: "<<funcname<< std::endl;
-      funcobj->Delete();
+      funclist->Remove(funcobj);
     }
   }
   gPad->Modified();
+  gPad->Update();
   gPad->Update();
   return;
 }
