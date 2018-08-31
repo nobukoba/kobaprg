@@ -20,7 +20,6 @@ extern Double_t photo_peak_fit_SkewedGaus(Double_t *dim,Double_t *par);
 extern Double_t photo_peak_fit_PhotoPeak(Double_t *dim,Double_t *par);
 extern Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par);
 
-
 Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par) {
   // - dim[0]: channels to fit
   // - par[0]: height of peak
@@ -304,23 +303,23 @@ void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
 }
 
 void photo_peak_fit(){
-  
   std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
+  if (canvas == 0) {
+    std::cout << "There is no canvas. The script is terminated." << std::endl;
+    return;
+  }
   
-
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
+    std::cout << "There is no sel_pad. The script is terminated." << std::endl;
     return;
   }
   TList *listofpri = sel_pad->GetListOfPrimitives();
   if (listofpri == 0) {
-    std::cout << "The pad includes nothing." << std::endl;
+    std::cout << "The pad includes nothing. The script is terminated." << std::endl;
     return;
   }
-
-
 
   TIter next(listofpri);
   TObject *obj;
@@ -336,7 +335,7 @@ void photo_peak_fit(){
     }
   }
   if(hist == 0){
-    std::cout << "TH1 histogram was not found in this pad." << std::endl;
+    std::cout << "TH1 histogram was not found in this pad. The script is terminated." << std::endl;
     return;
   }
   
