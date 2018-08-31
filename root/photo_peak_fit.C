@@ -366,6 +366,12 @@ void photo_peak_fit(){
   while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
     j++;
   }
+  if (x0 > x1){
+    Double_t tmp;
+    tmp = x1;
+    x1 = x0;
+    x0 = tmp;
+  }
   TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
   f->SetLineWidth(1);
   
