@@ -3,7 +3,7 @@
   //gEnv->SetValue("Print.Printer","-Pa3c4476 -o PageSize=A4 -o PageRegion=A4");
   gEnv->SetValue("Print.Printer","-Pa3c4476");
   gEnv->SetValue("Print.FileType","ps");
-  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); // If TTFonts are disabled, the TH2::SetShowProjectionX() will causes segv.
+  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); // If TTFonts are enabled, the TH2::SetShowProjectionX() will causes segv.
   //gEnv->SetValue("Unix.*.Root.UseTTFonts","true");
   //gEnv->SetValue("Unix.*.Root.TTFontPath","");
   gEnv->SetValue("Canvas.ShowEventStatus", "false");
