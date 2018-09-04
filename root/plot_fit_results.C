@@ -102,6 +102,7 @@ void plot_fit_results(const char * funcname){
   TString fmt2 = Form("Fit Integ. = %%%s",ps->GetFitFormat());
   //TLatex *myt = new TLatex(0,0,Form(fmt2.Data(),fit_integ,fit_integ_e));
   TLatex *myt = new TLatex(0,0,Form(fmt2.Data(),fit_integ));
+  myt->SetTextSize(ps->GetTextSize());
   listOfLines->Add(myt);
   
   // the following line is needed to avoid that the automatic redrawing of stats
@@ -109,8 +110,8 @@ void plot_fit_results(const char * funcname){
   sel_pad->Modified();
   sel_pad->Update();
   sel_pad->Update();
+  new TGMsgBox(gClient->GetRoot(),0, "wait", "wait", kMBIconAsterisk, kMBYes);
   hist->SetStats(1);
   ps->SetName("stats");
-
   return;
 }

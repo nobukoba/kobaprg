@@ -50,6 +50,11 @@ Double_t photo_peak_fit_PolyBg(Double_t *dim, Double_t *par, Int_t order) {
   return result;
 }
 
+Double_t photo_peak_fit_Const(Double_t *dim, Double_t *par) {
+  return par[0];
+}
+
+
 Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par) {
   //  -dim[0]: channels to fit
   //  -par[0]: height of peak
@@ -184,6 +189,7 @@ void photo_peak_fit_InitParams(TH1 *fithist, TF1 *fitfunc){
   fitfunc->SetParLimits(1,xlow,xhigh);
   fitfunc->SetParLimits(2,0.1,xhigh-xlow);
   fitfunc->SetParLimits(3,0.0,40);
+  //fitfunc->SetParLimits(3,0.0,100);
   fitfunc->SetParLimits(5,0.0,step+step);
 
   //double slope  = (yhigh-ylow)/(xhigh-xlow);
@@ -312,32 +318,31 @@ void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   return;
 }
 
-void photo_peak_fit(){
-  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
+TH1* get_th1(){
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. The script is terminated." << std::endl;
-    return;
+    return 0;
   }
   
   TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   if (sel_pad == 0) {
     std::cout << "There is no sel_pad. The script is terminated." << std::endl;
-    return;
+    return 0;
   }
   TList *listofpri = sel_pad->GetListOfPrimitives();
   if (listofpri == 0) {
     std::cout << "The pad includes nothing. The script is terminated." << std::endl;
-    return;
+    return 0;
   }
-
+  
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
       std::cout << "This script can not handle TH2 histograms." << std::endl;
-      return;
+      return 0;
     }
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
@@ -346,39 +351,32 @@ void photo_peak_fit(){
   }
   if(hist == 0){
     std::cout << "TH1 histogram was not found in this pad. The script is terminated." << std::endl;
-    return;
+    return 0;
   }
-  
-  gPad->SetCrosshair();
-  TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
-  Double_t x0 = mk->GetX();
-  delete mk;
-  TLine line;
-  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
-  Double_t x1 = mk->GetX();
-  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
-  delete mk;
-  
-  gPad->SetCrosshair(0);
+  return hist;
+}
 
-  Int_t j = 0;
-  while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
-    j++;
-  }
+void photo_peak_fit(Double_t x0, Double_t x1){
+  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C(Double_t, Double_t)" << std::endl;
+  TH1 * hist = get_th1();
+  
   if (x0 > x1){
     Double_t tmp;
     tmp = x1;
     x1 = x0;
     x0 = tmp;
   }
+
+  Int_t j = 0;
+  while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
+    j++;
+  }
   TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
-  f->SetLineWidth(1);
+  f->SetLineWidth(2);
   
   photo_peak_fit_InitNames(f);
   photo_peak_fit_InitParams(hist, f);
   //photo_peak_fit_DoFit(hist,f,"Q+");
-
   
   if (j==0) {
     hist->Fit(f,"R");
@@ -387,7 +385,7 @@ void photo_peak_fit(){
   }else{
     hist->Fit(f,"R+");
   }
-
+  
   TF1 *fbg = new TF1(Form("photo_peak_fit_bg_%d",j), photo_peak_fit_StepBG, x0, x1, 6);
   fbg->SetLineWidth(1);
   fbg->SetLineColor(1);
@@ -398,9 +396,58 @@ void photo_peak_fit(){
   fbg->SetParameter(3,f->GetParameter(5));
   fbg->SetParameter(4,f->GetParameter(6));
 
+  TF1 *fgaus = new TF1(Form("photo_peak_fit_gaus_%d",j), photo_peak_fit_Gaus, x0, x1, 4);
+  fgaus->SetLineWidth(1);
+  fgaus->SetLineColor(1);
+  fgaus->SetLineStyle(kDashed);
+  fgaus->SetParameter(0,f->GetParameter(0));
+  fgaus->SetParameter(1,f->GetParameter(1));
+  fgaus->SetParameter(2,f->GetParameter(2));
+  fgaus->SetParameter(3,f->GetParameter(3));
+
+  TF1 *fsg = new TF1(Form("photo_peak_fit_skewedgaus_%d",j), photo_peak_fit_SkewedGaus, x0, x1, 5);
+  fsg->SetLineWidth(1);
+  fsg->SetLineColor(1);
+  fsg->SetLineStyle(kDashed);
+  fsg->SetParameter(0,f->GetParameter(0));
+  fsg->SetParameter(1,f->GetParameter(1));
+  fsg->SetParameter(2,f->GetParameter(2));
+  fsg->SetParameter(3,f->GetParameter(3));
+  fsg->SetParameter(4,f->GetParameter(4));
+
+  TF1 *fconst = new TF1(Form("photo_peak_fit_const_%d",j), photo_peak_fit_Const, x0, x1, 1);
+  fconst->SetLineWidth(1);
+  fconst->SetLineColor(1);
+  fconst->SetLineStyle(kDashed);
+  fconst->SetParameter(0,f->GetParameter(6));
+
   hist->GetListOfFunctions()->Add(fbg->Clone());
-  
+  hist->GetListOfFunctions()->Add(fgaus->Clone());
+  hist->GetListOfFunctions()->Add(fsg->Clone());
+  hist->GetListOfFunctions()->Add(fconst->Clone());
+
   gPad->Modified();
   gPad->Update();
+  return;
+  
+}
+
+void photo_peak_fit(){
+  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
+  TH1 *hist = get_th1();
+  gPad->SetCrosshair();
+  TCanvas* canvas = gPad->GetCanvas();
+  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+  TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
+  Double_t x0 = mk->GetX();
+  delete mk;
+  TLine line;
+  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
+  mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
+  Double_t x1 = mk->GetX();
+  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
+  delete mk;
+  gPad->SetCrosshair(0);
+  photo_peak_fit(x0, x1);
   return;
 }
