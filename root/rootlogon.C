@@ -27,11 +27,13 @@
   gStyle->SetStatColor(0);
   gStyle->SetStatStyle(0);
   gStyle->SetStatX(0.9);  
-  gStyle->SetStatY(0.9);  
+  gStyle->SetStatY(0.9);
+  gStyle->SetStatW(0.4);
+  gStyle->SetStatH(0.4);
   gStyle->SetPalette(1);
   //gStyle->SetOptLogz(1);
   //  gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(1111111);
+  gStyle->SetOptStat(1110010);
   gStyle->SetOptFit(1);
   gStyle->SetOptDate(1);
   gStyle->SetPaperSize(20,26);
