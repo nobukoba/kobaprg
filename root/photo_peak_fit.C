@@ -318,47 +318,46 @@ void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   return;
 }
 
-TH1* get_th1(){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. The script is terminated." << std::endl;
-    return 0;
+Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
+		      TVirtualPad*& sel_pad, TList*& listofpri){
+  if (!(canvas = gPad->GetCanvas())) {
+    std::cout << "GetSelectedTH1: There is no canvas." << std::endl;
+    return false;
   }
-  
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. The script is terminated." << std::endl;
-    return 0;
+  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
+    std::cout << "GetSelectedTH1: There is no selected pad." << std::endl;
+    return false;
   }
-  TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. The script is terminated." << std::endl;
-    return 0;
+  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
+    std::cout << "GetSelectedTH1: There is nothing in this pad." << std::endl;
+    return false;
   }
-  
-  TIter next(listofpri);
-  TObject *obj;
-  TH1 *hist = 0;
+  TIter next(listofpri); TObject *obj;
+  hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
-      std::cout << "This script can not handle TH2 histograms." << std::endl;
-      return 0;
+      std::cout << "GetSelectedTH1: This script can not handle TH2 histograms." << std::endl;
+      return false;
     }
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
       break;
     }
   }
-  if(hist == 0){
-    std::cout << "TH1 histogram was not found in this pad. The script is terminated." << std::endl;
-    return 0;
-  }
-  return hist;
+  if (!hist) {
+    std::cout << "GetSelectedTH1: TH1 histogram was not found in this pad." << std::endl;
+      return false;
+    }
+  return true;
 }
 
 void photo_peak_fit(Double_t x0, Double_t x1){
   std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C(Double_t, Double_t)" << std::endl;
-  TH1 * hist = get_th1();
+  TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
+  if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
+    std::cout << "This script is terminated." << std::endl;
+    return;
+  }
   
   if (x0 > x1){
     Double_t tmp;
@@ -434,10 +433,12 @@ void photo_peak_fit(Double_t x0, Double_t x1){
 
 void photo_peak_fit(){
   std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
-  TH1 *hist = get_th1();
+  TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
+  if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
+    std::cout << "This script is terminated." << std::endl;
+    return;
+  }
   gPad->SetCrosshair();
-  TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
   TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
   Double_t x0 = mk->GetX();
   delete mk;
