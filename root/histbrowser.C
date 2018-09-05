@@ -474,31 +474,67 @@ public:
 	  cur_ListTree->Clicked(sel, 1);
 	}
 
+	//if ((keysym == kKey_Space)) {
+	//  TGListTreeItem * sel = cur_ListTree->GetSelected();
+	//  cur_ListTree->CheckItem(sel, !sel->IsChecked());
+	//  cur_ListTree->ClearViewPort();
+	//  //sel->CheckItem();
+	//}
 	if ((keysym == kKey_Space)) {
-	  TGListTreeItem * sel = cur_ListTree->GetSelected();
-	  cur_ListTree->CheckItem(sel, !sel->IsChecked());
+	  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+	  Bool_t status = false;
+	  Bool_t first_found = false;
+	  while(cur_ListTreeItem){
+	    std::cout << cur_ListTreeItem->GetText() <<std::endl;
+	    if(cur_ListTreeItem->IsActive()){
+	      if(!first_found){
+		first_found = true;
+		status = !cur_ListTreeItem->IsChecked();
+	      }
+	      cur_ListTree->CheckItem(cur_ListTreeItem, status);
+	    }
+	    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+	  }
 	  cur_ListTree->ClearViewPort();
-	  //sel->CheckItem();
 	}
 
-	if (keysym == kKey_Down) {
-	  TGListTreeItem * ni = NextItem(cur_ListTree->GetSelected());
-	  if(ni){
-	    cur_ListTree->SetSelected(ni);
-	    cur_ListTree->HighlightItem(ni);
-	    cur_ListTree->SetSelected(ni);
+	if (event->fState & kKeyShiftMask) {
+	  if (keysym == kKey_Down) {
+	    TGListTreeItem * ni = NextItem(cur_ListTree->GetSelected());
+	    if(ni){
+	      cur_ListTree->SetSelected(ni);
+	      cur_ListTree->HighlightItem(ni,kTRUE,kTRUE);
+	      cur_ListTree->SetSelected(ni);
+	      cur_ListTree->ClearViewPort();
+	    }
+	  }
+	  if (keysym == kKey_Up) {
+	    TGListTreeItem * pi = PrevItem(cur_ListTree->GetSelected());
+	    if(pi){
+	      cur_ListTree->SetSelected(pi);
+	      cur_ListTree->HighlightItem(pi,kTRUE,kTRUE);
+	      cur_ListTree->SetSelected(pi);
+	      cur_ListTree->ClearViewPort();
+	    }
+	  }
+	}else{
+	  if (keysym == kKey_Down) {
+	    TGListTreeItem * ni = NextItem(cur_ListTree->GetSelected());
+	    if(ni){
+	      cur_ListTree->SetSelected(ni);
+	      cur_ListTree->HighlightItem(ni);
+	      cur_ListTree->SetSelected(ni);
+	    }
+	  }
+	  if (keysym == kKey_Up) {
+	    TGListTreeItem * pi = PrevItem(cur_ListTree->GetSelected());
+	    if(pi){
+	      cur_ListTree->SetSelected(pi);
+	      cur_ListTree->HighlightItem(pi);
+	      cur_ListTree->SetSelected(pi);
+	    }
 	  }
 	}
-	if (keysym == kKey_Up) {
-	  TGListTreeItem * pi = PrevItem(cur_ListTree->GetSelected());
-
-	  if(pi){
-	    cur_ListTree->SetSelected(pi);
-	    cur_ListTree->HighlightItem(pi);
-	    cur_ListTree->SetSelected(pi);
-	  }
-	}
-
       }
     }
   }
