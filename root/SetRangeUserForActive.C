@@ -47,7 +47,7 @@ void SetRangeUserForActive(Double_t x0, Double_t x1){
   return;
 }
 
-void SetRangeUserForChecked(){
+void SetRangeUserForActive(){
   char command[1024];
   strlcpy(command, "0.0 1.0",sizeof(command));
   new TGInputDialog(gClient->GetRoot(),0,
