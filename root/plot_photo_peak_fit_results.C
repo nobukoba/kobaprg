@@ -50,8 +50,7 @@ void plot_photo_peak_fit_results(){
   sel_pad = canvas->cd(1);
   //hist->GetXaxis()->UnZoom();
   hist->GetXaxis()->SetRangeUser(0., 2000.);
-  hist->Draw();
-  //sel_pad->SetEditable(0);
+  hist->DrawCopy();
   
   Int_t j = 0;
   TF1 *funcobj = 0;
@@ -62,7 +61,7 @@ void plot_photo_peak_fit_results(){
     funcobj->GetRange(xmin, xmax);
     xrange = xmax - xmin;
     hist->GetXaxis()->SetRangeUser(xmin - xrange / 3., xmax + xrange*(2./3.));
-    hist->Draw();
+    TH1* histcopy = hist->DrawCopy();
     sel_pad->Update();
     
     TPaveStats *ps = (TPaveStats*)sel_pad->GetPrimitive("stats");
@@ -102,12 +101,10 @@ void plot_photo_peak_fit_results(){
     listOfLines->Add(myt);
     
     // the following line is needed to avoid that the automatic redrawing of stats
-    hist->SetStats(0);
+    histcopy->SetStats(0);
     sel_pad->Modified();
     sel_pad->Update();
     sel_pad->Update();
-    hist->SetStats(1);
-    ps->SetName("stats");
     
     j++;
   }  

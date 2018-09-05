@@ -15,7 +15,9 @@ void fit_all_photo_peaks(){
     }
     std::cout << "obj->GetName() " << obj->GetName() <<std::endl;
     obj->Draw();
-    gROOT->ProcessLine(".x photo_peak_fit.C(1150.,1190.)");
-    gROOT->ProcessLine(".x plot_fit_results.C(\"photo_peak_fit_0\")");
+    gROOT->ProcessLine(".x photo_peak_fit.C(1150., 1190.)");
+    gROOT->ProcessLine(".x photo_peak_fit.C(1300., 1350.)");
+    gROOT->ProcessLine(".x plot_photo_peak_fit_results.C");
+     new TGMsgBox(gClient->GetRoot(),0, "wait", "wait", kMBIconAsterisk, kMBYes);
   }
 }
