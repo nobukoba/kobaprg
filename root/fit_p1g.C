@@ -42,7 +42,7 @@ Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
   return true;
 }
 
-void fit_eg() {
+void fit_p1g() {
   TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;
@@ -77,11 +77,11 @@ void fit_eg() {
 
   TList *funclist = hist->GetListOfFunctions();
   Int_t j = 0;
-  while(funclist->FindObject(Form("fit_eg_%d",j))){
+  while(funclist->FindObject(Form("fit_p1g_%d",j))){
     j++;
   }
 
-  TF1* fgaus = new TF1(Form("fit_eg_init_gaus_%d",j), "gaus", x0+0.25*xrang, x1-0.25*xrang);
+  TF1* fgaus = new TF1(Form("fit_p1g_init_gaus_%d",j), "gaus", x0+0.25*xrang, x1-0.25*xrang);
   Double_t ymax = hist->GetBinContent(hist->GetMaximumBin());
   fgaus->SetParLimits(0, 0., ymax*10000.);
   fgaus->SetParLimits(1, x0, x1);
@@ -89,16 +89,16 @@ void fit_eg() {
   hist->Fit(fgaus,"R+");
 
   Double_t par[5];
-  //par[0] = (y0*x1-y1*x0)/(x1-x0);
-  //par[1] = (y1-y0)/(x1-x0);
-  par[0] = (log(y0)*x1-log(y1)*x0)/(x1-x0);
-  par[1] = (log(y1)-log(y0))/(x1-x0);
+  par[0] = (y0*x1-y1*x0)/(x1-x0);
+  par[1] = (y1-y0)/(x1-x0);
+  //par[0] = (log(y0)*x1-log(y1)*x0)/(x1-x0);
+  //par[1] = (log(y1)-log(y0))/(x1-x0);
   par[2] = fgaus->GetParameter(0);
   par[3] = fgaus->GetParameter(1);
   par[4] = fgaus->GetParameter(2);
   funclist->Last()->Delete();
   
-  TF1* fit_p1g = new TF1(Form("fit_eg_%d",j),"expo(0)+gaus(2)",x0,x1);
+  TF1* fit_p1g = new TF1(Form("fit_p1g_%d",j),"pol1(0)+gaus(2)",x0,x1);
   fit_p1g->SetParameters(&(par[0]));
   fit_p1g->SetParName(0,"p0");
   fit_p1g->SetParName(1,"p1");
