@@ -485,7 +485,7 @@ public:
 	  Bool_t status = false;
 	  Bool_t first_found = false;
 	  while(cur_ListTreeItem){
-	    std::cout << cur_ListTreeItem->GetText() <<std::endl;
+	    //std::cout << cur_ListTreeItem->GetText() <<std::endl;
 	    if(cur_ListTreeItem->IsActive()){
 	      if(!first_found){
 		first_found = true;
