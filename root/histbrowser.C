@@ -441,6 +441,10 @@ public:
 	  PrintCanvas();
 	}
       }     
+      
+      if (keysym == kKey_g) {
+	gROOT->ProcessLine(".x fit_p1g.C");
+      }
 
       if ((keysym == kKey_Up)||
 	  (keysym == kKey_Down)||
