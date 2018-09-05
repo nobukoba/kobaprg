@@ -445,6 +445,9 @@ public:
       if (keysym == kKey_g) {
 	gROOT->ProcessLine(".x fit_p1g.C");
       }
+      if (keysym == kKey_c) {
+	gROOT->ProcessLine(".x fit_p1g_clear.C");
+      }
 
       if ((keysym == kKey_Up)||
 	  (keysym == kKey_Down)||
