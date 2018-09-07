@@ -1,9 +1,9 @@
-void copy_calibrated(){
-  std::cout << std::endl << "Macro: kobamac/root/copy_calibrated.C" << std::endl;
-  TFile *fin = new TFile("hist2336_nobu_cal2.root");
-  TFile *fout = new TFile("hist2336_calibrated.root","recreate");
+void copy_raw(){
+  std::cout << std::endl << "Macro: kobamac/root/copy_raw.C" << std::endl;
+  TFile *fin = new TFile("hist2337.root");
+  TFile *fout = new TFile("hist2337_raw.root","recreate");
   
-  TDirectory *d = (TDirectory *)fin->Get("Calibrated");
+  TDirectory *d = (TDirectory *)fin->Get("Raw");
   TList *lok_in = (TList *)d->GetListOfKeys();
   Int_t nlok_in = lok_in->GetEntries();
   TList *lok_out = new TList();

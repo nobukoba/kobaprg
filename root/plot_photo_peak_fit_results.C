@@ -46,7 +46,7 @@ void plot_photo_peak_fit_results(){
     return;
   }
   canvas->Clear();
-  canvas->Divide(2,2);
+  canvas->Divide(2,4);
   sel_pad = canvas->cd(1);
   //hist->GetXaxis()->UnZoom();
   hist->GetXaxis()->SetRangeUser(0., 2000.);

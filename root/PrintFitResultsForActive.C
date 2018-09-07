@@ -46,11 +46,12 @@ void PrintFitResultsForActive(){
       }
       Int_t j = 0;
       TF1 *funcobj = 0;
-      while (funcobj = (TF1*)funclist->FindObject(Form("fit_p1g_%d",j))) {
+      //while (funcobj = (TF1*)funclist->FindObject(Form("fit_p1g_%d",j))) {
+      while (funcobj = (TF1*)funclist->FindObject(Form("photo_peak_fit_%d",j))) {
 	if (j == 0) {
 	  std::cout << "HistName: " << ((TH1*)userdata)->GetName();
 	}
-	std::cout << ", " << funcobj->GetParameter(3);
+	std::cout << ", " << funcobj->GetParameter(1);
 	j++;
       }
       if (j>0) {
