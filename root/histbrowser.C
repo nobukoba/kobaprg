@@ -524,7 +524,7 @@ public:
 	      cur_ListTree->GetSelected()->SetActive(kFALSE);
 	    }
 	    cur_ListTree->UnselectAll(kTRUE);
-	    hist_fListTree_old_active_item.Clear();
+	    hist_fListTree_old_active_item.Delete();
 	    cur_ListTree->ClearViewPort();
 	  }
 	}
@@ -548,11 +548,11 @@ public:
 
 	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 		TGListTreeItem *cur_ListTreeItem = 0;
-		hist_fListTree_old_active_item.Clear();
+		hist_fListTree_old_active_item.Delete();
 		cur_ListTreeItem = hist_fListTree->GetFirstItem();
 		while(cur_ListTreeItem){
 		  if(cur_ListTreeItem->IsActive()){
-		    hist_fListTree_old_active_item.Add((TObject*)cur_ListTreeItem);
+		    hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
 		  }
 		  cur_ListTreeItem = NextItem(cur_ListTreeItem);
 		}
@@ -604,11 +604,11 @@ public:
 
 	if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	  TGListTreeItem *cur_ListTreeItem = 0;
-	  hist_fListTree_old_active_item.Clear();
+	  hist_fListTree_old_active_item.Delete();
 	  cur_ListTreeItem = hist_fListTree->GetFirstItem();
 	  while(cur_ListTreeItem){
 	    if(cur_ListTreeItem->IsActive()){
-	      hist_fListTree_old_active_item.Add((TObject*)cur_ListTreeItem);
+	      hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
 	    }
 	    cur_ListTreeItem = NextItem(cur_ListTreeItem);
 	  }
@@ -771,7 +771,7 @@ public:
   
   void MyClickedForHistFileBrowser(TGListTreeItem *entry, Int_t btn, UInt_t mask, Int_t x, Int_t y){
     if(mask & kKeyShiftMask){
-      hist_fListTree->UnselectAll(kTRUE);
+      //hist_fListTree->UnselectAll(kTRUE);
       //std::cout << "mask & kKeyShiftMask" <<std::endl;
       //std::cout << "entry->GetText():" << entry->GetText() << std::endl;
       if (hist_fListTree_old_item) {
@@ -809,27 +809,47 @@ public:
 	  }
 	}
       }
+      TGListTreeItem *cur_ListTreeItem = 0;
+      TIter next(&hist_fListTree_old_active_item);
+      TObject * obj;
+      while(obj = next()){
+      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      	//std::cout << "cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() <<std::endl;
+      }
       hist_fListTree->SetSelected(entry);
     }else{
-      hist_fListTree_old_item = hist_fListTree->GetSelected();
+      hist_fListTree_old_item = entry;
     }
 
     TGListTreeItem *cur_ListTreeItem = 0;
     if(mask & kKeyControlMask){
+      TObjString objstr_tmp(Form("%lld",entry));
+      TObjString *objstr_ptr;
+      if (objstr_ptr = (TObjString *)hist_fListTree_old_active_item.FindObject(&objstr_tmp)) {
+	hist_fListTree_old_active_item.Remove(&objstr_tmp);
+	entry->SetActive(kFALSE);
+	delete objstr_ptr;
+      }
+      
       TIter next(&hist_fListTree_old_active_item);
-      while(cur_ListTreeItem = (TGListTreeItem *)next()){
-	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      TObject * obj;
+      while(obj = next()){
+      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      	//std::cout << "cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() <<std::endl;
       }
     }
-
-    hist_fListTree_old_active_item.Clear();
+    
+    hist_fListTree_old_active_item.Delete();
     cur_ListTreeItem = hist_fListTree->GetFirstItem();
     while(cur_ListTreeItem){
       if(cur_ListTreeItem->IsActive()){
-	hist_fListTree_old_active_item.Add((TObject*)cur_ListTreeItem);
+	hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
       }
       cur_ListTreeItem = NextItem(cur_ListTreeItem);
     }
+    
     hist_fListTree->ClearViewPort();
     return;
   }
