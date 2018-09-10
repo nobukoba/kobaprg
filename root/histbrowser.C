@@ -467,6 +467,8 @@ public:
       
       if ((keysym == kKey_Up)||
 	  (keysym == kKey_Down)||
+	  (keysym == kKey_PageUp)||
+	  (keysym == kKey_PageDown)||
 	  (keysym == kKey_Return)||
 	  (keysym == kKey_Enter)||
 	  (keysym == kKey_Space)) {
@@ -592,6 +594,13 @@ public:
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	  }
 	  cur_ListTree->ClearViewPort();
+	}
+
+	if (keysym == kKey_PageDown) {
+	  cur_ListTree->PageDown(1);
+	}
+	if (keysym == kKey_PageUp) {
+	  cur_ListTree->PageUp(1);
 	}
 	
 	if ((keysym == kKey_Return)||
