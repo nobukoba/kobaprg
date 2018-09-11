@@ -1,0 +1,343 @@
+CLO05AP00{
+  Address: 0x01006D00
+  EnergyCoeff: 3.09 2.29
+  PoleZero: 0.892
+  System: Y
+}
+
+CLO05BP00{
+  Address: 0x01006D01
+  EnergyCoeff: 1.58 2.33
+  PoleZero: 0.891
+  System: Y
+}
+
+CLO05CP00{
+  Address: 0x01006D02
+  EnergyCoeff: 1.21 2.33
+  PoleZero: 0.892
+  System: Y
+}
+
+CLO05DP00{
+  Address: 0x01006D03
+  EnergyCoeff: 3.95 2.28
+  PoleZero: 0.895
+  System: Y
+}
+
+CLO06AP00{
+  Address: 0x01006E00
+  EnergyCoeff: 1.01 1.93
+  PoleZero: 0.885
+  System: Y
+}
+
+CLO06BP00{
+  Address: 0x01006E01
+  EnergyCoeff: 3.46 2.27
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO06CP00{
+  Address: 0x01006E02
+  EnergyCoeff: 2.45 2.31
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO06DP00{
+  Address: 0x01006E03
+  EnergyCoeff: 0.66 2.49
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO07AP00{
+  Address: 0x01006F00
+  EnergyCoeff: 1.86 2.31
+  PoleZero: 0.908
+  System: Y
+}
+
+CLO07BP00{
+  Address: 0x01006F01
+  EnergyCoeff: 2.65 2.38
+  PoleZero: 0.91
+  System: Y
+}
+
+CLO07CP00{
+  Address: 0x01006F02
+  EnergyCoeff: 1.72 2.28
+  PoleZero: 0.91
+  System: Y
+}
+
+CLO07DP00{
+  Address: 0x01006F03
+  EnergyCoeff: 2.05 2.25
+  PoleZero: 0.91
+  System: Y
+}
+
+CLO08AP00{
+  Address: 0x01007000
+  EnergyCoeff: 2.71 2.38
+  PoleZero: 0.895
+  System: Y
+}
+
+CLO08BP00{
+  Address: 0x01007001
+  EnergyCoeff: 1.91 2.29
+  PoleZero: 0.907
+  System: Y
+}
+
+CLO08CP00{
+  Address: 0x01007002
+  EnergyCoeff: 2.72 2.34
+  PoleZero: 0.907
+  System: Y
+}
+
+CLO08DP00{
+  Address: 0x01007003
+  EnergyCoeff: 2.29 2.25
+  PoleZero: 0.905
+  System: Y
+}
+
+CLO09AP00{
+  Address: 0x01007100
+  EnergyCoeff: 2.26 2.33
+  PoleZero: 0.9
+  System: Y
+}
+
+CLO09BP00{
+  Address: 0x01007101
+  EnergyCoeff: -3.299 2.481
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO09CP00{
+  Address: 0x01007102
+  EnergyCoeff: -0.5 2.48
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO09DP00{
+  Address: 0x01007103
+  EnergyCoeff: -0.92 2.5
+  PoleZero: 0.892
+  System: Y
+}
+
+CLO10AP00{
+  Address: 0x01007200
+  EnergyCoeff: 1.304 2.419
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO10BP00{
+  Address: 0x01007201
+  EnergyCoeff: 0.3438 2.409
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO10CP00{
+  Address: 0x01007202
+  EnergyCoeff: -0.464 2.4937
+  PoleZero: 0.89
+  System: Y
+}
+
+CLO10DP11{
+  Address: 0x01007203
+  EnergyCoeff: 4.01 2.44
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO10DP00{
+  Address: 0x01007208
+  EnergyCoeff: -2.1 2.4367
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO11AP00{
+  Address: 0x01007300
+  EnergyCoeff: -2.143 2.37
+  PoleZero: 0.895
+  System: Y
+}
+
+CLO11BP00{
+  Address: 0x01007301
+  EnergyCoeff: 0.404 2.419
+  PoleZero: 0.895
+  System: Y
+}
+
+CLO11CP00{
+  Address: 0x01007302
+  EnergyCoeff: 5.889 2.434
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO11DP00{
+  Address: 0x01007303
+  EnergyCoeff: 1.599 2.351
+  PoleZero: 0.893
+  System: Y
+}
+
+CLO12AP00{
+  Address: 0x01007400
+  EnergyCoeff: 1.83 2.23
+  PoleZero: 0.908
+  System: Y
+}
+
+CLO12BP00{
+  Address: 0x01007401
+  EnergyCoeff: 2.99 2.25
+  PoleZero: 0.908
+  System: Y
+}
+
+CLO12CP00{
+  Address: 0x01007402
+  EnergyCoeff: 1.74 2.28
+  PoleZero: 0.908
+  System: Y
+}
+
+CLO12DP00{
+  Address: 0x01007403
+  EnergyCoeff: 2.52 2.3
+  PoleZero: 0.908
+  System: Y
+}
+
+CLO13AP00{
+  Address: 0x01007500
+  EnergyCoeff: -3.299 2.481
+  PoleZero: 0.902
+  System: A
+}
+
+CLO13BP00{
+  Address: 0x01007501
+  EnergyCoeff: -0.03 2.25
+  PoleZero: 0.902
+  System: Y
+}
+
+CLO13CP00{
+  Address: 0x01007502
+  EnergyCoeff: 1.343 2.273
+  PoleZero: 0.902
+  System: Y
+}
+
+CLO13DP00{
+  Address: 0x01007503
+  EnergyCoeff: -0.67 2.33
+  PoleZero: 0.902
+  System: Y
+}
+
+CLO14AP00{
+  Address: 0x01007600
+  EnergyCoeff: 1.29 2.24
+  PoleZero: 0.905
+  System: A
+}
+
+CLO14BP11{
+  Address: 0x01007601
+  EnergyCoeff: 3.36 2.33
+  PoleZero: 0.907
+  System: Y
+}
+
+CLO14BP00{
+  Address: 0x01007602
+  EnergyCoeff: 3.36 2.33
+  PoleZero: 0.907
+  System: Y
+}
+
+CLO14CP00{
+  Address: 0x01007603
+  EnergyCoeff: 1.37 2.22
+  PoleZero: 0.907
+  System: Y
+}
+
+CLO15AP00{
+  Address: 0x01007700
+  EnergyCoeff: 1.53 2.299
+  PoleZero: 0.91
+  System: I
+}
+
+CLO15BP00{
+  Address: 0x01007701
+  EnergyCoeff: 2.469 2.308
+  PoleZero: 0.91
+  System: I
+}
+
+CLO15CP00{
+  Address: 0x01007702
+  EnergyCoeff: 2.643 2.314
+  PoleZero: 0.91
+  System: I
+}
+
+CLO15DP00{
+  Address: 0x01007703
+  EnergyCoeff: -0.7149 2.482
+  PoleZero: 0.91
+  System: I
+}
+
+CLO16AP00{
+  Address: 0x01007800
+  EnergyCoeff: 0.4482 2.377
+  PoleZero: 0.91
+  System: I
+}
+
+CLO16BP00{
+  Address: 0x01007801
+  EnergyCoeff: 10.73 2.37
+  PoleZero: 0.91
+  System: I
+}
+
+CLO16CP00{
+  Address: 0x01007802
+  EnergyCoeff: 1.584 2.4
+  PoleZero: 0.91
+  System: I
+}
+
+CLO16DP00{
+  Address: 0x01007803
+  EnergyCoeff: -1.808 2.3
+  PoleZero: 0.905
+  System: I
+}
+
