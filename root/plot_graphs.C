@@ -40,4 +40,5 @@ void plot_graphs(){
   }
   gr = (TGraph*)sel_pad->WaitPrimitive("Graph","PolyLine");
   gr->SetName(Form("Graph_%d",j));
+  gr->Draw("*");
 }
