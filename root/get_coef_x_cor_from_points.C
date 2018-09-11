@@ -56,13 +56,17 @@ void get_coef_x_cor_from_points(){
   for (Int_t i = 0; i < degree_of_polN+1; i++) {
     for (Int_t j = 0; j < ngraphs; j++) {
       TGraph *gr = (TGraph *)listofpri->FindObject(Form("Graph_%d",j));
-      TGraph *grinv = new TGraph(gr->GetN(),gr->GetY(),gr->GetX());
       TF1 *fit_func = new TF1("fit_func", Form("pol%d",degree_of_polN), 0., 1.);
+      //Change from get_coef_y_cor_from_points.C
+      //gr->Fit(fit_func);
+      TGraph *grinv = new TGraph(gr->GetN(),gr->GetY(),gr->GetX());
       grinv->Fit(fit_func);
       fit_pars[i][j] = fit_func->GetParameter(0);
       std::cout << "i, j, fit_pars: " << i << ", " << j << ", " << fit_pars[i][j] << std::endl;
       Double_t x, y;
-      gr->GetPoint(i, x, y);
+      //Change from get_coef_y_cor_from_points.C
+      //gr->GetPoint(i, x, y);
+      grinv->GetPoint(i, x, y);
       for (Int_t i2 = 0; i2 < degree_of_polN+1; i2++) {
 	for (Int_t j2 = 0; j2 < ngraphs; j2++) {
 	  m[k][i2*ngraphs+j2] = pow(x,i2)*pow(y,j2);
@@ -94,7 +98,9 @@ void get_coef_x_cor_from_points(){
   
   for (Int_t i = 0; i < degree_of_polN+1; i++) {
     for (Int_t j = 0; j < ngraphs; j++) {
-      std::cout << "0, " << i << ", " << j << ", " << coef[i][j] << std::endl;
+      // Change from get_coef_y_cor_from_points.C
+      //std::cout << "0, " << i << ", " << j << ", " << coef[i][j] << std::endl;
+      std::cout << "0, " << j << ", " << i << ", " << coef[i][j] << std::endl;
     }
   }
   std::cout << "1, 0, 1, 1"  << std::endl;
