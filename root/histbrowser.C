@@ -351,7 +351,7 @@ public:
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     ltitem = macro_fListTree->FindItemByPathname("/kobamac/root");
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
-    ltitem = macro_fListTree->FindItemByPathname("/kobamac/root/plot_selected");
+    ltitem = macro_fListTree->FindItemByPathname("/kobamac/root/fit");
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     macro_fListTree->ClearViewPort();
     
@@ -485,7 +485,7 @@ public:
 	}
 
 	if ((keysym == kKey_Space)) {
-	  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+	  TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetFirstItem();
 	  Bool_t status = false;
 	  Bool_t first_found = false;
 	  while(cur_ListTreeItem){
@@ -505,13 +505,13 @@ public:
 	  }
 	  if((!first_found)&&
 	     (!inside_of_filebrowser)){
-	    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetCurrent();
+	    TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
 	    cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
 	  }
 	  if((first_found)&&
 	     inside_of_filebrowser&&
-	     (!hist_fListTree->GetCurrent()->IsActive())){
-	    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetCurrent();
+	     (!cur_ListTree->GetCurrent()->IsActive())){
+	    TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
 	    cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
 	  }
 	  cur_ListTree->ClearViewPort();
