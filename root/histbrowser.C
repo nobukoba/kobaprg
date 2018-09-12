@@ -319,7 +319,7 @@ void writeTFolder(TObject* c){
 class HistBrowser : public TBrowser {
 public:
   HistBrowser() :
-    TBrowser("tb","roothb browser",0,"FCI"),
+    TBrowser("tb","roothb browser",800,1000,0,"FCI"),
     file_browser(0),
     macro_browser(0),
     hist_browser(0),
