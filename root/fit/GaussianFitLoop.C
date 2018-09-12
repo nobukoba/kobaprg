@@ -135,7 +135,7 @@ void GaussianFitLoop(){
   }
   if (hist->InheritsFrom("TH1") == 0) {return;}
   
-  gROOT->ProcessLine(".L GaussianFit.C");
+  gROOT->ProcessLine(".L fit/GaussianFit.C");
   TGMsgBoxMod *msgb = new TGMsgBoxMod(gClient->GetRoot(),0, "Script is running!!", "GaussianFitLoop.C is now running!!\nDo you stop it?");
   TTimer *timer = new TTimer();
   timer->Connect("Timeout()", "TGMsgBoxMod", msgb, "fitting()");
