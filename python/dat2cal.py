@@ -23,7 +23,7 @@ with open(args[1]) as file:
         match_comment = re.match("^//",row.lstrip())
         if match_comment:
             continue
-        strs = re.split("\s",row)
+        strs = re.split("\s+",row)
         print(strs[0] + "{")
         print("  Address: " + strs[1])
         print("  EnergyCoeff: " + strs[2] + " " + strs[3])
