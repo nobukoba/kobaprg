@@ -412,6 +412,21 @@ public:
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
       //printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
 
+      if (event->fState & kKeyControlMask) {
+	if (keysym == kKey_p) {
+	  PrintCanvas();
+	}
+      }     
+      if (keysym == kKey_g) {
+	gROOT->ProcessLine(".x fit_p1g.C");
+      }
+      if (keysym == kKey_f) {
+	gROOT->ProcessLine(".x fit_photo_peak.C");
+      }
+      if (keysym == kKey_c) {
+	gROOT->ProcessLine(".x fit_photo_peak_clear.C");
+      }
+
       TString gTQSender_name = ((TObject*)gTQSender)->GetName();
       if (gTQSender_name.BeginsWith("fCompositeFrame")){
 	return;
@@ -452,18 +467,6 @@ public:
       }
       prev_keysym = keysym;
 
-      if (event->fState & kKeyControlMask) {
-	if (keysym == kKey_p) {
-	  PrintCanvas();
-	}
-      }     
-      
-      if (keysym == kKey_g) {
-	gROOT->ProcessLine(".x fit_p1g.C");
-      }
-      if (keysym == kKey_c) {
-	gROOT->ProcessLine(".x fit_p1g_clear.C");
-      }
       
       if ((keysym == kKey_Up)||
 	  (keysym == kKey_Down)||
