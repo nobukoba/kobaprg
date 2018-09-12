@@ -1,5 +1,5 @@
-void fit_photo_peak_clear(){
-  std::cout << std::endl << "Macro: kobamac/root/fit/fit_photo_peak_clear.C" << std::endl;
+void fit_photo_peak_clear_all(){
+  std::cout << std::endl << "Macro: kobamac/root/fit/fit_photo_peak_clear_all.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. The script is terminated." << std::endl;
@@ -46,17 +46,11 @@ void fit_photo_peak_clear(){
     return;
   }
 
-  Int_t j = 0;
-  while(funclist->FindObject(Form("fit_photo_peak_%d",j))){
-    j++;
-  }
-
   TIter nextfunc(funclist);
   TF1 *funcobj = 0;
   while (funcobj = (TF1*)nextfunc()){
     TString funcname = funcobj->GetName();
-    if(funcname.BeginsWith("fit_photo_peak")
-       &&funcname.EndsWith(Form("_%d",j-1))){
+    if(funcname.BeginsWith("fit_photo_peak")){
       funclist->Remove(funcobj);
     }
   }

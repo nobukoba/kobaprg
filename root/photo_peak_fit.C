@@ -12,15 +12,15 @@
 #include "TFitResult.h"
 #include "TGMsgBox.h"
 
-extern Double_t fit_photo_peak_PolyBg(Double_t *dim, Double_t *par, Int_t order);
-extern Double_t fit_photo_peak_StepFunction(Double_t *dim, Double_t *par);
-extern Double_t fit_photo_peak_StepBG(Double_t *dim, Double_t *par);
-extern Double_t fit_photo_peak_Gaus(Double_t *dim, Double_t *par);
-extern Double_t fit_photo_peak_SkewedGaus(Double_t *dim,Double_t *par);
-extern Double_t fit_photo_peak_PhotoPeak(Double_t *dim,Double_t *par);
-extern Double_t fit_photo_peak_PhotoPeakBG(Double_t *dim,Double_t *par);
+extern Double_t photo_peak_fit_PolyBg(Double_t *dim, Double_t *par, Int_t order);
+extern Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_StepBG(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_Gaus(Double_t *dim, Double_t *par);
+extern Double_t photo_peak_fit_SkewedGaus(Double_t *dim,Double_t *par);
+extern Double_t photo_peak_fit_PhotoPeak(Double_t *dim,Double_t *par);
+extern Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par);
 
-Double_t fit_photo_peak_PhotoPeakBG(Double_t *dim,Double_t *par) {
+Double_t photo_peak_fit_PhotoPeakBG(Double_t *dim,Double_t *par) {
   // - dim[0]: channels to fit
   // - par[0]: height of peak
   // - par[1]: cent of peak
@@ -37,10 +37,10 @@ Double_t fit_photo_peak_PhotoPeakBG(Double_t *dim,Double_t *par) {
   spar[1] = par[1];
   spar[2] = par[2];
   spar[3] = par[5];  //stepsize;
-  return fit_photo_peak_Gaus(dim,par) + fit_photo_peak_SkewedGaus(dim,par) + fit_photo_peak_StepFunction(dim,spar) + fit_photo_peak_PolyBg(dim,par+6,0);
+  return photo_peak_fit_Gaus(dim,par) + photo_peak_fit_SkewedGaus(dim,par) + photo_peak_fit_StepFunction(dim,spar) + photo_peak_fit_PolyBg(dim,par+6,0);
 }
 
-Double_t fit_photo_peak_PolyBg(Double_t *dim, Double_t *par, Int_t order) {
+Double_t photo_peak_fit_PolyBg(Double_t *dim, Double_t *par, Int_t order) {
   Double_t result = 0.0;
   Int_t j = 0;
   for(Int_t i = 0; i <= order; i++) {
@@ -50,12 +50,12 @@ Double_t fit_photo_peak_PolyBg(Double_t *dim, Double_t *par, Int_t order) {
   return result;
 }
 
-Double_t fit_photo_peak_Const(Double_t *dim, Double_t *par) {
+Double_t photo_peak_fit_Const(Double_t *dim, Double_t *par) {
   return par[0];
 }
 
 
-Double_t fit_photo_peak_StepFunction(Double_t *dim, Double_t *par) {
+Double_t photo_peak_fit_StepFunction(Double_t *dim, Double_t *par) {
   //  -dim[0]: channels to fit
   //  -par[0]: height of peak
   //  -par[1]: centroid of peak
@@ -74,11 +74,11 @@ Double_t fit_photo_peak_StepFunction(Double_t *dim, Double_t *par) {
   return height*(step/100.0) *TMath::Erfc((x-cent)/(TMath::Sqrt(2.0)*sigma));
 }
 
-Double_t fit_photo_peak_StepBG(Double_t *dim, Double_t *par) {
-  return fit_photo_peak_StepFunction(dim,par) + fit_photo_peak_PolyBg(dim,(par+4),0);
+Double_t photo_peak_fit_StepBG(Double_t *dim, Double_t *par) {
+  return photo_peak_fit_StepFunction(dim,par) + photo_peak_fit_PolyBg(dim,(par+4),0);
 }
 
-Double_t fit_photo_peak_Gaus(Double_t *dim, Double_t *par) {
+Double_t photo_peak_fit_Gaus(Double_t *dim, Double_t *par) {
   // - dim[0]: channels to fit
   // - par[0]: height of peak
   // - par[1]: cent of peak
@@ -94,7 +94,7 @@ Double_t fit_photo_peak_Gaus(Double_t *dim, Double_t *par) {
   return height*(1.0-R/100.0)*TMath::Gaus(x,cent,sigma);
 }
 
-Double_t fit_photo_peak_SkewedGaus(Double_t *dim,Double_t *par) {
+Double_t photo_peak_fit_SkewedGaus(Double_t *dim,Double_t *par) {
   // StepFunction(dim,par) + PolyBg
   // - par[0]: height of peak
   // - par[1]: cent of peak
@@ -118,11 +118,11 @@ Double_t fit_photo_peak_SkewedGaus(Double_t *dim,Double_t *par) {
   return scaling * TMath::Exp((x-cent)/beta) * TMath::Erfc(fterm + sterm); 
 }
 
-Double_t fit_photo_peak_PhotoPeak(Double_t *dim,Double_t *par) {
-  return fit_photo_peak_Gaus(dim,par) + fit_photo_peak_SkewedGaus(dim,par);
+Double_t photo_peak_fit_PhotoPeak(Double_t *dim,Double_t *par) {
+  return photo_peak_fit_Gaus(dim,par) + photo_peak_fit_SkewedGaus(dim,par);
 }
 
-void fit_photo_peak_InitParams(TH1 *fithist, TF1 *fitfunc){
+void photo_peak_fit_InitParams(TH1 *fithist, TF1 *fitfunc){
   if(!fithist){
     printf("No histogram is associated yet, no initial guesses made\n");
     return;
@@ -218,7 +218,7 @@ void fit_photo_peak_InitParams(TH1 *fithist, TF1 *fitfunc){
   return;
 }
 
-void fit_photo_peak_InitNames(TF1 *fitfunc){
+void photo_peak_fit_InitNames(TF1 *fitfunc){
   fitfunc->SetParName(0,"Height");
   fitfunc->SetParName(1,"centroid");
   fitfunc->SetParName(2,"sigma");
@@ -228,7 +228,7 @@ void fit_photo_peak_InitNames(TF1 *fitfunc){
   fitfunc->SetParName(6,"bg_offset");
 }
 
-void fit_photo_peak_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
+void photo_peak_fit_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   TString options = opt;
   TVirtualFitter::SetMaxIterations(100000);
 
@@ -269,7 +269,7 @@ void fit_photo_peak_DoFit(TH1 *fithist, TF1 *fitfunc, Option_t *opt) {
   //int_low  = xlow - 5.*width;
   //int_high = xhigh +5.*width;
 
-  TF1 *fbg = new TF1("fit_photo_peak_bg", fit_photo_peak_StepBG, xlow, xhigh, 6);
+  TF1 *fbg = new TF1("photo_peak_fit_bg", photo_peak_fit_StepBG, xlow, xhigh, 6);
   fbg->SetParameter(0,fitfunc->GetParameter(0));
   fbg->SetParameter(1,fitfunc->GetParameter(1));
   fbg->SetParameter(2,fitfunc->GetParameter(2));
@@ -351,14 +351,14 @@ Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
   return true;
 }
 
-void fit_photo_peak(Double_t x0, Double_t x1){
-
-  std::cout << std::endl << "Macro: kobamac/root/fit_photo_peak.C(Double_t, Double_t)" << std::endl;
+void photo_peak_fit(Double_t x0, Double_t x1){
+  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C(Double_t, Double_t)" << std::endl;
   TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;
     return;
   }
+  
   if (x0 > x1){
     Double_t tmp;
     tmp = x1;
@@ -366,18 +366,20 @@ void fit_photo_peak(Double_t x0, Double_t x1){
     x0 = tmp;
   }
 
+  return;
+
   Int_t j = 0;
-  while(hist->GetListOfFunctions()->FindObject(Form("fit_photo_peak_%d",j))){
+  while(hist->GetListOfFunctions()->FindObject(Form("photo_peak_fit_%d",j))){
     j++;
   }
-  TF1 *f = new TF1(Form("fit_photo_peak_%d",j), fit_photo_peak_PhotoPeakBG, x0, x1, 7);
+  TF1 *f = new TF1(Form("photo_peak_fit_%d",j), photo_peak_fit_PhotoPeakBG, x0, x1, 7);
   f->SetLineWidth(2);
   
-  fit_photo_peak_InitNames(f);
-  fit_photo_peak_InitParams(hist, f);
-  //fit_photo_peak_DoFit(hist,f,"Q+");
+  photo_peak_fit_InitNames(f);
+  photo_peak_fit_InitParams(hist, f);
+  //photo_peak_fit_DoFit(hist,f,"Q+");
 
-  
+
   if (j==0) {
     hist->Fit(f,"R");
     hist->GetListOfFunctions()->Last()->Delete();
@@ -385,9 +387,8 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   }else{
     hist->Fit(f,"R+");
   }
-
   
-  TF1 *fbg = new TF1(Form("fit_photo_peak_bg_%d",j), fit_photo_peak_StepBG, x0, x1, 5);
+  TF1 *fbg = new TF1(Form("photo_peak_fit_bg_%d",j), photo_peak_fit_StepBG, x0, x1, 6);
   fbg->SetLineWidth(1);
   fbg->SetLineColor(1);
   fbg->SetLineStyle(kDashed);
@@ -397,7 +398,7 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   fbg->SetParameter(3,f->GetParameter(5));
   fbg->SetParameter(4,f->GetParameter(6));
 
-  TF1 *fgaus = new TF1(Form("fit_photo_peak_gaus_%d",j), fit_photo_peak_Gaus, x0, x1, 4);
+  TF1 *fgaus = new TF1(Form("photo_peak_fit_gaus_%d",j), photo_peak_fit_Gaus, x0, x1, 4);
   fgaus->SetLineWidth(1);
   fgaus->SetLineColor(1);
   fgaus->SetLineStyle(kDashed);
@@ -406,7 +407,7 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   fgaus->SetParameter(2,f->GetParameter(2));
   fgaus->SetParameter(3,f->GetParameter(3));
 
-  TF1 *fsg = new TF1(Form("fit_photo_peak_skewedgaus_%d",j), fit_photo_peak_SkewedGaus, x0, x1, 5);
+  TF1 *fsg = new TF1(Form("photo_peak_fit_skewedgaus_%d",j), photo_peak_fit_SkewedGaus, x0, x1, 5);
   fsg->SetLineWidth(1);
   fsg->SetLineColor(1);
   fsg->SetLineStyle(kDashed);
@@ -416,24 +417,25 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   fsg->SetParameter(3,f->GetParameter(3));
   fsg->SetParameter(4,f->GetParameter(4));
 
-  TF1 *fconst = new TF1(Form("fit_photo_peak_const_%d",j), fit_photo_peak_Const, x0, x1, 1);
+  TF1 *fconst = new TF1(Form("photo_peak_fit_const_%d",j), photo_peak_fit_Const, x0, x1, 1);
   fconst->SetLineWidth(1);
   fconst->SetLineColor(1);
   fconst->SetLineStyle(kDashed);
   fconst->SetParameter(0,f->GetParameter(6));
 
-
   hist->GetListOfFunctions()->Add(fbg->Clone());
   hist->GetListOfFunctions()->Add(fgaus->Clone());
   hist->GetListOfFunctions()->Add(fsg->Clone());
   hist->GetListOfFunctions()->Add(fconst->Clone());
+
   gPad->Modified();
   gPad->Update();
   return;
+  
 }
 
-void fit_photo_peak(){
-  std::cout << std::endl << "Macro: kobamac/root/fit_photo_peak.C" << std::endl;
+void photo_peak_fit(){
+  std::cout << std::endl << "Macro: kobamac/root/photo_peak_fit.C" << std::endl;
   TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;
@@ -450,6 +452,6 @@ void fit_photo_peak(){
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
   delete mk;
   gPad->SetCrosshair(0);
-  fit_photo_peak(x0, x1);
+  photo_peak_fit(x0, x1);
   return;
 }
