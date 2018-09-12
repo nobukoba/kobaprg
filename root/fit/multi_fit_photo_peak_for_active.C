@@ -57,7 +57,6 @@ void multi_fit_photo_peak_for_active(){
   str.ReplaceAll(","," ");
   Double_t x0, x1;
   sscanf(str.Data(),"%lf %lf", &x0, &x1);
-  return;
   multi_fit_photo_peak_for_active(x0,x1);
   return;
 }
