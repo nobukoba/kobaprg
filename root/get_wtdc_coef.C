@@ -8,7 +8,8 @@ void get_wtdc_coef(){
   Int_t j = 0;
 
   std::cout << "" << std::endl;
-  std::cout << "wtdc range {xlow, xup}" << std::endl;
+  std::cout << "wtdc range" << std::endl;
+  std::cout << "{xlow, xup}" << std::endl;
   while (pad = canvas->GetPad(j)) {
     TList *listofpri = pad->GetListOfPrimitives();
     if (listofpri == 0) {
@@ -73,8 +74,8 @@ void get_wtdc_coef(){
       Double_t y2 = hist->GetBinContent(i);
       if (y2 > yped_10) {
 	Double_t y1 = hist->GetBinContent(i+1);
-	Double_t x1 = hist->GetBinCenter(i);
-	Double_t x2 = hist->GetBinCenter(i+1);
+	Double_t x1 = hist->GetBinCenter(i+1);
+	Double_t x2 = hist->GetBinCenter(i);
 	Double_t a = (y2-y1)/(x2-x1);
 	Double_t b = (x2*y1-x1*y2)/(x2-x1);
 	xup_10 = (yped_10 -b) / a;
