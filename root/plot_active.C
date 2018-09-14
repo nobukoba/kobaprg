@@ -45,6 +45,10 @@ void plot_active() {
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
+      if(((npad == 0) && (cur_pad == 0))||
+	 ((npad > 0)  && (cur_pad == 1))) {
+	canvas->Clear("D");
+      }
       canvas->cd(cur_pad);
       TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
       if (userdata->InheritsFrom("TKey")){
@@ -57,7 +61,8 @@ void plot_active() {
       hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
       cur_pad++;
       if (cur_pad > npad){
-	canvas->Clear("D");
+	canvas->Modified();
+	canvas->Update();
 	if(npad == 0) {
 	  cur_pad = 0;
 	}else{
@@ -67,5 +72,7 @@ void plot_active() {
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
+  canvas->Modified();
+  canvas->Update();
   return;
 }

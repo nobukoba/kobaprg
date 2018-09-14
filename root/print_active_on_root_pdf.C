@@ -47,6 +47,10 @@ void print_active_on_root_pdf() {
   canvas->Print("../../root.pdf[","pdf");
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
+      if(((npad == 0) && (cur_pad == 0))||
+	 ((npad > 0)  && (cur_pad == 1))) {
+	canvas->Clear("D");
+      }
       canvas->cd(cur_pad);
       TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
       if (userdata->InheritsFrom("TKey")){
@@ -60,7 +64,6 @@ void print_active_on_root_pdf() {
       cur_pad++;
       if (cur_pad > npad){
 	canvas->Print("../../root.pdf","pdf");
-	canvas->Clear("D");
 	if(npad == 0) {
 	  cur_pad = 0;
 	}else{
@@ -70,7 +73,10 @@ void print_active_on_root_pdf() {
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
-  canvas->Print("../../root.pdf","pdf");
+  if(((npad == 0) && (cur_pad != 0))||
+     ((npad > 0)  && (cur_pad != 1))) {
+    canvas->Print("../../root.pdf","pdf");
+  }
   canvas->Print("../../root.pdf]","pdf");
   return;
 }

@@ -26,7 +26,7 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
   return SearchNextItem(cur_item);
 }
 
-void SetRangeUserForChecked(Double_t x0, Double_t x1){
+void set_range_for_checked(Double_t x0, Double_t x1){
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
@@ -47,7 +47,7 @@ void SetRangeUserForChecked(Double_t x0, Double_t x1){
   return;
 }
 
-void SetRangeUserForChecked(){
+void set_range_for_checked(){
   char command[1024];
   strlcpy(command, "0.0 1.0",sizeof(command));
   new TGInputDialog(gClient->GetRoot(),0,
@@ -57,6 +57,6 @@ void SetRangeUserForChecked(){
   str.ReplaceAll(","," ");
   Double_t x0, x1;
   sscanf(str.Data(),"%lf %lf", &x0, &x1);
-  SetRangeUserForChecked(x0,x1);
+  set_range_for_checked(x0,x1);
   return;
 }
