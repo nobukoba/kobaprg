@@ -1,4 +1,4 @@
-void unzoom_all(){
+void unzoom_all_in_canvas(){
   std::cout << std::endl << "kobamac: unzoom_all.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
