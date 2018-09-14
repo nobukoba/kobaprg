@@ -14,7 +14,7 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
   return SearchNextItem(cur_item);
 }
 
-void print_active_histos_on_root_pdf() {
+void plot_active() {
   TCanvas *canvas = gPad->GetCanvas();
   if (!canvas) {
     std::cout << "There is no canvas. This script is terminated." << std::endl;
@@ -33,7 +33,6 @@ void print_active_histos_on_root_pdf() {
       npad++;
     }
   }
-  std::cout << "npad: " << npad <<std::endl;
   
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {
@@ -44,7 +43,6 @@ void print_active_histos_on_root_pdf() {
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad == 0;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  canvas->Print("../../root.pdf[","pdf");
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
       canvas->cd(cur_pad);
@@ -59,7 +57,6 @@ void print_active_histos_on_root_pdf() {
       hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
       cur_pad++;
       if (cur_pad > npad){
-	canvas->Print("../../root.pdf","pdf");
 	canvas->Clear("D");
 	if(npad == 0) {
 	  cur_pad = 0;
@@ -70,7 +67,5 @@ void print_active_histos_on_root_pdf() {
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
-  canvas->Print("../../root.pdf","pdf");
-  canvas->Print("../../root.pdf]","pdf");
   return;
 }
