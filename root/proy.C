@@ -7,7 +7,7 @@
 #include "TList.h"
 #include "TH2.h"
 
-void bany(Double_t par0, Double_t par1){
+void proy(){
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. This script is terminated." << std::endl;
@@ -40,7 +40,7 @@ void bany(Double_t par0, Double_t par1){
   
   gROOT->cd();
   TString str = hist->GetName();
-  str += "_bny";
+  str += "_pry";
   TString str_n = str;
   Int_t num = 1;
   while (gROOT->Get(str_n.Data())) {
@@ -50,40 +50,14 @@ void bany(Double_t par0, Double_t par1){
   
   TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsY(),
 			hist->GetYaxis()->GetXmin(), hist->GetYaxis()->GetXmax());
-  Int_t i1 = hist->GetXaxis()->FindBin(par0);
-  Int_t i2 = hist->GetXaxis()->FindBin(par1);
-  Double_t binw = hist->GetXaxis()->GetBinWidth(1);
-  Double_t factor1 = (hist->GetXaxis()->GetBinUpEdge(i1) - par0)  / binw;
-  Double_t factor2 = (par1 - hist->GetXaxis()->GetBinLowEdge(i2)) / binw;
-  Double_t factor;
-  for (Int_t i = i1; i <= i2; i++) {
-    if      (i == i1) {factor = factor1;}
-    else if (i == i2) {factor = factor2;}
-    else              {factor = 1.;}
+  for (Int_t i = 1; i <= hist->GetNbinsX(); i++) {
     for (Int_t j = 0; j <= hist->GetNbinsY()+1; j++) {
       hout->Fill(hist->GetYaxis()->GetBinCenter(j),
-		 hist->GetBinContent(i,j)*factor);
+		 hist->GetBinContent(i,j));
     }
   }
+  hout->SetEntries(hist->GetEntries());
   hout->Draw();
   sel_pad->Update();
-  return;
-}
-
-void bany(){
-  char retstr[256];
-  new TGInputDialog(gClient->GetRoot(),0,
-                    "Range: %f %f",
-                    "0.0 1.0",retstr);
-  if(retstr[0] == 0 && retstr[1] == 0){
-    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-    return;
-  }
-  TString str = retstr;
-  str.ReplaceAll(","," ");
-  std::istringstream iss(str);
-  Double_t par0, par1;
-  iss >> par0 >> par1;
-  bany(par0,par1);
   return;
 }
