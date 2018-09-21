@@ -204,6 +204,7 @@ public:
       num++;
     }
     TH2 *hout = (TH2*)hist->Clone(str_n);
+    hout->SetTitle(hist->GetTitle());
     hout->Reset();
     gROOT->ProcessLine(".L ./transform_2d_func.C+");
     gROOT->ProcessLine(Form("doTransformationTH2D((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hout,f_xy,g_xy));

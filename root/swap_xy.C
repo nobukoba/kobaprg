@@ -44,6 +44,7 @@ void swap_xy(){
   }
   gROOT->cd();
   TH2 *hout = (TH2*)hist->Clone(str_n);
+  hout->SetTitle(hist->GetTitle());
   hout->Reset();
   hout->SetBins(hist->GetNbinsY(),hist->GetYaxis()->GetXmin(),hist->GetYaxis()->GetXmax(),
 		hist->GetNbinsX(),hist->GetXaxis()->GetXmin(),hist->GetXaxis()->GetXmax());

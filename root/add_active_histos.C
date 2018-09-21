@@ -50,6 +50,7 @@ void add_active_histos(){
 	    num++;
 	  }
 	  added = (TH1*) hist->Clone(str_n);
+	  added->SetTitle(hist->GetTitle());
 	}else{
 	  added->Add(hist);
 	}

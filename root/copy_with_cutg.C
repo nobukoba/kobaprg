@@ -45,6 +45,7 @@ void copy_with_cutg(){
     num++;
   }
   TH2 *hout = (TH2*)hist->Clone(str_n);
+  hout->SetTitle(hist->GetTitle());
   //hout->Reset();
   Double_t xx, yy;
   for (Int_t i = 0; i <= hist->GetNbinsX()+1; i++) {
