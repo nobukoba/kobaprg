@@ -3,7 +3,7 @@
   //gEnv->SetValue("Print.Printer","-Pa3c4476 -o PageSize=A4 -o PageRegion=A4");
   gEnv->SetValue("Print.Printer","-Pa3c4476");
   gEnv->SetValue("Print.FileType","ps");
-  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); // If TTFonts are enabled, the TH2::SetShowProjectionX() will causes segv.
+  gEnv->SetValue("Unix.*.Root.UseTTFonts","false"); // If TTFonts are disabled, the TH2::SetShowProjectionX() will causes segv.
   //gEnv->SetValue("Unix.*.Root.UseTTFonts","true");
   //gEnv->SetValue("Unix.*.Root.TTFontPath","");
   gEnv->SetValue("Canvas.ShowEventStatus", "false");
@@ -27,30 +27,27 @@
   gStyle->SetStatColor(0);
   gStyle->SetStatStyle(0);
   gStyle->SetStatX(0.9);  
-  gStyle->SetStatY(0.9);
-  gStyle->SetStatW(0.4);
-  gStyle->SetStatH(0.4);
+  gStyle->SetStatY(0.9);  
   gStyle->SetPalette(1);
   //gStyle->SetOptLogz(1);
   //  gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(1110010);
+  gStyle->SetOptStat(1111111);
   gStyle->SetOptFit(1);
   gStyle->SetOptDate(1);
   gStyle->SetPaperSize(20,26);
-  
-  
+  gStyle->SetNdivisions(505,"X");
   gStyle->SetLabelFont(132,"XYZ");
   gStyle->SetTitleFont(132,"XYZ");
   gStyle->SetTitleFont(132,"");
-  gStyle->SetTextFont (132);
-  gStyle->SetStatFont (132);
-  
-  gStyle->SetTitleSize(0.06,"XYZ");
-  gStyle->SetTitleSize(0.06,"");
-  gStyle->SetLabelSize(0.06,"XYZ");
-  gStyle->SetTextSize(0.06);
-  gStyle->SetStatFontSize(0.06);
-  gStyle->SetTitleFontSize(0.06);
+  gStyle->SetTextFont(132);
+  gStyle->SetStatFont(132);
+  gStyle->GetAttDate()->SetTextFont(132);
+  gStyle->SetTitleSize(0.04,"XYZ");
+  gStyle->SetTitleSize(0.04,"");
+  gStyle->SetLabelSize(0.04,"XYZ");
+  gStyle->SetTextSize(0.04);
+  gStyle->SetStatFontSize(0.04);
+  gStyle->SetTitleFontSize(0.04);
   
   gROOT->ForceStyle();
   if (gSystem->AccessPathName("lib/libAllGrutinizer.so")==0) {
