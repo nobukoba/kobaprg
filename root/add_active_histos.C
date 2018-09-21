@@ -5,7 +5,6 @@
 #include "TGListTree.h"
 #include "TList.h"
 #include "TKey.h"
-#include "TGInputDialog.h"
 #include "TH1.h"
 
 TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){

@@ -5,16 +5,20 @@
 #include "TGListTree.h"
 
 void zone_x_y(){
-  char command[1024];
-  strlcpy(command, "2 2",sizeof(command));
+  char retstr[256];
   new TGInputDialog(gClient->GetRoot(),0,
 		    "Enter numer of colums and rows: nx ny",
-		    command,command);
-  TString str = command;
+                    "2 2",retstr);
+  if(retstr[0] == 0 && retstr[1] == 0){
+    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
+    return;
+  }
+  TString str = retstr;
   str.ReplaceAll(","," ");
-  Int_t nx, ny;
-  sscanf(str.Data(),"%d %d",&nx,&ny);
-  plot_selected_x_y(nx,ny);
+  std::istringstream iss(str);
+  Int_t par0, par1;
+  iss >> par0 >> par1;
+  plot_selected_x_y(par0, par1);
   return;
 }
 
