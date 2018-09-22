@@ -1,3 +1,10 @@
+#if defined(__CINT__) && !defined(__MAKECINT__)
+{
+   gSystem->CompileMacro("./kobamac/root/histbrowser.C");
+   histbrowser();
+}
+#else
+
 #include <iostream>
 #include <string.h>
 
@@ -918,10 +925,6 @@ protected:
 
 HistBrowser *pHistBrowser;
 void histbrowser(){
-#ifdef __CINT__
-  printf("This macro should be compiled by ACLiC\n");
-  return;
-#endif
   if (gROOT->FindObjectAny("histbrowser_flag")){
     printf("Warning: alredy histbrowser is there!\n");
     return;
@@ -929,3 +932,4 @@ void histbrowser(){
   gROOT->Add(new TNamed("histbrowser_flag","histbrowser_flag"));
   pHistBrowser = new HistBrowser();
 }
+#endif
