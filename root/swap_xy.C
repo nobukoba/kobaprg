@@ -54,7 +54,7 @@ void swap_xy(){
     }
   }
   hout->SetEntries(hist->GetEntries());
-  hout->Draw();
+  hout->Draw("colz");
   canvas->Modified();
   canvas->Update();
   return;
