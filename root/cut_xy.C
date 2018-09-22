@@ -44,7 +44,7 @@ void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
   TString str_n = str;
   Int_t num = 1;
   while (gROOT->Get(str_n.Data())) {
-    str_n.Form("%s%d",str.Data(),num);
+    str_n = Form("%s%d",str.Data(),num);
     num++;
   }
 

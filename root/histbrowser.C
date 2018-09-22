@@ -343,15 +343,13 @@ public:
     StopEmbedding("Histos");
     
     macro_fListTree = macro_browser->GetListTree();
-    macro_browser->AddFSDirectory("kobamac","kobamac","Add");
+    macro_browser->AddFSDirectory("kobamac/root","kobamac/root","Add");
     macro_browser->ApplyFilter(2);
     SetDNDSourceRecursive(macro_fListTree,macro_fListTree->GetFirstItem(),0);
     TGListTreeItem *ltitem;
-    ltitem = macro_fListTree->FindItemByPathname("/kobamac");
+    ltitem = macro_fListTree->GetFirstItem();
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
-    ltitem = macro_fListTree->FindItemByPathname("/kobamac/root");
-    macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
-    ltitem = macro_fListTree->FindItemByPathname("/kobamac/root/fit");
+    ltitem = macro_fListTree->FindChildByName(ltitem,"fit");
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     macro_fListTree->ClearViewPort();
     
@@ -361,7 +359,8 @@ public:
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			     "HistBrowser", this,
 			     "MyClicked2(TGListTreeItem *, Int_t)");
-    
+
+    //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
@@ -387,6 +386,7 @@ public:
     hist_browser->GetDrawOptionPointer()->GetTextEntry()->SetText("colz");
     cumtomTDirectoryFileMenu();
     cumtomTFolderMenu();
+
   }
   
   ~HistBrowser(){

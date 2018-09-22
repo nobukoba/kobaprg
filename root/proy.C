@@ -44,7 +44,7 @@ void proy(){
   TString str_n = str;
   Int_t num = 1;
   while (gROOT->Get(str_n.Data())) {
-    str_n.Form("%s%d",str.Data(),num);
+    str_n = Form("%s%d",str.Data(),num);
     num++;
   }
   
