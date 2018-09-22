@@ -1,6 +1,6 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-   gSystem->CompileMacro("./kobamac/root/histbrowser.C");
+  gSystem->CompileMacro("./kobamac/root/histbrowser.C","k");
    histbrowser();
 }
 #else
