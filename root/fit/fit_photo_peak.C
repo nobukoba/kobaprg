@@ -352,8 +352,7 @@ Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
 }
 
 void fit_photo_peak(Double_t x0, Double_t x1){
-
-  std::cout << std::endl << "Macro: kobaprg/root/fit_photo_peak.C(Double_t, Double_t)" << std::endl;
+  std::cout << std::endl << "Macro: fit_photo_peak.C(Double_t, Double_t)" << std::endl;
   TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;
@@ -433,7 +432,7 @@ void fit_photo_peak(Double_t x0, Double_t x1){
 }
 
 void fit_photo_peak(){
-  std::cout << std::endl << "Macro: kobaprg/root/fit_photo_peak.C" << std::endl;
+  std::cout << std::endl << "Macro: fit_photo_peak.C" << std::endl;
   TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;

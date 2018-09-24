@@ -1,5 +1,5 @@
 void copy_raw(){
-  std::cout << std::endl << "Macro: kobaprg/root/copy_raw.C" << std::endl;
+  std::cout << std::endl << "Macro: copy_raw.C" << std::endl;
   TFile *fin = new TFile("hist2337.root");
   TFile *fout = new TFile("hist2337_raw.root","recreate");
   

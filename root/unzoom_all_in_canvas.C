@@ -1,5 +1,5 @@
 void unzoom_all_in_canvas(){
-  std::cout << std::endl << "kobaprg: unzoom_all.C" << std::endl;
+  std::cout << std::endl << "Macro: unzoom_all_in_canvas.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas." << std::endl;

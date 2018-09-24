@@ -1,5 +1,5 @@
 void fit_photo_peak_clear_all(){
-  std::cout << std::endl << "Macro: kobaprg/root/fit/fit_photo_peak_clear_all.C" << std::endl;
+  std::cout << std::endl << "Macro: fit_photo_peak_clear_all.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. The script is terminated." << std::endl;

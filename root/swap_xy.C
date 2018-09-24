@@ -28,7 +28,7 @@ Bool_t GetSelectedTH2(TH1*& hist, TCanvas*& canvas,
 }
 
 void swap_xy(){
-  std::cout << std::endl << "Macro: kobaprg/root/swap_xy." << std::endl;
+  std::cout << std::endl << "Macro: swap_xy.C" << std::endl;
   TH2* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
   if (!GetSelectedTH2(hist, canvas, sel_pad, listofpri)) {
     std::cout << "This script is terminated." << std::endl;

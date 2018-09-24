@@ -1,5 +1,5 @@
 void copy_calibrated(){
-  std::cout << std::endl << "Macro: kobaprg/root/copy_calibrated.C" << std::endl;
+  std::cout << std::endl << "Macro: copy_calibrated.C" << std::endl;
   TFile *fin = new TFile("hist2336_nobu_cal2.root");
   TFile *fout = new TFile("hist2336_calibrated.root","recreate");
   
