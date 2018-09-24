@@ -12,7 +12,6 @@
 
 void deformation_anim(){
   gStyle->SetLegoInnerR(0.);
-  //gStyle->SetCanvasPreferGL(true);
   Double_t pi = 3.14159265358979323846;
   
   /* Give parameters */
@@ -94,6 +93,7 @@ void deformation_anim(){
 
 }
 
+//gStyle->SetCanvasPreferGL(true);
 //h->SetContour(99);
 ////((TGMainFrame *)(((TGLSAViewer*)glViewer)->GetFrame()))->Resize(500, 300);
 //Double_t center[3] = {0.,0.,0.};
