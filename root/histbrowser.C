@@ -1,7 +1,7 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
   gSystem->CompileMacro("./kobaprg/root/histbrowser.C","k");
-   histbrowser();
+  histbrowser();
 }
 #else
 
