@@ -1,5 +1,5 @@
 void fit_all_photo_peaks(){
-  std::cout << std::endl << "Macro: kobamac/root/fit_all_photo_peaks.C" << std::endl;
+  std::cout << std::endl << "Macro: kobaprg/root/fit_all_photo_peaks.C" << std::endl;
   TFile *fin = new TFile("hist2336_calibrated.root");
   
   TList *lok_in = (TList *)fin->GetListOfKeys();

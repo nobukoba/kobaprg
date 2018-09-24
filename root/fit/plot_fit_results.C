@@ -16,7 +16,7 @@ void plot_fit_results(){
 }
 
 void plot_fit_results(const char * funcname){
-  std::cout << std::endl << "Macro: kobamac/root/plot_fit_results.C" << std::endl;
+  std::cout << std::endl << "Macro: kobaprg/root/plot_fit_results.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. The script is terminated." << std::endl;

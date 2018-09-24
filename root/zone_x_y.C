@@ -23,7 +23,7 @@ void zone_x_y(){
 }
 
 void zone_x_y(const Int_t nx = 2, const Int_t ny = 2){
-  //std::cout << std::endl << "Macro: kobamac/root/zone_x_y.C" << std::endl;
+  //std::cout << std::endl << "Macro: kobaprg/root/zone_x_y.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. The script is terminated." << std::endl;

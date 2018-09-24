@@ -1,6 +1,6 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-  gSystem->CompileMacro("./kobamac/root/histbrowser.C","k");
+  gSystem->CompileMacro("./kobaprg/root/histbrowser.C","k");
    histbrowser();
 }
 #else
@@ -350,7 +350,7 @@ public:
     StopEmbedding("Histos");
     
     macro_fListTree = macro_browser->GetListTree();
-    macro_browser->AddFSDirectory("kobamac/root","kobamac/root","Add");
+    macro_browser->AddFSDirectory("kobaprg/root","kobaprg/root","Add");
     macro_browser->ApplyFilter(2);
     SetDNDSourceRecursive(macro_fListTree,macro_fListTree->GetFirstItem(),0);
     TGListTreeItem *ltitem;

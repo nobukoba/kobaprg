@@ -10,7 +10,7 @@
   gEnv->SetValue("Canvas.ShowToolTips", "true");
   gEnv->SetValue("Canvas.ShowToolBar", "true");
   gEnv->SetValue("Canvas.ShowEditor", "false");
-  gROOT->SetMacroPath(".:./kobamac/root:../..");
+  gROOT->SetMacroPath(".:./kobaprg/root:../..");
 
   gROOT->SetStyle("Plain");
   gStyle->SetHistFillColor(0);
@@ -53,5 +53,5 @@
   if (gSystem->AccessPathName("lib/libAllGrutinizer.so")==0) {
     gSystem->Load("lib/libAllGrutinizer.so");
   }
-  gROOT->ProcessLine(".x kobamac/root/histbrowser.C+");
+  gROOT->ProcessLine(".x kobaprg/root/histbrowser.C+");
 }
