@@ -6,7 +6,7 @@ cd ${dir}; echo "PWD: ${PWD}"
 # -loop N: number of loop
 # -loop 0: infinite loop
 # -delay t: t * 10 msec interval
-# -layers optimize: optimized
+# -layers optimize: optimized, this should be used at a final stage, otherwise the pictures will NOT be handled properly
 cmd1="convert -delay 2 -loop 0 ann_beta_*.gif ann_movie.gif"
 echo $cmd1
 eval $cmd1
