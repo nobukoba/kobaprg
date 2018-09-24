@@ -16,5 +16,5 @@ On the terminal
 $ ls
 $ ... kobaprg ...
 $ root
-root [0] .x kobaprg/root/histobrowser/histobrowser.C+
+root [0] .x kobaprg/root/histobrowser/histobrowser.C
 ```
