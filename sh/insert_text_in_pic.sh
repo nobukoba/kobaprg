@@ -18,6 +18,9 @@ do
     if [ ${str2} = "0.00" ]; then
 	str3=" spherical"
     fi
+
+    # +anitialias: do NOT do anitialias. For gif, anitialias makes the figure bad
+    # convert -list font: list available fonts
     cmd1="convert -pointsize 40 -gravity north-west +antialias -font Symbol -annotate +10+5 \"b\" ${str} ann_${str}"
     cmd2="mogrify -pointsize 40 -gravity north-west +antialias -font Times-Roman -annotate +34+2 \" = ${str1}\" ann_${str}"
     cmd3="mogrify -pointsize 40 -gravity north-west +antialias -font Times-Roman -annotate +90+5 \"${str2}\" ann_${str}"
