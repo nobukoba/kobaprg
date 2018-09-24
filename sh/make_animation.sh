@@ -1,8 +1,8 @@
 #!/bin/bash
 
 dir="./def_anim"
-cd ${dir}
-echo "PWD: ${PWD}"
+cd ${dir}; echo "PWD: ${PWD}"
+
 # -loop N: number of loop
 # -loop 0: infinite loop
 # -delay t: t * 10 msec interval
