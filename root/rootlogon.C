@@ -53,5 +53,5 @@
   if (gSystem->AccessPathName("lib/libAllGrutinizer.so")==0) {
     gSystem->Load("lib/libAllGrutinizer.so");
   }
-  gROOT->ProcessLine(".x kobaprg/root/histbrowser.C+");
+  gROOT->ProcessLine(".x kobaprg/root/histbrowser.C");
 }
