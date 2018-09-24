@@ -1,3 +1,4 @@
+#include "TSystem.h"
 #include "TStyle.h"
 #include "TH2.h"
 #include "TPad.h"
@@ -13,38 +14,46 @@ void deformation_anim(){
   gStyle->SetLegoInnerR(0.);
   //gStyle->SetCanvasPreferGL(true);
   Double_t pi = 3.14159265358979323846;
-
-  Double_t beta_arr[32];
-  Double_t dbeta = 0.1;
-  Double_t fbeta = -0.8;
-  for (Int_t i = 0; i <= 16; i++){
-    beta_arr[i] = fbeta + dbeta * i;
+  
+  /* Give parameters */
+  Int_t num_div = 160;
+  Double_t ini_beta  = -0.8;
+  Double_t fin_beta  =  0.8;
+  /* End of the given parameters*/
+  
+  Int_t num_step = num_div * 2;
+  Double_t del_beta = (fin_beta - ini_beta ) / num_div;
+  Int_t len_arr  = num_step  + 1;
+  Double_t *beta_arr = new Double_t[len_arr];
+  
+  for (Int_t i = 0; i <= num_div; i++){
+    beta_arr[i] = ini_beta + del_beta * i;
     if(beta_arr[i] == 0.){
-      beta_arr[i] = 0.001;
+      beta_arr[i] = 0.0001;
     }
   }
-  for (Int_t i = 17; i <= 31; i++){
-    beta_arr[i] = fbeta + dbeta * (32-i);
+  for (Int_t i = num_div + 1; i <= (num_step - 1); i++){
+    beta_arr[i] = ini_beta + del_beta * (num_step-i);
     if(beta_arr[i] == 0.){
-      beta_arr[i] = 0.001;
+      beta_arr[i] = 0.0001;
     }
   }
   
   TCanvas* c1 = new TCanvas("c1","c1");
   TH2D * h = new TH2D("h","h",21,0.,2*pi,21,0.,pi);
-  //for (Int_t k = 0; k <=31; k++) {
-  for (Int_t k = 16; k <=16; k++) {
+  for (Int_t k = 0; k <= (num_step - 1); k++) {
+  //for (Int_t k = 80; k <=80; k++) {
     h->Reset();
     Double_t beta = beta_arr[k];
-    for(Int_t i = 1; i<=21; i++){
-      for(Int_t j = 1; j<=21; j++){
+    for(Int_t i = 1; i <= 21; i++){
+      for(Int_t j = 1; j <= 21; j++){
 	Double_t ph = h->GetXaxis()->GetBinCenter(i);
 	Double_t th = h->GetYaxis()->GetBinCenter(j);
-	h->Fill(ph,th,1+beta*sqrt(5./16./pi)*(3*pow(cos(th),2)-1.));
+	h->Fill(ph,th,1.+beta*sqrt(5./16./pi)*(3*pow(cos(th),2)-1.));
       }
     }
     h->SetBinContent(5,10,0);
-    h->SetMaximum(0.8);
+    h->SetMaximum(1.);
     h->SetMinimum(0.);
   
     c1->SetPhi(0.);
@@ -58,18 +67,21 @@ void deformation_anim(){
     //h->Draw("surf1,sph,lc");
     TGLViewer * glViewer = (TGLViewer*)(gPad->GetViewer3D("ogl"));
     glViewer->SetCurrentCamera(TGLViewer::kCameraOrthoZOY);
-    //TString fname;
-    //if (beta >= 0.){
-    //  fname = Form("def_nuc/beta_%02d_p%.2f.gif",k,beta);
-    //}else{
-    //  fname = Form("def_nuc/beta_%02d_m%.2f.gif",k,-beta);
-    //}
     ////((TGMainFrame *)(((TGLSAViewer*)glViewer)->GetFrame()))->Resize(500, 300);
-    //glViewer->SavePictureScale(fname,.5);
-    //glViewer->Delete();
+    gSystem->Exec("mkdir -p def_anim");
+    TString fname;
+    if (beta >= 0.){
+      fname = Form("def_anim/beta_%03d_p%.2f.gif",k,beta);
+    }else{
+      fname = Form("def_anim/beta_%03d_m%.2f.gif",k,-beta);
+    }
+    glViewer->SavePictureScale(fname,.5);
+    glViewer->Delete();
   }
-  
+
+  delete [] beta_arr;
   return;
+
   //Double_t center[3] = {0.,0.,0.};
   ////glViewer->SetOrthoCamera(TGLViewer::kCameraOrthoZOY,10.0,10.0,center_xyz,90.,90.);
   //
