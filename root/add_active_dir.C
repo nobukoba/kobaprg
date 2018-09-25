@@ -2,18 +2,20 @@
 {
   TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
   if (named) {gSystem->cd(named->GetTitle());}
-  gSystem->CompileMacro("./kobaprg/root/add_active_files.C","k");
+  gSystem->CompileMacro("./kobaprg/root/add_active_dir.C","k");
   add_active_files();
 }
 #else
 
 #include <iostream>
+#include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TROOT.h"
 #include "TPad.h"
 #include "TCanvas.h"
+#include "TGFileBrowser.h"
 #include "TGListTree.h"
 #include "TList.h"
 #include "TKey.h"
@@ -114,13 +116,14 @@ void MergeDir(TDirectory *source, TDirectory *target) {
   savdir->cd();
 }
 
-void add_active_files(){
+void add_active_dir(){
   std::cout << std::endl << "Macro: add_active_files.C" << std::endl;
   TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
   if (named) {gSystem->cd(named->GetTitle());}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
   if (!hist_fListTree) {
     std::cout << "hist_fListTree is NULL. histbrowser.C is not runing? This script is terminated." << std::endl;
     return;
@@ -130,7 +133,7 @@ void add_active_files(){
   if (pref) {
     pref->Close();
   }
-  TList *list_of_active_files = new TList();
+  TList *list_of_active_dir = new TList();
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
@@ -142,29 +145,61 @@ void add_active_files(){
   	cur_ListTreeItem = NextItem(cur_ListTreeItem);
   	continue;
       }
-      TObject *fobj = list_of_files_in_groot->FindObject(cur_ListTreeItem->GetText());
-      if (fobj) {
-  	list_of_active_files->Add(fobj);
+      TString fullpath = hist_browser->FullPathName(cur_ListTreeItem);
+      TDirectory *cur_dir = 0;
+      Int_t memo_file_flag = 0;
+      TString filename = "";
+      if (fullpath.EqualTo("ROOT_Memory")){
+	memo_file_flag = 1;
+	cur_dir = gROOT;
+	filename = fullpath;
+      }else if (fullpath.BeginsWith("ROOT_Memory/")){
+	memo_file_flag = 1;
+	fullpath.Replace(0,12,"");
+	cur_dir = (TDirectory *)gROOT->Get(fullpath);
+	filename = fullpath;
+      }else if(fullpath.BeginsWith("ROOT_Files/")){
+	memo_file_flag = 2;
+	fullpath.Replace(0,11,"");
+	TCollection *lst = gROOT->GetListOfFiles(); 
+	TIter next(lst);
+	TFile *file;
+	while(file=(TFile*)next()){
+	  filename = file->GetName();
+	  if(fullpath.BeginsWith(filename)){
+	    if(fullpath.Length()==filename.Length()){
+	      cur_dir = (TDirectory *)file;
+	    }else{
+	      fullpath.Replace(0,filename.Length()+1,"");
+	      cur_dir = (TDirectory *)file->Get(fullpath);
+	    }
+	    break;
+	  }
+	}
+      }
+      
+      if (cur_dir) {
+  	list_of_active_dir->Add((TObject*)cur_dir);
       }
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
   
-  Int_t num_entries = list_of_active_files->GetEntries();
+  Int_t num_entries = list_of_active_dir->GetEntries();
   if (num_entries < 2) {
     std::cout << "The number of active files is less than 2. This script is terminated." << std::endl;
     return;
   }
   
   TDirectory *mergedroot = TFile::Open("merged.root","recreate");
-  TDirectory *first_file = (TDirectory *)(list_of_active_files->At(0));
+  TDirectory *first_dir = (TDirectory *)(list_of_active_dir->At(0));
   std::cout << std::endl << "Merge start." << std::endl;
-  std::cout << "Base file: " << first_file->GetName() << std::endl;
-  CopyDir(first_file, mergedroot);
+  std::cout << "Base dir: " << first_file->GetName() << std::endl;
+  CopyDir(first_dir, mergedroot);
   
   for (Int_t i = 1; i < num_entries; i++) {
-    std::cout << i << "-th file: " << list_of_active_files->At(i)->GetName() << std::endl; 
-    MergeDir((TDirectory *)(list_of_active_files->At(i)), mergedroot);
+    std::cout << i << "-th dir: " << list_of_active_dir->At(i)->GetName() << std::endl; 
+    MergeDir((TDirectory *)(list_of_active_dir->At(i)), mergedroot);
   }
   
   mergedroot->Write();
