@@ -3,7 +3,7 @@
   TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
   if (named) {gSystem->cd(named->GetTitle());}
   gSystem->CompileMacro("./kobaprg/root/add_active_dir.C","k");
-  add_active_files();
+  add_active_dir();
 }
 #else
 
@@ -194,7 +194,7 @@ void add_active_dir(){
   TDirectory *mergedroot = TFile::Open("merged.root","recreate");
   TDirectory *first_dir = (TDirectory *)(list_of_active_dir->At(0));
   std::cout << std::endl << "Merge start." << std::endl;
-  std::cout << "Base dir: " << first_file->GetName() << std::endl;
+  std::cout << "Base dir: " << first_dir->GetName() << std::endl;
   CopyDir(first_dir, mergedroot);
   
   for (Int_t i = 1; i < num_entries; i++) {
