@@ -894,7 +894,7 @@ public:
     if (event==kButton1Down) { 
       if (selected->InheritsFrom("TPad")||
 	  selected->InheritsFrom("TFrame")||
-	  selected->InheritsFrom("TH2F")){
+	  selected->InheritsFrom("TH2")){
 	TVirtualPad *cur_pad  = c->GetSelectedPad();
 	cur_pad->cd();
 	gPad->Update();
