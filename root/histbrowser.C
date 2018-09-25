@@ -892,9 +892,14 @@ public:
     //    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
     //	   event, x, y, selected->IsA()->GetName());
     if (event==kButton1Down) { 
+      std::cout << "selected->ClassName()" << selected->ClassName() << std::endl;
       if (selected->InheritsFrom("TPad")||
 	  selected->InheritsFrom("TFrame")||
-	  selected->InheritsFrom("TH2")){
+	  selected->InheritsFrom("TH1")||
+	  selected->InheritsFrom("TPaveStats")||
+	  selected->InheritsFrom("TPaveText")||
+	  selected->InheritsFrom("TPaletteAxis")||
+	  selected->InheritsFrom("TAxis")){
 	TVirtualPad *cur_pad  = c->GetSelectedPad();
 	cur_pad->cd();
 	gPad->Update();
