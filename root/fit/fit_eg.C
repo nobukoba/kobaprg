@@ -13,7 +13,7 @@ void fit_eg() {
   TCanvas* canvas;
   if (!(canvas = gPad->GetCanvas())) {
     std::cout << "There is no canvas." << std::endl;
-    return false;
+    return;
   }
   gPad->SetCrosshair();
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
