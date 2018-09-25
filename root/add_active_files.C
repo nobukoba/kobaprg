@@ -107,17 +107,21 @@ void add_active_files(){
     std::cout << "ClassName(): " << obj->ClassName() << std::endl;
   }
   
-  TFile *mergedroot = TFile::Open("../../merged.root","recreate");
-  std::cout << "merged.root is opened now." << std::endl;
-  TFile * first_file = (TFile *)list_of_active_files->At(0);
-  mergedroot->cd();
-  CopyDir(first_file);
-  mergedroot->cd();
-  std::cout << "" << std::endl;
-  std::cout << "" << std::endl;
-  std::cout << "Finished." << std::endl;
-  //mergedroot->ls();
-  mergedroot->Write();
+  //TFile *mergedroot = TFile::Open("../../merged.root","recreate");
+  //std::cout << "merged.root is opened now." << std::endl;
+  TFile * first_file = (TFile *)(list_of_active_files->At(0));
+  std::cout << "first_file->GetName()" << first_file->GetName() << std::endl;
+  
+  
+  //mergedroot->cd();
+  //CopyDir(first_file);
+  //mergedroot->cd();
+  //std::cout << "" << std::endl;
+  //std::cout << "" << std::endl;
+  //std::cout << "Finished." << std::endl;
+  ////mergedroot->ls();
+  //mergedroot->Write();
+  
   
   //TH1 *added = 0;
   //TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
