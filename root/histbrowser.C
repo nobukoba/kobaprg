@@ -930,7 +930,7 @@ void histbrowser(){
     return;
   }
   gROOT->Add(new TNamed("histbrowser_flag","histbrowser_flag"));
-  gROOT->Add(new TNamed("initial_working_dir",gSystem->pwd()));
+  gROOT->Add(new TNamed("initial_working_dir", gSystem->pwd()));
   pHistBrowser = new HistBrowser();
 }
 #endif
