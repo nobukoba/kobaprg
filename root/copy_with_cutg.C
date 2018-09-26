@@ -86,12 +86,6 @@ void copy_with_cutg(){
     return;
   }
   TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  if (!sel_pad) {
-    std::cout << "There is no selected pad." << std::endl;
-    graphical_cut->Delete();
-    sel_pad->Update();
-    return;
-  }
   TList *listofpri = sel_pad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
