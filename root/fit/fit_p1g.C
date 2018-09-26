@@ -104,5 +104,7 @@ void fit_p1g() {
   fit_p1g->SetParName(4,"Sigma");
   fit_p1g->SetLineWidth(1);
   hist->Fit(fit_p1g,"R+");
+  sel_pad->Update();
+  sel_pad->Modified();
   return;
 }

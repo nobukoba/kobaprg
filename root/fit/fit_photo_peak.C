@@ -421,8 +421,8 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   hist->GetListOfFunctions()->Add(fgaus->Clone());
   hist->GetListOfFunctions()->Add(fsg->Clone());
   hist->GetListOfFunctions()->Add(fconst->Clone());
-  gPad->Modified();
-  gPad->Update();
+  sel_pad->Update();
+  sel_pad->Modified();
   return;
 }
 

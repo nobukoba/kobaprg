@@ -209,7 +209,8 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
 	      << std::endl;
   }
   
-  canvas->Update();
+  sel_pad->Update();
+  sel_pad->Modified();
   delete [] par;
   return;
 }

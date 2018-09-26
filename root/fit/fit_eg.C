@@ -105,5 +105,7 @@ void fit_eg() {
   fit_p1g->SetParName(4,"Sigma");
   fit_p1g->SetLineWidth(1);
   hist->Fit(fit_p1g,"R+");
+  gPad->Update();
+  gPad->Modified();
   return;
 }
