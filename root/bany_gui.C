@@ -95,6 +95,7 @@ void bany_gui(){
   gPad->SetCrosshair();
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x0 = mk->GetX();
+  Double_t y0 = mk->GetY();
   delete mk;
   TVirtualPad *sel_pad = gROOT->GetSelectedPad();
   TList* listofpri= sel_pad->GetListOfPrimitives();
@@ -115,10 +116,14 @@ void bany_gui(){
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x1 = mk->GetX();
+  Double_t y1 = mk->GetY();
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
   delete mk;
   gPad->SetCrosshair(0);
 
+  std::cout << std::endl << "Clicked Position" << std::endl;
+  std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
+  std::cout << "2nd (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
 
   if (x0 > x1) {
     Double_t tmpx = x0;

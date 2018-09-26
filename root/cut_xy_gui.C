@@ -119,6 +119,10 @@ void cut_xy_gui(){
   delete mk;
   gPad->SetCrosshair(0);
 
+  std::cout << std::endl << "Clicked Position" << std::endl;
+  std::cout << "1st (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
+  std::cout << "2nd (x, y) = (" << x2 << ", " << y2 << ")"<< std::endl;
+
   if (x1 > x2) {
     Double_t tmpx = x2;
     x1 = x2;

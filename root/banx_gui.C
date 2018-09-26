@@ -94,6 +94,7 @@ void banx_gui(){
   }
   gPad->SetCrosshair();
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x0 = mk->GetX();
   Double_t y0 = mk->GetY();
   delete mk;
   TVirtualPad *sel_pad  = canvas->GetSelectedPad();
@@ -116,16 +117,22 @@ void banx_gui(){
   Double_t xrange_max = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
   line.DrawLine(xrange_min,y0,xrange_max,y0);
   mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x1 = mk->GetX();
   Double_t y1 = mk->GetY();
   line.DrawLine(xrange_min,y1,xrange_max,y1);
   delete mk;
   gPad->SetCrosshair(0);
+
+  std::cout << std::endl << "Clicked Position" << std::endl;
+  std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
+  std::cout << "2nd (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
 
   if (y0 > y1) {
     Double_t tmpy = y0;
     y0 = y1;
     y1 = tmpy;
   }
+  
   banx_gui(y0,y1);
   return;
 }
