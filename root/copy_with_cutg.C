@@ -1,42 +1,17 @@
-#include <iostream>
-#include "TROOT.h"
-#include "TF1.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TGraph.h"
-#include "TPad.h"
-#include "TCanvas.h"
-#include "TList.h"
-#include "TLine.h"
-#include "TCutG.h"
-#include "TString.h"
-#include "TMarker.h"
-
 void copy_with_cutg(){
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas." << std::endl;
     return;
   }
-  //TCutG *cutg = (TCutG*)(gPad->GetListOfPrimitives()->FindObject("CUTG"));
-  //if (cutg != 0){
-  //  cutg->Delete();
-  //}
-
-
-  //TVirtualPad *sel_pad  = canvas->GetSelectedPad();
-  TVirtualPad *sel_pad;
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    //if (!sel_pad) {
-    std::cout << "There is no selected pad." << std::endl;
+  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
+  if (sel_pad == 0) {
+    std::cout << "There is no sel_pad." << std::endl;
     return;
   }
-  sel_pad->cd();
-
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  //TList *listofpri = canvas->GetListOfPrimitives();
   if (listofpri == 0) {
-    std::cout << "The canvas includes nothing." << std::endl;
+    std::cout << "The pad includes nothing." << std::endl;
     return;
   }
   TIter next(listofpri);
@@ -54,15 +29,11 @@ void copy_with_cutg(){
     return;
   }
 
-  gPad->SetCrosshair();
-
-  //TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  //delete mk;
-  TCutG *cutg;
-
-  cutg  = (TCutG*)(sel_pad->WaitPrimitive("CUTG","CutG"));
-  gPad->SetCrosshair(0);
-
+  TCutG *cutg = (TCutG*)listofpri->FindObject("CUTG");
+  if (cutg != 0){
+    cutg->Delete();
+  }
+  cutg  = (TCutG*)sel_pad->WaitPrimitive("CUTG","CutG");
 
   gROOT->cd();
   TString str = hist->GetName();
