@@ -895,13 +895,11 @@ public:
       //std::cout << "selected->ClassName()" << selected->ClassName() << std::endl;
       if (selected->InheritsFrom("TPad")||
 	  selected->InheritsFrom("TFrame")||
-	  selected->InheritsFrom("TH2"))
-//||
-//	  selected->InheritsFrom("TPaveStats")||
-//	  selected->InheritsFrom("TPaveText")||
-//	  selected->InheritsFrom("TPaletteAxis")||
-//	  selected->InheritsFrom("TAxis"))
-{
+	  selected->InheritsFrom("TH2")||
+	  selected->InheritsFrom("TPaveStats")||
+	  selected->InheritsFrom("TPaveText")||
+	  selected->InheritsFrom("TPaletteAxis")||
+	  selected->InheritsFrom("TAxis")){
 	TVirtualPad *cur_pad  = c->GetSelectedPad();
 	cur_pad->cd();
 	gPad->Update();
