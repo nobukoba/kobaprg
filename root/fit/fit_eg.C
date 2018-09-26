@@ -19,14 +19,6 @@ void fit_eg() {
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x0 = mk->GetX();
   delete mk;
-  TLine line;
-  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  Double_t x1 = mk->GetX();
-  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
-  delete mk;
-  gPad->SetCrosshair(0);
-
   TVirtualPad *sel_pad  = canvas->GetSelectedPad();
   if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
     std::cout << "There is no selected pad." << std::endl;
@@ -58,6 +50,14 @@ void fit_eg() {
     gPad->SetCrosshair(0);
     return;
   }
+  TLine line;
+  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
+  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x1 = mk->GetX();
+  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
+  delete mk;
+  gPad->SetCrosshair(0);
+
 
   if (x0 > x1) {
     Double_t tmpx = x0;

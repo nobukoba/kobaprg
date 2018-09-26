@@ -9,26 +9,36 @@
 #include "TMarker.h"
 #include "TString.h"
 
-Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
-		      TVirtualPad*& sel_pad, TList*& listofpri){
+void fit_p1g() {
+  TCanvas* canvas;
   if (!(canvas = gPad->GetCanvas())) {
-    std::cout << "GetSelectedTH1: There is no canvas." << std::endl;
-    return false;
+    std::cout << "There is no canvas." << std::endl;
+    return;
   }
+  gPad->SetCrosshair();
+  TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x0 = mk->GetX();
+  delete mk;
+  TVirtualPad *sel_pad  = canvas->GetSelectedPad();
   if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "GetSelectedTH1: There is no selected pad." << std::endl;
-    return false;
+    std::cout << "There is no selected pad." << std::endl;
+    gPad->SetCrosshair(0);
+    return;
   }
+  sel_pad->cd();
+  TList* listofpri;
   if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "GetSelectedTH1: There is nothing in this pad." << std::endl;
-    return false;
+    std::cout << "There is nothing in this pad." << std::endl;
+    gPad->SetCrosshair(0);
+    return;
   }
+  TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
-  hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
-      std::cout << "GetSelectedTH1: This script can not handle TH2 histograms." << std::endl;
-      return false;
+      std::cout << "This script can not handle TH2 histograms." << std::endl;
+      gPad->SetCrosshair(0);
+      return;
     }
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
@@ -36,26 +46,13 @@ Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
     }
   }
   if (!hist) {
-    std::cout << "GetSelectedTH1: TH1 histogram was not found in this pad." << std::endl;
-      return false;
-    }
-  return true;
-}
-
-void fit_p1g() {
-  TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
-  if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
-    std::cout << "This script is terminated." << std::endl;
+    std::cout << "TH1 histogram was not found in this pad." << std::endl;
+    gPad->SetCrosshair(0);
     return;
   }
-  
-  gPad->SetCrosshair();
-  TMarker *mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
-  Double_t x0 = mk->GetX();
-  delete mk;
   TLine line;
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  mk = (TMarker*)sel_pad->WaitPrimitive("TMarker","Marker");
+  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x1 = mk->GetX();
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
   delete mk;
