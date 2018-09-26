@@ -33,8 +33,8 @@ void copy_with_cutg(){
   }
   sel_pad->cd();
 
-  //TList *listofpri = sel_pad->GetListOfPrimitives();
-  TList *listofpri = canvas->GetListOfPrimitives();
+  TList *listofpri = sel_pad->GetListOfPrimitives();
+  //TList *listofpri = canvas->GetListOfPrimitives();
   if (listofpri == 0) {
     std::cout << "The canvas includes nothing." << std::endl;
     return;
