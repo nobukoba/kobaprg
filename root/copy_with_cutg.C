@@ -92,6 +92,7 @@ void copy_with_cutg(){
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
+
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
       hist = (TH2*)obj;
