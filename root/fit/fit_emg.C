@@ -1,31 +1,107 @@
 #include <iostream>
-#include <iomanip>
-#include "TH2D.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TGraph.h"
+#include "TList.h"
+#include "TLine.h"
 #include "TPad.h"
+#include "TCanvas.h"
 #include "TString.h"
 
-Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
-		      TVirtualPad*& sel_pad, TList*& listofpri){
-  if (!(canvas = gPad->GetCanvas())) {
-    std::cout << "GetSelectedTH1: There is no canvas." << std::endl;
-    return false;
+TGraph * MyWaitPrimitive(Int_t number_of_points) {
+  TCanvas* canvas = gPad->GetCanvas();
+  if (!canvas) {
+    std::cout << "There is no canvas." << std::endl;
+    return 0;
   }
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "GetSelectedTH1: There is no selected pad." << std::endl;
-    return false;
+  TGraph *graphical_cut = new TGraph();
+  TLine graphical_line;
+  TLine *prevline = 0;
+  graphical_cut->SetName("graphical_cut");
+  gPad->SetCrosshair();
+  Int_t event = 0;
+  gSystem->ProcessEvents();
+  Double_t cur_x  = 0, cur_y  = 0;
+  Double_t past_x = 0, past_y = 0;
+  Double_t pre_x  = 0, pre_y  = 0;
+  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
+    event = gPad->GetEvent();
+    if (number_of_points > 1) {
+      if (graphical_cut->GetN() == number_of_points){
+	break;
+      }
+    } else {
+      if (event == kButton1Double || event == kKeyPress) {
+	//the following statement is required against other loop executions
+	//before returning
+	canvas->HandleInput((EEventType)-1,0,0);
+	break;
+      }
+    }
+    if (event == kButton1Down) {
+      cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
+      cur_y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
+      pre_x = cur_x;
+      pre_y = cur_y;
+      graphical_cut->SetPoint(graphical_cut->GetN(), cur_x, cur_y);
+      graphical_cut->Draw("L*");
+      canvas->HandleInput((EEventType)-1,0,0);
+    }
+    if ((graphical_cut->GetN()>=1)&&(event == kMouseMotion)) {
+      cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
+      cur_y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
+      if ((cur_x != past_x) || (cur_y != past_y) ) {
+    	if (prevline) {
+    	  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
+	  prevline->Delete();
+    	}
+    	prevline = graphical_line.DrawLine(pre_x, pre_y, cur_x, cur_y);
+	gROOT->GetSelectedPad()->Update();
+    	past_x = cur_x;
+    	past_y = cur_y;
+      }
+    }
+    gSystem->Sleep(10);
   }
-  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "GetSelectedTH1: There is nothing in this pad." << std::endl;
-    return false;
+  gPad->SetCrosshair(0);
+  if (prevline) {
+    //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
+    prevline->Delete();
   }
+  return graphical_cut;
+}
+
+void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
+  TCanvas* canvas = gPad->GetCanvas();
+  if (canvas == 0) {
+    std::cout << "There is no canvas." << std::endl;
+    return;
+  }
+  TGraph *grtmp;
+  while(grtmp = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
+    grtmp->Delete();
+  }
+  grtmp = MyWaitPrimitive(0);
+  TGraph * gr = new TGraph(grtmp->GetN(),grtmp->GetX(),grtmp->GetY());
+  grtmp->Delete();
+  gPad->SetCrosshair(0);
+  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
+  if (sel_pad == 0) {
+    std::cout << "There is no sel_pad." << std::endl;
+    gr->Delete();
+    return;
+  }
+
+  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TH1 *hist = 0;
   TIter next(listofpri); TObject *obj;
   hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
-      std::cout << "GetSelectedTH1: This script can not handle TH2 histograms." << std::endl;
-      return false;
+      std::cout << "This script can not handle TH2 histograms." << std::endl;
+      return;
     }
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
@@ -33,28 +109,19 @@ Bool_t GetSelectedTH1(TH1*& hist, TCanvas*& canvas,
     }
   }
   if (!hist) {
-    std::cout << "GetSelectedTH1: TH1 histogram was not found in this pad." << std::endl;
-      return false;
-    }
-  return true;
-}
-
-void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
-  TH1* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
-  if (!GetSelectedTH1(hist, canvas, sel_pad, listofpri)) {
-    std::cout << "This script is terminated." << std::endl;
+    std::cout << "TH1 histogram was not found in this pad." << std::endl;
+    return;
+  }
+  
+  Int_t    np    = gr->GetN();
+  Int_t    ng    = np-2;
+  if (ng < 1) {
+    std::cout << "The number of points >= 3." << std::endl;
     return;
   }
 
-  hist->Draw();
-  gPad->SetCrosshair();
-  TGraph *g = (TGraph*)gPad->WaitPrimitive("Graph","PolyLine");
-  Int_t np = g->GetN();
-  Int_t ng = np - 2;
-  if (ng < 1) {return;}
-
-  Double_t *xarr = g->GetX();
-  Double_t *yarr = g->GetY();
+  Double_t *xarr = gr->GetX();
+  Double_t *yarr = gr->GetY();
   Double_t x1    = xarr[0];
   Double_t x2    = xarr[np-1];
   Double_t y1    = yarr[0];
@@ -123,7 +190,7 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
   }
 
   hist->Fit(fsum,"R+");
-  hist->Draw();
+  //hist->Draw();
 
   TF1* fit =  hist->GetFunction("fsum");
   for (Int_t i = 0; i < ng; i++) {
@@ -142,7 +209,6 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
 	      << std::endl;
   }
   
-  gPad->SetCrosshair(0);
   canvas->Update();
   delete [] par;
   return;

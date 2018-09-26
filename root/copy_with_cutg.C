@@ -1,7 +1,6 @@
 #include <iostream>
 #include "TROOT.h"
 #include "TSystem.h"
-#include "TObject.h"
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -14,13 +13,12 @@
 #include "TString.h"
 #include "TMarker.h"
 
-void copy_with_cutg(){
+TGraph * MyWaitPrimitive(Int_t number_of_points) {
   TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
+  if (!canvas) {
     std::cout << "There is no canvas." << std::endl;
-    return;
+    return 0;
   }
-
   TGraph *graphical_cut = new TGraph();
   TLine graphical_line;
   TLine *prevline = 0;
@@ -29,14 +27,19 @@ void copy_with_cutg(){
   Int_t event = 0;
   gSystem->ProcessEvents();
   Double_t cur_x, cur_y, past_x, past_y, pre_x, pre_y;
-  
   while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
     event = gPad->GetEvent();
-    if (event == kButton1Double || event == kKeyPress) {
-      //the following statement is required against other loop executions
-      //before returning
-      canvas->HandleInput((EEventType)-1,0,0);
-      break;
+    if (number_of_points > 1) {
+      if (graphical_cut->GetN() == number_of_points){
+	break;
+      }
+    } else {
+      if (event == kButton1Double || event == kKeyPress) {
+	//the following statement is required against other loop executions
+	//before returning
+	canvas->HandleInput((EEventType)-1,0,0);
+	break;
+      }
     }
     if (event == kButton1Down) {
       cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
@@ -61,7 +64,6 @@ void copy_with_cutg(){
     	past_y = cur_y;
       }
     }
-
     gSystem->Sleep(10);
   }
   gPad->SetCrosshair(0);
@@ -69,30 +71,32 @@ void copy_with_cutg(){
     //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
     prevline->Delete();
   }
+  return graphical_cut;
+}
 
+void copy_with_cutg(){
+  TCanvas* canvas = gPad->GetCanvas();
+  if (!canvas) {
+    std::cout << "There is no canvas." << std::endl;
+    return;
+  }
+  TGraph *graphical_cut = (TGraph *)MyWaitPrimitive(0);
+  if (!graphical_cut){
+    std::cout << "some problem occured. Exit." << std::end;
+    return;
+  }
   TVirtualPad *sel_pad = gROOT->GetSelectedPad();
   if (!sel_pad) {
     std::cout << "There is no selected pad." << std::endl;
+    graphical_cut->Delete();
+    sel_pad->Update();
     return;
   }
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The sel_pad includes nothing." << std::endl;
-    return;
-  }
-  TCutG *cutg = (TCutG*)listofpri->FindObject("CUTG");
-  if (cutg != 0){
-    cutg->Delete();
-  }
-  cutg = new TCutG("CUTG",graphical_cut->GetN(),
-		   graphical_cut->GetX(),
-		   graphical_cut->GetY());
-  graphical_cut->Delete();
-
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
-
+  
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
       hist = (TH2*)obj;
@@ -102,8 +106,18 @@ void copy_with_cutg(){
   }
   if(hist == 0){
     std::cout << "TH2 histogram was not found in this pad." << std::endl;
+    graphical_cut->Delete();
+    sel_pad->Update();
     return;
   }
+  TCutG *cutg = (TCutG*)listofpri->FindObject("CUTG");
+  if (cutg != 0){
+    cutg->Delete();
+  }
+  cutg = new TCutG("CUTG",graphical_cut->GetN(),
+		   graphical_cut->GetX(),
+		   graphical_cut->GetY());
+  //graphical_cut->Delete();
   
   gROOT->cd();
   TString str = hist->GetName();

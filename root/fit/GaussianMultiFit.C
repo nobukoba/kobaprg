@@ -15,25 +15,21 @@ Double_t func(Double_t *dim, Double_t *par){
   return height*TMath::Gaus(x,cent,sigma);
 }
 
-TH1 * GaussianMultiFit(){
+void GaussianMultiFit(){
   TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
-    return 0;
-  }
+  gPad->SetCrosshair();
+  TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x0 = mk->GetX();
+  delete mk;
+  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing." << std::endl;
-    return 0;
-  }
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
       std::cout << "This script can not handle TH2 histograms." << std::endl;
-      return 0;
+      return;
     }
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
@@ -42,40 +38,28 @@ TH1 * GaussianMultiFit(){
   }
   if(hist == 0){
     std::cout << "TH1 histogram was not found in this pad." << std::endl;
-    return 0;
-  }
-
-
-  TGraph *gr;
-  while(gr = (TGraph*)listofpri->FindObject("photo_peak_fit_Graph")){
-    gr->Delete();
-  }
-  
-  gPad->SetCrosshair();
-  TGraph *grng = (TGraph*)gPad->WaitPrimitive("Graph","PolyLine");
-  grng->SetName("photo_peak_fit_Graph");
-  Int_t np = grng->GetN();
-  if (np != 2) {
-    std::cout << "Number of points: " << np << std::endl;
-    std::cout << "Number of points should be 2." << std::endl;
-    grng->Delete();
-    gPad->SetCrosshair(0);
     return;
   }
+  TLine line;
+  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
+  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x1 = mk->GetX();
+  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
+  delete mk;
   gPad->SetCrosshair(0);
-  Double_t lw, up, y;
-  grng->GetPoint(0,lw,y);
-  grng->GetPoint(1,up,y);
 
-  TF1 *f = new TF1("gaus", func, lw, up, 3);
-  //TF1 *f = new TF1("gaus", "gaus(0)", lw, up);
-
+  if (x0 > x1) {
+    Double_t tmpx = x0;
+    x0 = x1;
+    x1 = tmpx;
+  }
+  
+  TF1 *f = new TF1("gaus", func, x0, x1, 3);
   f->SetParameter(0,100.);
-  f->SetParameter(1,(lw+up)/2.);
+  f->SetParameter(1,(x0+x1)/2.);
   f->SetParameter(2, 10.);
-
   hist->Fit(f, "R+");
-
+  
   Double_t constant = f->GetParameter(0);
   Double_t mean     = f->GetParameter(1);
   Double_t sigma    = f->GetParameter(2);
@@ -101,7 +85,7 @@ TH1 * GaussianMultiFit(){
   
   TLatex *prev_tlatex_pnt = (TLatex *)listofpri->FindObject("p_latex_GaussianFit");
   if (prev_tlatex_pnt) {
-    prev_tlatex_pnt->Delete();
+    listofpri->Remove(prev_tlatex_pnt);
   }
   TLatex tlatex_obj;
   tlatex_obj.SetTextColor(kRed);
@@ -113,5 +97,5 @@ TH1 * GaussianMultiFit(){
   gPad->Modified();
   gPad->Update();
   gPad->Update();
-  return hist;
+  return;
 }
