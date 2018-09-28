@@ -7,23 +7,14 @@
 #include "TLine.h"
 #include "TList.h"
 #include "TH2.h"
-//#include "TVirtualX.h"
 
 Int_t WaitOneClick(Double_t &x, Double_t &y) {
-  TCanvas* canvas = gPad->GetCanvas();
-  if (!canvas) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
     return 0;
   }
-  canvas->FeedbackMode(kTRUE);
-  TLine graphical_line;
-  TLine *prevline_x = 0;
-  TLine *prevline_y = 0;
-  //gPad->SetCrosshair();
-  //gSystem->ProcessEvents();
-  Int_t pxmin, pxmax, pymin, pymax, pxold = 0, pyold = 0, px, py;
-  //Double_t cur_x = 0, cur_y = 0, past_x = 0, past_y = 0;
-  //Double_t min_x = 0, min_y = 0, max_x = 0, max_y = 0;
+  TCanvas* canvas = gPad->GetCanvas();
+  Int_t fCrosshairPos = 0;
   Int_t event = 0;
   while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
     event = gPad->GetEvent();
@@ -34,98 +25,41 @@ Int_t WaitOneClick(Double_t &x, Double_t &y) {
       canvas->HandleInput((EEventType)-1,0,0);
       break;
     }
-    if (gPad->GetEvent() == kMouseEnter) {
-      continue;
-    }
+    if (gPad->GetEvent() == kMouseEnter) continue;
+    canvas->FeedbackMode(kTRUE);
+    //erase old position and draw a line at current position
+    Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
+    pxold = fCrosshairPos%10000;
+    pyold = fCrosshairPos/10000;
+    px    = gPad->GetEventX();
+    py    = gPad->GetEventY()+1;
+    pxmin = 0;
+    pxmax = canvas->GetWw();
+    pymin = 0;
+    pymax = gPad->GetWh();
+    //if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
+    if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
     if (gPad->GetEvent() == kButton1Down ||
-        gPad->GetEvent() == kButton1Up   ||
-        gPad->GetEvent() == kMouseLeave) {
-      pxold = 0;
-      pyold = 0;
+	gPad->GetEvent() == kButton1Up   ||
+	gPad->GetEvent() == kMouseLeave) {
+      fCrosshairPos = 0;
       continue;
     }
-    if (event == kMouseMotion) {
-      pxmin = 0;
-      pxmax = canvas->GetWw();
-      pymin = 0;
-      pymax = gPad->GetWh();
-      px    = gPad->GetEventX();
-      py    = gPad->GetEventY()+1;
-      if ((px != pxold) ||(py != pyold)) {
-	std::cout << "event: " << event << std::endl;
-	std::cout << "px: " << px << std::endl;
-	std::cout << "py: " << py << std::endl;
-	std::cout << "pxold: " << pxold << std::endl;
-	std::cout << "pyold: " << pyold << std::endl;
-	gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
-	gVirtualX->DrawLine(px,pymin,px,pymax);
-	pxold = px;
-	gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
-	gVirtualX->DrawLine(pxmin,py,pxmax,py);
-	pyold = py;
-	//gPad->Update();
-	//gPad->Modified();
-      }
-      //canvas->HandleInput((EEventType)-1,0,0);
-
-      //if (cpad->GetEvent() == kButton1Down ||
-      //    cpad->GetEvent() == kButton1Up   ||
-      //    cpad->GetEvent() == kMouseLeave) {
-      //   fCrosshairPos = 0;
-      //   return;
-      //}
-      //cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
-      //cur_y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
-      //min_x = gPad->AbsPixeltoX(0);
-      //min_y = gPad->AbsPixeltoY(0);
-      //max_x = gPad->AbsPixeltoX(canvas->GetWw());
-      //max_y = gPad->AbsPixeltoY(gPad->GetWh());
-      //if ((cur_x != past_x) || (cur_y != past_y) ) {
-      //	if (prevline_x) {
-      //	  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-      //	  prevline_x->Delete();
-      //	}
-      //	if (prevline_y) {
-      //	  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-      //	  prevline_y->Delete();
-      //	}
-      //	prevline_x = graphical_line.DrawLine(min_x, cur_y, max_x, cur_y);
-      //	prevline_y = graphical_line.DrawLine(cur_x, min_y, cur_x, max_y);
-      //	gROOT->GetSelectedPad()->Update();
-      //	past_x = cur_x;
-      //	past_y = cur_y;
-      //}
-    }
+    //gVirtualX->DrawLine(px,pymin,px,pymax);
+    gVirtualX->DrawLine(pxmin,py,pxmax,py);
+    fCrosshairPos = px + 10000*py;
     gSystem->Sleep(10);
   }
-  //gPad->SetCrosshair(0);
-  //if (prevline_x) {
-  //  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-  //  prevline_x->Delete();
-  //}
-  //if (prevline_y) {
-  //  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-  //  prevline_y->Delete();
-  //}
   return 1;
 }
 
 void banx_gui(Double_t par0, Double_t par1){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. This script is terminated." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
   TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. This script is terminated." << std::endl;
-    return;
-  }
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. This script is terminated." << std::endl;
-    return;
-  }
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -190,9 +124,8 @@ void banx_gui(Double_t par0, Double_t par1){
 }
 
 void banx_gui(){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (!canvas) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
   Double_t x0, y0;
@@ -200,7 +133,7 @@ void banx_gui(){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad  = canvas->GetSelectedPad();
+  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
   TList* listofpri = sel_pad->GetListOfPrimitives();
   TH2* hist = 0;
   TIter next(listofpri); TObject *obj;
@@ -224,7 +157,7 @@ void banx_gui(){
     return;
   }
   line.DrawLine(xrange_min,y1,xrange_max,y1);
-  std::cout << std::endl << "Clicked Position" << std::endl;
+  std::cout << std::endl << "Clicked Positions" << std::endl;
   std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
   std::cout << "2nd (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
 

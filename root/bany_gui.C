@@ -7,22 +7,58 @@
 #include "TList.h"
 #include "TH2.h"
 
-void bany_gui(Double_t par0, Double_t par1){
+Int_t WaitOneClick(Double_t &x, Double_t &y) {
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
+    return 0;
+  }
   TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. This script is terminated." << std::endl;
+  Int_t fCrosshairPos = 0;
+  Int_t event = 0;
+  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
+    event = gPad->GetEvent();
+    //  std::cout << "event: " << event << std::endl;
+    if (event == kButton1Down) {
+      x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
+      y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
+      canvas->HandleInput((EEventType)-1,0,0);
+      break;
+    }
+    if (gPad->GetEvent() == kMouseEnter) continue;
+    canvas->FeedbackMode(kTRUE);
+    //erase old position and draw a line at current position
+    Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
+    pxold = fCrosshairPos%10000;
+    pyold = fCrosshairPos/10000;
+    px    = gPad->GetEventX();
+    py    = gPad->GetEventY()+1;
+    pxmin = 0;
+    pxmax = canvas->GetWw();
+    pymin = 0;
+    pymax = gPad->GetWh();
+    if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
+    //if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
+    if (gPad->GetEvent() == kButton1Down ||
+	gPad->GetEvent() == kButton1Up   ||
+	gPad->GetEvent() == kMouseLeave) {
+      fCrosshairPos = 0;
+      continue;
+    }
+    gVirtualX->DrawLine(px,pymin,px,pymax);
+    //gVirtualX->DrawLine(pxmin,py,pxmax,py);
+    fCrosshairPos = px + 10000*py;
+    gSystem->Sleep(10);
+  }
+  return 1;
+}
+
+void bany_gui(Double_t par0, Double_t par1){
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. This script is terminated." << std::endl;
-    return;
-  }
+  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. This script is terminated." << std::endl;
-    return;
-  }
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -87,18 +123,17 @@ void bany_gui(Double_t par0, Double_t par1){
 }
 
 void bany_gui(){
-  TCanvas* canvas;
-  if (!(canvas = gPad->GetCanvas())) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  gPad->SetCrosshair();
-  TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  Double_t x0 = mk->GetX();
-  Double_t y0 = mk->GetY();
-  delete mk;
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList* listofpri= sel_pad->GetListOfPrimitives();
+  Double_t x0, y0;
+  if (!WaitOneClick(x0, y0)){
+    std::cout << "Can not get point. Exit." << std::endl;
+    return;
+  }
+  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
+  TList* listofpri = sel_pad->GetListOfPrimitives();
   TH2* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){
@@ -109,19 +144,18 @@ void bany_gui(){
   }
   if (!hist) {
     std::cout << "TH2 histogram was not found in this pad." << std::endl;
-    gPad->SetCrosshair(0);
     return;
   }
   TLine line;
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  Double_t x1 = mk->GetX();
-  Double_t y1 = mk->GetY();
+  Double_t x1, y1;
+  if (!WaitOneClick(x1, y1)){
+    std::cout << "Can not get point. Exit." << std::endl;
+    return;
+  }
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
-  delete mk;
-  gPad->SetCrosshair(0);
 
-  std::cout << std::endl << "Clicked Position" << std::endl;
+  std::cout << std::endl << "Clicked Positions" << std::endl;
   std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
   std::cout << "2nd (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
 
@@ -131,6 +165,6 @@ void bany_gui(){
     x1 = tmpx;
   }
 
-  bany(x0,x1);
+  bany_gui(x0,x1);
   return;
 }
