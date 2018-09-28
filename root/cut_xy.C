@@ -76,7 +76,7 @@ void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     }
   }
   hout->Draw("colz");
-  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  gPad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }

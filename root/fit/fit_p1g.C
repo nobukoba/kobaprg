@@ -9,29 +9,63 @@
 #include "TMarker.h"
 #include "TString.h"
 
+Int_t WaitOneClickX(Double_t &x, Double_t &y) {
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
+    return 0;
+  }
+  TCanvas* canvas = gPad->GetCanvas();
+  Int_t fCrosshairPos = 0;
+  Int_t event = 0;
+  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
+    event = gPad->GetEvent();
+    //  std::cout << "event: " << event << std::endl;
+    if (event == kButton1Down) {
+      x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
+      y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
+      canvas->HandleInput((EEventType)-1,0,0);
+      break;
+    }
+    if (gPad->GetEvent() == kMouseEnter) continue;
+    canvas->FeedbackMode(kTRUE);
+    //erase old position and draw a line at current position
+    Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
+    pxold = fCrosshairPos%10000;
+    pyold = fCrosshairPos/10000;
+    px    = gPad->GetEventX();
+    py    = gPad->GetEventY()+1;
+    pxmin = 0;
+    pxmax = canvas->GetWw();
+    pymin = 0;
+    pymax = gPad->GetWh();
+    if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
+    //if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
+    if (gPad->GetEvent() == kButton1Down ||
+	gPad->GetEvent() == kButton1Up   ||
+	gPad->GetEvent() == kMouseLeave) {
+      fCrosshairPos = 0;
+      continue;
+    }
+    gVirtualX->DrawLine(px,pymin,px,pymax);
+    //gVirtualX->DrawLine(pxmin,py,pxmax,py);
+    fCrosshairPos = px + 10000*py;
+    gSystem->Sleep(10);
+  }
+  return 1;
+}
+
 void fit_p1g() {
-  TCanvas* canvas;
-  if (!(canvas = gPad->GetCanvas())) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  gPad->SetCrosshair();
-  TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  Double_t x0 = mk->GetX();
-  delete mk;
-  TVirtualPad *sel_pad  = canvas->GetSelectedPad();
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "There is no selected pad." << std::endl;
-    gPad->SetCrosshair(0);
+  Double_t x0, y0;
+  if (!WaitOneClickX(x0, y0)){
+    std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
-  sel_pad->cd();
-  TList* listofpri;
-  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "There is nothing in this pad." << std::endl;
-    gPad->SetCrosshair(0);
-    return;
-  }
+  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
+  TList* listofpri = sel_pad->GetListOfPrimitives();
   TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){
@@ -50,13 +84,14 @@ void fit_p1g() {
     gPad->SetCrosshair(0);
     return;
   }
+  Double_t x1, y1;
+  if (!WaitOneClickX(x1, y1)){
+    std::cout << "Can not get point. Exit." << std::endl;
+    return;
+  }
   TLine line;
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
-  Double_t x1 = mk->GetX();
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
-  delete mk;
-  gPad->SetCrosshair(0);
 
   if (x0 > x1) {
     Double_t tmpx = x0;

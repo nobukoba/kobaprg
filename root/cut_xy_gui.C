@@ -7,51 +7,6 @@
 #include "TList.h"
 #include "TH2.h"
 
-Int_t WaitOneClick(Double_t &x, Double_t &y) {
-  if (!gPad) {
-    std::cout << "There is no gPad." << std::endl;
-    return 0;
-  }
-  TCanvas* canvas = gPad->GetCanvas();
-  Int_t fCrosshairPos = 0;
-  Int_t event = 0;
-  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
-    event = gPad->GetEvent();
-    //  std::cout << "event: " << event << std::endl;
-    if (event == kButton1Down) {
-      x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
-      y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
-      canvas->HandleInput((EEventType)-1,0,0);
-      break;
-    }
-    if (gPad->GetEvent() == kMouseEnter) continue;
-    canvas->FeedbackMode(kTRUE);
-    //erase old position and draw a line at current position
-    Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
-    pxold = fCrosshairPos%10000;
-    pyold = fCrosshairPos/10000;
-    px    = gPad->GetEventX();
-    py    = gPad->GetEventY()+1;
-    pxmin = 0;
-    pxmax = canvas->GetWw();
-    pymin = 0;
-    pymax = gPad->GetWh();
-    if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
-    if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
-    if (gPad->GetEvent() == kButton1Down ||
-	gPad->GetEvent() == kButton1Up   ||
-	gPad->GetEvent() == kMouseLeave) {
-      fCrosshairPos = 0;
-      continue;
-    }
-    gVirtualX->DrawLine(px,pymin,px,pymax);
-    gVirtualX->DrawLine(pxmin,py,pxmax,py);
-    fCrosshairPos = px + 10000*py;
-    gSystem->Sleep(10);
-  }
-  return 1;
-}
-
 void cut_xy_gui(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
   if (!gPad) {
     std::cout << "There is no gPad. This script is terminated." << std::endl;
@@ -112,7 +67,7 @@ void cut_xy_gui(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     }
   }
   hout->Draw("colz");
-  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  gPad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }
@@ -122,11 +77,11 @@ void cut_xy_gui(){
     std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  Double_t x0, y0;
-  if (!WaitOneClick(x0, y0)){
-    std::cout << "Can not get point. Exit." << std::endl;
-    return;
-  }
+  gPad->SetCrosshair();
+  TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  Double_t x0 = mk->GetX();
+  Double_t y0 = mk->GetY();
+  delete mk;
   TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
   TList* listofpri = sel_pad->GetListOfPrimitives();
   TH2* hist = 0;
@@ -146,11 +101,11 @@ void cut_xy_gui(){
   Double_t xrange_max = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
   line.DrawLine(xrange_min,y0,xrange_max,y0);
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
-  Double_t x1, y1;
-  if (!WaitOneClick(x1, y1)){
-    std::cout << "Can not get point. Exit." << std::endl;
-    return;
-  }
+  mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
+  gPad->SetCrosshair(0);
+  Double_t x1 = mk->GetX();
+  Double_t y1 = mk->GetY();
+  delete mk;
   line.DrawLine(xrange_min,y1,xrange_max,y1);
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
 

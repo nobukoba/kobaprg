@@ -7,7 +7,7 @@
 #include "TList.h"
 #include "TH2.h"
 
-Int_t WaitOneClick(Double_t &x, Double_t &y) {
+Int_t WaitOneClickX(Double_t &x, Double_t &y) {
   if (!gPad) {
     std::cout << "There is no gPad." << std::endl;
     return 0;
@@ -118,7 +118,7 @@ void bany_gui(Double_t par0, Double_t par1){
     }
   }
   hout->Draw();
-  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  gPad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }
@@ -129,7 +129,7 @@ void bany_gui(){
     return;
   }
   Double_t x0, y0;
-  if (!WaitOneClick(x0, y0)){
+  if (!WaitOneClickX(x0, y0)){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
@@ -150,7 +150,7 @@ void bany_gui(){
   TLine line;
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   Double_t x1, y1;
-  if (!WaitOneClick(x1, y1)){
+  if (!WaitOneClickX(x1, y1)){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }

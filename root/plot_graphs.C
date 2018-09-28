@@ -11,7 +11,6 @@
 #include "TLine.h"
 #include "TCutG.h"
 #include "TString.h"
-#include "TMarker.h"
 
 TGraph * MyWaitPrimitive(Int_t number_of_points) {
   if (!gPad) {
@@ -80,11 +79,12 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
 }
 
 void plot_graphs(){
- if (!gPad) {
-    std::cout << "There is no gPad. This script is terminated." << std::endl;
+  TCanvas* canvas = gPad->GetCanvas();
+  if (canvas == 0) {
+    std::cout << "There is no canvas." << std::endl;
     return;
   }
- TGraph *grtmp;
+  TGraph *grtmp;
   while(grtmp = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
     grtmp->Delete();
   }

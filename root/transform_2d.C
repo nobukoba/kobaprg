@@ -209,7 +209,7 @@ public:
     gROOT->ProcessLine(".L ./transform_2d_func.C+");
     gROOT->ProcessLine(Form("doTransformationTH2D((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hout,f_xy,g_xy));
     hout->Draw("colz");
-    sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+    gPad->GetFrame()->SetBit(TBox::kCannotMove);
     sel_pad->Update();
   }
 
@@ -252,7 +252,7 @@ public:
     }
     gROOT->ProcessLine(".L ./transform_2d_func.C+");
     gROOT->ProcessLine(Form("drawInverseFunc((TH2*)0x%x,(TH2*)0x%x,(TF2*)0x%x,(TF2*)0x%x)",hist,hist,f_xy,g_xy));
-    sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+    gPad->GetFrame()->SetBit(TBox::kCannotMove);
     sel_pad->Update();
   }
 

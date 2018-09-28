@@ -8,7 +8,7 @@
 #include "TList.h"
 #include "TH2.h"
 
-Int_t WaitOneClick(Double_t &x, Double_t &y) {
+Int_t WaitOneClickY(Double_t &x, Double_t &y) {
   if (!gPad) {
     std::cout << "There is no gPad." << std::endl;
     return 0;
@@ -130,7 +130,7 @@ void banx_gui(){
     return;
   }
   Double_t x0, y0;
-  if (!WaitOneClick(x0, y0)){
+  if (!WaitOneClickY(x0, y0)){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
@@ -153,7 +153,7 @@ void banx_gui(){
   Double_t xrange_max = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
   line.DrawLine(xrange_min,y0,xrange_max,y0);
   Double_t x1, y1;
-  if (!WaitOneClick(x1, y1)){
+  if (!WaitOneClickY(x1, y1)){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }

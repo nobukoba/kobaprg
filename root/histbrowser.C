@@ -874,17 +874,12 @@ public:
   }
   
   void SetCannotMove(TGListTreeItem *item, Int_t /* no use */){
-    TCanvas* canvas = gPad->GetCanvas();
-    if (canvas == 0) {
-      std::cout << "There is no canvas." << std::endl;
+    if (!gPad) {
+      std::cout << "There is no gPad." << std::endl;
       return;
     }
-    TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-    if (sel_pad == 0) {
-      std::cout << "There is no sel_pad." << std::endl;
-      return;
-    }
-    sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+    gPad->GetFrame()->SetBit(TBox::kCannotMove);
+    return;
   }
   
   void change_canvas(Int_t event, Int_t x, Int_t y, TObject* selected) {

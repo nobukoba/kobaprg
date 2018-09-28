@@ -11,8 +11,6 @@
 #include "TLine.h"
 #include "TCutG.h"
 #include "TString.h"
-#include "TMarker.h"
-
 
 TGraph * MyWaitPrimitive(Int_t number_of_points) {
   if (!gPad) {
@@ -145,7 +143,7 @@ void copy_with_cutg(){
     }
   }
   hout->Draw("colz");
-  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  gPad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
   
