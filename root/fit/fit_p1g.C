@@ -84,13 +84,13 @@ void fit_p1g() {
     gPad->SetCrosshair(0);
     return;
   }
+  TLine line;
+  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   Double_t x1, y1;
   if (!WaitOneClickX(x1, y1)){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
-  TLine line;
-  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
 
   if (x0 > x1) {
