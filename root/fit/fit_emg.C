@@ -19,24 +19,22 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
   TCanvas* canvas = gPad->GetCanvas();
   TVirtualPad *sel_pad = gROOT->GetSelectedPad();
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  TGraph *graphical_cut = new TGraph();
+  TGraph gr;
   Int_t fCrosshairPos = 0;
   Int_t pxlast = 0, pylast = 0;
   Int_t event = 0;
-  Int_t k = 0;
-  gSystem->ProcessEvents();
+  //gSystem->ProcessEvents();
   while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
     event = gPad->GetEvent();
     if (number_of_points > 1) {
-      if (graphical_cut->GetN() == number_of_points){
-	canvas->HandleInput((EEventType)-1,0,0);
+      if (gr.GetN() == number_of_points){
 	break;
       }
     } else {
       if (event == kButton1Double || event == kKeyPress) {
 	//the following statement is required against other loop executions
 	//before returning
-	canvas->HandleInput((EEventType)-1,0,0);
+	//canvas->HandleInput((EEventType)-1,0,0);
 	break;
       }
     }
@@ -46,11 +44,11 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
       canvas->HandleInput((EEventType)-1,0,0);
       Double_t x = gPad->AbsPixeltoX(pxlast);
       Double_t y = gPad->AbsPixeltoY(pylast);
-      graphical_cut->SetPoint(graphical_cut->GetN(), x, y);
-      graphical_cut->Draw("L*");
+      gr.SetPoint(gr.GetN(), x, y);
+      gr.Draw("L*");
     }
-    if ((graphical_cut->GetN()>=1)) {
-      if (gPad->GetEvent() == kMouseEnter) continue;
+    if ((gr.GetN()>=1)) {
+      if (event == kMouseEnter) continue;
       canvas->FeedbackMode(kTRUE);
       //erase old position and draw a line at current position
       Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
@@ -63,9 +61,9 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
       pymin = 0;
       pymax = gPad->GetWh();
       if (pxold && pyold) gVirtualX->DrawLine(pxlast,pylast,pxold,pyold);
-      if (gPad->GetEvent() == kButton1Down ||
-	  gPad->GetEvent() == kButton1Up   ||
-	  gPad->GetEvent() == kMouseLeave) {
+      if (event == kButton1Down ||
+	  event == kButton1Up   ||
+	  event == kMouseLeave) {
 	fCrosshairPos = 0;
 	continue;
       }
@@ -74,7 +72,7 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
     }
     gSystem->Sleep(10);
   }
-  return graphical_cut;
+  return (new TGraph(gr));
 }
 
 void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
