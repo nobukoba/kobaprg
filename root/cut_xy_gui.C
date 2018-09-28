@@ -78,6 +78,11 @@ void cut_xy_gui(){
     return;
   }
   gPad->SetCrosshair();
+  TCanvas* canvas;
+  if (!(canvas = gPad->GetCanvas())) {
+    std::cout << "There is no canvas." << std::endl;
+    return;
+  }
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x0 = mk->GetX();
   Double_t y0 = mk->GetY();
