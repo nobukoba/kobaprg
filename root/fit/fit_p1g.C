@@ -26,7 +26,7 @@ Int_t WaitOneClickX(Double_t &x, Double_t &y) {
       canvas->HandleInput((EEventType)-1,0,0);
       break;
     }
-    if (gPad->GetEvent() == kMouseEnter) continue;
+    if (event == kMouseEnter) continue;
     canvas->FeedbackMode(kTRUE);
     //erase old position and draw a line at current position
     Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
@@ -40,9 +40,9 @@ Int_t WaitOneClickX(Double_t &x, Double_t &y) {
     pymax = gPad->GetWh();
     if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
     //if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
-    if (gPad->GetEvent() == kButton1Down ||
-	gPad->GetEvent() == kButton1Up   ||
-	gPad->GetEvent() == kMouseLeave) {
+    if (event == kButton1Down ||
+	event == kButton1Up   ||
+	event == kMouseLeave) {
       fCrosshairPos = 0;
       continue;
     }
