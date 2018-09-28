@@ -55,7 +55,8 @@ void swap_xy(){
   }
   hout->SetEntries(hist->GetEntries());
   hout->Draw("colz");
-  canvas->Modified();
-  canvas->Update();
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  sel_pad->Modified();
+  sel_pad->Update();
   return;
 }

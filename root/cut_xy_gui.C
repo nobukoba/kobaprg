@@ -112,6 +112,7 @@ void cut_xy_gui(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     }
   }
   hout->Draw("colz");
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }

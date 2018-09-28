@@ -58,6 +58,7 @@ void prox(){
   }
   hout->SetEntries(hist->GetEntries());
   hout->Draw();
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }

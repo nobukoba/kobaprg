@@ -119,6 +119,7 @@ void banx_gui(Double_t par0, Double_t par1){
     }
   }
   hout->Draw();
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
   sel_pad->Update();
   return;
 }

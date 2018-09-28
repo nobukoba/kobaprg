@@ -136,7 +136,8 @@ void copy_with_cutg(){
     }
   }
   hout->Draw("colz");
-  canvas->Update();
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  sel_pad->Update();
   return;
   
 }
