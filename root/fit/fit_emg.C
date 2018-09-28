@@ -10,7 +10,6 @@
 #include "TCanvas.h"
 #include "TString.h"
 
-
 TGraph * MyWaitPrimitive(Int_t number_of_points) {
   if (!gPad) {
     std::cout << "There is no gPad." << std::endl;
