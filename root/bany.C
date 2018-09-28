@@ -2,27 +2,17 @@
 #include <sstream>
 #include "TROOT.h"
 #include "TGInputDialog.h"
-#include "TCanvas.h"
 #include "TVirtualPad.h"
 #include "TList.h"
 #include "TH2.h"
 
 void bany(Double_t par0, Double_t par1){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. This script is terminated." << std::endl;
-    return;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
+    return 0;
   }
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. This script is terminated." << std::endl;
-    return;
-  }
+  TVirtualPad *sel_pad = gROOT->GetSelected();
   TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. This script is terminated." << std::endl;
-    return;
-  }
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
