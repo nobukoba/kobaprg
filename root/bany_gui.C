@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include "TROOT.h"
+#include "TFrame.h"
+#include "TBox.h"
 #include "TGInputDialog.h"
 #include "TCanvas.h"
 #include "TVirtualPad.h"
@@ -57,8 +59,7 @@ void bany_gui(Double_t par0, Double_t par1){
     std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -118,8 +119,8 @@ void bany_gui(Double_t par0, Double_t par1){
     }
   }
   hout->Draw();
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
   return;
 }
 
@@ -133,8 +134,7 @@ void bany_gui(){
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
-  TList* listofpri = sel_pad->GetListOfPrimitives();
+  TList* listofpri = gPad->GetListOfPrimitives();
   TH2* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){

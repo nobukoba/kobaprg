@@ -1,39 +1,24 @@
-Bool_t GetSelectedTH2(TH1*& hist, TCanvas*& canvas,
-		      TVirtualPad*& sel_pad, TList*& listofpri){
-  if (!(canvas = gPad->GetCanvas())) {
-    std::cout << "GetSelectedTH1: There is no canvas." << std::endl;
-    return false;
+void swap_xy(){
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
+    return;
   }
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "GetSelectedTH1: There is no selected pad." << std::endl;
-    return false;
-  }
-  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "GetSelectedTH1: There is nothing in this pad." << std::endl;
-    return false;
-  }
-  TIter next(listofpri); TObject *obj;
-  hist = 0;
+  TList *listofpri = gPad->GetListOfPrimitives();
+  TIter next(listofpri);
+  TObject *obj;
+  TH2 *hist = 0;
   while (obj = next()){
     if (obj->InheritsFrom("TH2")) {
-      hist = (TH1*)obj;
+      hist = (TH2*)obj;
+      std::cout << "TH2 hist was found." << std::endl;
       break;
     }
   }
-  if (!hist) {
-    std::cout << "GetSelectedTH2: TH2 histogram was not found in this pad." << std::endl;
-    return false;
-  }
-  return true;
-}
-
-void swap_xy(){
-  std::cout << std::endl << "Macro: swap_xy.C" << std::endl;
-  TH2* hist; TCanvas* canvas; TVirtualPad* sel_pad; TList* listofpri;
-  if (!GetSelectedTH2(hist, canvas, sel_pad, listofpri)) {
-    std::cout << "This script is terminated." << std::endl;
+  if(hist == 0){
+    std::cout << "TH2 histogram was not found in this pad. This script is terminated." << std::endl;
     return;
   }
+
   TString str = hist->GetName();
   str += "_swp";
   TString str_n = str;
@@ -55,8 +40,8 @@ void swap_xy(){
   }
   hout->SetEntries(hist->GetEntries());
   hout->Draw("colz");
+  gPad->Modified();
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Modified();
-  sel_pad->Update();
   return;
 }

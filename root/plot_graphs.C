@@ -18,8 +18,7 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
     return 0;
   }
   TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TGraph gr;
   Int_t fCrosshairPos = 0;
   Int_t pxlast = 0, pylast = 0;
@@ -77,9 +76,8 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
 }
 
 void plot_graphs(){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
     return;
   }
   TGraph *gr;
@@ -89,14 +87,7 @@ void plot_graphs(){
   gPad->SetCrosshair();
   TGraph * gr = MyWaitPrimitive(0);
   gPad->SetCrosshair(0);
-  
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
-    gr->Delete();
-    return;
-  }
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
@@ -118,7 +109,7 @@ void plot_graphs(){
   }
   gr->SetName(Form("Graph_%d",j));
   gr->Draw("L*");
-  sel_pad->Modified();
-  sel_pad->Update();
+  gPad->Modified();
+  gPad->Update();
   return;
 }

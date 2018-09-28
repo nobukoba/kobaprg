@@ -324,18 +324,7 @@ void fit_photo_peak(Double_t x0, Double_t x1){
     std::cout << "There is no canvas." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad  = canvas->GetSelectedPad();
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "There is no selected pad." << std::endl;
-    gPad->SetCrosshair(0);
-    return;
-  }
-  sel_pad->cd();
-  TList* listofpri;
-  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "There is nothing in this pad." << std::endl;
-    return;
-  }
+  TList* listofpri = gPad->GetListOfPrimitives();
   TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){
@@ -421,8 +410,8 @@ void fit_photo_peak(Double_t x0, Double_t x1){
   hist->GetListOfFunctions()->Add(fgaus->Clone());
   hist->GetListOfFunctions()->Add(fsg->Clone());
   hist->GetListOfFunctions()->Add(fconst->Clone());
-  sel_pad->Update();
-  sel_pad->Modified();
+  gPad->Update();
+  gPad->Modified();
   return;
 }
 
@@ -436,19 +425,7 @@ void fit_photo_peak(){
   TMarker *mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   Double_t x0 = mk->GetX();
   delete mk;
-  TVirtualPad *sel_pad  = canvas->GetSelectedPad();
-  if (!(sel_pad = canvas->GetPad(gPad->GetNumber()))) {
-    std::cout << "There is no selected pad." << std::endl;
-    gPad->SetCrosshair(0);
-    return;
-  }
-  sel_pad->cd();
-  TList* listofpri;
-  if (!(listofpri = sel_pad->GetListOfPrimitives())) {
-    std::cout << "There is nothing in this pad." << std::endl;
-    gPad->SetCrosshair(0);
-    return;
-  }
+  TList* listofpri =gPad->GetListOfPrimitives();
   TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){

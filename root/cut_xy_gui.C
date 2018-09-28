@@ -12,8 +12,7 @@ void cut_xy_gui(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -67,8 +66,8 @@ void cut_xy_gui(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     }
   }
   hout->Draw("colz");
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
   return;
 }
 
@@ -87,8 +86,7 @@ void cut_xy_gui(){
   Double_t x0 = mk->GetX();
   Double_t y0 = mk->GetY();
   delete mk;
-  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
-  TList* listofpri = sel_pad->GetListOfPrimitives();
+  TList* listofpri = gPad->GetListOfPrimitives();
   TH2* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){

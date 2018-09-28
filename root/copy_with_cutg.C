@@ -18,8 +18,7 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
     return 0;
   }
   TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TGraph gr;
   Int_t fCrosshairPos = 0;
   Int_t pxlast = 0, pylast = 0;
@@ -90,8 +89,7 @@ void copy_with_cutg(){
     std::cout << "some problem occured. Exit." << std::end;
     return;
   }
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -106,7 +104,7 @@ void copy_with_cutg(){
   if(hist == 0){
     std::cout << "TH2 histogram was not found in this pad." << std::endl;
     graphical_cut->Delete();
-    sel_pad->Update();
+    gPad->Update();
     return;
   }
   TCutG *cutg = (TCutG*)listofpri->FindObject("CUTG");
@@ -140,8 +138,7 @@ void copy_with_cutg(){
     }
   }
   hout->Draw("colz");
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
   return;
-  
 }

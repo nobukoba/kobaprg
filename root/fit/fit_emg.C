@@ -16,8 +16,7 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
     return 0;
   }
   TCanvas* canvas = gPad->GetCanvas();
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TGraph gr;
   Int_t fCrosshairPos = 0;
   Int_t pxlast = 0, pylast = 0;
@@ -84,18 +83,9 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
     grtmp->Delete();
   }
   gPad->SetCrosshair();
-  grtmp = MyWaitPrimitive(0);
-  TGraph * gr = new TGraph(grtmp->GetN(),grtmp->GetX(),grtmp->GetY());
-  grtmp->Delete();
+  TGraph * gr = MyWaitPrimitive(0);
   gPad->SetCrosshair(0);
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
-    gr->Delete();
-    return;
-  }
-
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TH1 *hist = 0;
   TIter next(listofpri); TObject *obj;
   hist = 0;
@@ -210,8 +200,8 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
 	      << std::endl;
   }
   
-  sel_pad->Update();
-  sel_pad->Modified();
+  gPad->Update();
+  gPad->Modified();
   delete [] par;
   return;
 }

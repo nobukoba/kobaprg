@@ -64,8 +64,7 @@ void fit_p1g() {
     std::cout << "Can not get point. Exit." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad  = gROOT->GetSelectedPad();
-  TList* listofpri = sel_pad->GetListOfPrimitives();
+  TList* listofpri = gPad->GetListOfPrimitives();
   TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
   while (obj = next()){
@@ -139,7 +138,7 @@ void fit_p1g() {
   fit_p1g->SetParName(4,"Sigma");
   fit_p1g->SetLineWidth(1);
   hist->Fit(fit_p1g,"R+");
-  sel_pad->Update();
-  sel_pad->Modified();
+  gPad->Update();
+  gPad->Modified();
   return;
 }

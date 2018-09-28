@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include "TROOT.h"
+#include "TFrame.h"
+#include "TBox.h"
 #include "TGInputDialog.h"
 #include "TVirtualPad.h"
 #include "TList.h"
@@ -11,8 +13,7 @@ void bany(Double_t par0, Double_t par1){
     std::cout << "There is no gPad." << std::endl;
     return 0;
   }
-  TVirtualPad *sel_pad = gROOT->GetSelected();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -72,8 +73,8 @@ void bany(Double_t par0, Double_t par1){
     }
   }
   hout->Draw();
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
   return;
 }
 
@@ -88,7 +89,7 @@ void bany(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t par0, par1;
   iss >> par0 >> par1;
   bany(par0,par1);

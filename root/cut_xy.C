@@ -8,21 +8,11 @@
 #include "TH2.h"
 
 void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. This script is terminated." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. This script is terminated." << std::endl;
-    return;
-  }
-  TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. This script is terminated." << std::endl;
-    return;
-  }
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -76,8 +66,8 @@ void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     }
   }
   hout->Draw("colz");
+  gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
   return;
 }
 
@@ -92,7 +82,7 @@ void cut_xy(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t x1, x2, y1, y2;
   iss >> x1 >> x2 >> y1 >> y2;
   cut_xy(x1, x2, y1, y2);

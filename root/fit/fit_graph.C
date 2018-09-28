@@ -1,20 +1,9 @@
 void fit_graph(){
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad." << std::endl;
-    return;
-  }
-  TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing." << std::endl;
-    return;
-  }
-
+  TList *listofpri = gPad->GetListOfPrimitives();
   Int_t ngraphs = 0;
   TGraph *gr_pnt;
   while(gr_pnt = (TGraph*)listofpri->FindObject(Form("Graph_%d",ngraphs))){
@@ -41,8 +30,8 @@ void fit_graph(){
 	      << "*y + (" << -(b/a)
 	      << ")" << std::endl;
   }
-  sel_pad->Modified();
-  sel_pad->Update();
+  gPad->Modified();
+  gPad->Update();
   fit_func->Delete();
   
   return;
