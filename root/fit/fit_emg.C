@@ -10,26 +10,26 @@
 #include "TCanvas.h"
 #include "TString.h"
 
+
 TGraph * MyWaitPrimitive(Int_t number_of_points) {
-  TCanvas* canvas = gPad->GetCanvas();
-  if (!canvas) {
-    std::cout << "There is no canvas." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
     return 0;
   }
+  TCanvas* canvas = gPad->GetCanvas();
+  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
+  TList *listofpri = sel_pad->GetListOfPrimitives();
   TGraph *graphical_cut = new TGraph();
-  TLine graphical_line;
-  TLine *prevline = 0;
-  graphical_cut->SetName("graphical_cut");
-  gPad->SetCrosshair();
+  Int_t fCrosshairPos = 0;
+  Int_t pxlast = 0, pylast = 0;
   Int_t event = 0;
+  Int_t k = 0;
   gSystem->ProcessEvents();
-  Double_t cur_x  = 0, cur_y  = 0;
-  Double_t past_x = 0, past_y = 0;
-  Double_t pre_x  = 0, pre_y  = 0;
   while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
     event = gPad->GetEvent();
     if (number_of_points > 1) {
       if (graphical_cut->GetN() == number_of_points){
+	canvas->HandleInput((EEventType)-1,0,0);
 	break;
       }
     } else {
@@ -41,48 +41,52 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
       }
     }
     if (event == kButton1Down) {
-      cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
-      cur_y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
-      pre_x = cur_x;
-      pre_y = cur_y;
-      graphical_cut->SetPoint(graphical_cut->GetN(), cur_x, cur_y);
-      graphical_cut->Draw("L*");
+      pxlast = gPad->GetEventX();
+      pylast = gPad->GetEventY();
       canvas->HandleInput((EEventType)-1,0,0);
+      Double_t x = gPad->AbsPixeltoX(pxlast);
+      Double_t y = gPad->AbsPixeltoY(pylast);
+      graphical_cut->SetPoint(graphical_cut->GetN(), x, y);
+      graphical_cut->Draw("L*");
     }
-    if ((graphical_cut->GetN()>=1)&&(event == kMouseMotion)) {
-      cur_x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
-      cur_y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
-      if ((cur_x != past_x) || (cur_y != past_y) ) {
-    	if (prevline) {
-    	  //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-	  prevline->Delete();
-    	}
-    	prevline = graphical_line.DrawLine(pre_x, pre_y, cur_x, cur_y);
-	gROOT->GetSelectedPad()->Update();
-    	past_x = cur_x;
-    	past_y = cur_y;
+    if ((graphical_cut->GetN()>=1)) {
+      if (gPad->GetEvent() == kMouseEnter) continue;
+      canvas->FeedbackMode(kTRUE);
+      //erase old position and draw a line at current position
+      Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
+      pxold = fCrosshairPos%10000;
+      pyold = fCrosshairPos/10000;
+      px    = gPad->GetEventX();
+      py    = gPad->GetEventY()+1;
+      pxmin = 0;
+      pxmax = canvas->GetWw();
+      pymin = 0;
+      pymax = gPad->GetWh();
+      if (pxold && pyold) gVirtualX->DrawLine(pxlast,pylast,pxold,pyold);
+      if (gPad->GetEvent() == kButton1Down ||
+	  gPad->GetEvent() == kButton1Up   ||
+	  gPad->GetEvent() == kMouseLeave) {
+	fCrosshairPos = 0;
+	continue;
       }
+      if (px && py) gVirtualX->DrawLine(pxlast,pylast,px,py);
+      fCrosshairPos = px + 10000*py;
     }
     gSystem->Sleep(10);
-  }
-  gPad->SetCrosshair(0);
-  if (prevline) {
-    //gROOT->GetSelectedPad()->GetListOfPrimitives()->Remove(prevline);
-    prevline->Delete();
   }
   return graphical_cut;
 }
 
 void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas." << std::endl;
-    return;
+  if (!gPad) {
+    std::cout << "There is no gPad." << std::endl;
+    return 0;
   }
   TGraph *grtmp;
   while(grtmp = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
     grtmp->Delete();
   }
+  gPad->SetCrosshair();
   grtmp = MyWaitPrimitive(0);
   TGraph * gr = new TGraph(grtmp->GetN(),grtmp->GetX(),grtmp->GetY());
   grtmp->Delete();

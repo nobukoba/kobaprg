@@ -66,7 +66,8 @@ void plot_fit_results(const char * funcname){
   xrange = xmax - xmin;
   hist->GetXaxis()->SetRangeUser(xmin - xrange / 3., xmax + xrange*(2./3.));
   hist->Draw();
-  canvas->Update();
+  sel_pad->GetFrame()->SetBit(TBox::kCannotMove);
+  sel_pad->Update();
 
   TPaveStats *ps = (TPaveStats*)sel_pad->GetPrimitive("stats");
   if (ps == 0) {
