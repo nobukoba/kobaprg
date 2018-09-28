@@ -1,11 +1,10 @@
 #include <iostream>
-//#include <iomanip>
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "TDirectory.h"
 #include "TObject.h"
-#include "TH2D.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TGraph.h"
 #include "TLine.h"
