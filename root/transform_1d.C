@@ -3,8 +3,7 @@ void transform_1d(){
     std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = gROOT->GetSelectedPad();
-  TList *listofpri = sel_pad->GetListOfPrimitives();
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
@@ -85,8 +84,37 @@ void transform_1d(){
     str_n = Form("%s%d",str.Data(),num);
     num++;
   }
-  
   TH1D *hout = new TH1D(str_n, hist->GetTitle(), nbin, xmin, xmax);
+  
+  for (Int_t i = 1; i <= hist->GetNbinsX(); i++) {
+    Double_t xlow   = hist->GetXaxis()->GetBinLowEdge(i);
+    Double_t xup    = hist->GetXaxis()->GetBinUpEdge(i);
+    Double_t xlow_t = trs_func->Eval(xlow);
+    Double_t xup_t  = trs_func->Eval(xup);
+    if (xlow_t > xup_t) {
+      Double_t xtmp = xlow_t;
+      xlow_t = xup_t;
+      xup_t = xtmp;
+    }
+    Double_t xrange_t = xup_t - xlow_t;
+    Double_t yin = hist->GetBinContent(i);
+    Double_t yin_per_x = yin / xrange_t;
+    Int_t ilow_t = hout->FindBin(xlow_t);
+    Int_t iup_t  = hout->FindBin(xup_t);
+    for (Int_t ifill = ilow_t; ifill <= iup_t; ifill++) {
+      Double_t xwid = hout->GetXaxis()->GetBinWidth(ifill);
+      if (ifill == ilow_t) {
+	xwid = xwid - (xlow_t - hout->GetXaxis()->GetBinLowEdge(ifill));
+      }
+      if (ifill == iup_t) {
+	xwid = xwid - (hout->GetXaxis()->GetBinUpEdge(ifill) - xup_t);
+      }
+      hout->Fill(hout->GetBinCenter(ifill), yin_per_x * xwid);
+    }
+  }
+  hout->SetBinContent(0, hist->GetBinContent(0));
+  hout->SetBinContent(hist->GetNbinsX()+1, hist->GetBinContent(hist->GetNbinsX()+1));
+  hout->SetEntries(hist->GetEntries());
   hout->Draw();
   gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);

@@ -7,21 +7,11 @@
 
 void plot_photo_peak_fit_results(){
   std::cout << std::endl << "Macro: plot_photo_peak_fit_results.C" << std::endl;
-  TCanvas* canvas = gPad->GetCanvas();
-  if (canvas == 0) {
-    std::cout << "There is no canvas. The script is terminated." << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. This script is terminated." << std::endl;
     return;
   }
-  TVirtualPad *sel_pad = canvas->GetPad(gPad->GetNumber());
-  if (sel_pad == 0) {
-    std::cout << "There is no sel_pad. The script is terminated." << std::endl;
-    return;
-  }
-  TList *listofpri = sel_pad->GetListOfPrimitives();
-  if (listofpri == 0) {
-    std::cout << "The pad includes nothing. The script is terminated." << std::endl;
-    return;
-  }
+  TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
@@ -45,9 +35,10 @@ void plot_photo_peak_fit_results(){
     std::cout << "The GetListOfFunctions() is null. The script is terminated." << std::endl;
     return;
   }
-  canvas->Clear();
-  canvas->Divide(2,4);
-  sel_pad = canvas->cd(1);
+  gPad->GetCanvas()->Clear();
+  gPad->GetCanvas()->Divide(2,4);
+  TVirtualPad *sel_pad;
+  sel_pad = gPad->GetCanvas()->cd(1);
   //hist->GetXaxis()->UnZoom();
   hist->GetXaxis()->SetRangeUser(0., 2000.);
   hist->DrawCopy();
@@ -102,10 +93,8 @@ void plot_photo_peak_fit_results(){
     
     // the following line is needed to avoid that the automatic redrawing of stats
     histcopy->SetStats(0);
+    sel_pad->Update();
     sel_pad->Modified();
-    sel_pad->Update();
-    sel_pad->Update();
-    
     j++;
   }  
   return;
