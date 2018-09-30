@@ -530,11 +530,13 @@ public:
 	if ((!(event->fState & kKeyShiftMask))&&
 	    (!(event->fState & kKeyControlMask))) {
 	  if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
-	    if((cur_ListTree->GetSelected())){
-	      cur_ListTree->GetSelected()->SetActive(kFALSE);
+	    //if((cur_ListTree->GetSelected())){
+	    //  cur_ListTree->GetSelected()->SetActive(kFALSE);
+	    //}
+	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+	      hist_fListTree_active_items.Delete();
 	    }
 	    cur_ListTree->UnselectAll(kTRUE);
-	    hist_fListTree_active_items.Delete();
 	    cur_ListTree->ClearViewPort();
 	  }
 	}
@@ -557,15 +559,26 @@ public:
 	      cur_ListTree->ClearViewPort();
 
 	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-		TGListTreeItem *cur_ListTreeItem = 0;
-		hist_fListTree_active_items.Delete();
-		cur_ListTreeItem = hist_fListTree->GetFirstItem();
-		while(cur_ListTreeItem){
-		  if(cur_ListTreeItem->IsActive()){
-		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
+		if(old_item){
+		  TObjString objstr_tmp1(Form("%lld",old_item));
+		  if (!hist_fListTree_active_items.FindObject(&objstr_tmp1)) {
+		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",old_item)));
 		  }
-		  cur_ListTreeItem = NextItem(cur_ListTreeItem);
 		}
+		TObjString objstr_tmp2(Form("%lld",cur_item));
+		if (!hist_fListTree_active_items.FindObject(&objstr_tmp2)) {
+		  hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+		}
+
+		//TGListTreeItem *cur_ListTreeItem = 0;
+		//hist_fListTree_active_items.Delete();
+		//cur_ListTreeItem = hist_fListTree->GetFirstItem();
+		//while(cur_ListTreeItem){
+		//  if(cur_ListTreeItem->IsActive()){
+		//    hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
+		//  }
+		//  cur_ListTreeItem = NextItem(cur_ListTreeItem);
+		//}
 	      }
 	    }
 	  } 
@@ -590,6 +603,12 @@ public:
 	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
 	  if (event->fState & kKeyShiftMask) {
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
+	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+	      TObjString objstr_tmp(Form("%lld",cur_item));
+	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+	      }
+	    }
 	  }
 	  if (keysym == kKey_Down) {
 	    cur_ListTree->LineDown(1);
@@ -600,6 +619,12 @@ public:
 	  if (event->fState & kKeyShiftMask) {
 	    cur_item = cur_ListTree->GetCurrent();
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
+	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+	      TObjString objstr_tmp(Form("%lld",cur_item));
+	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+	      }
+	    }
 	  }
 	  cur_ListTree->ClearViewPort();
 	}
@@ -613,23 +638,43 @@ public:
 	
 	if ((keysym == kKey_Return)||
 	    (keysym == kKey_Enter)) {
-	  TGListTreeItem * cur = cur_ListTree->GetCurrent();
-	  cur_ListTree->DoubleClicked(cur, 1);
-	  cur_ListTree->HighlightItem(cur,kTRUE,kTRUE);
+	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
+	  //std::cout << "cur_item: " << cur_item->GetText() << std::endl;
+	  cur_ListTree->Clicked(cur_item, 1);
+	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
+	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+	    if (event->fState & kKeyControlMask){
+	      TObjString objstr_tmp(Form("%lld", cur_item));
+	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp);
+	      if (objstr_ptr) {
+		hist_fListTree_active_items.Remove(&objstr_tmp);
+		cur_item->SetActive(kFALSE);
+		delete objstr_ptr;
+	      }else{
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld", cur_item)));
+	      }
+	    }else{
+	      TObjString objstr_tmp(Form("%lld", cur_item));
+	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp); 
+	      if (!objstr_ptr) {
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld", cur_item)));
+	      }
+	    }
+	  }
 	  cur_ListTree->ClearViewPort();
 	}
 
-	if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	  TGListTreeItem *cur_ListTreeItem = 0;
-	  hist_fListTree_active_items.Delete();
-	  cur_ListTreeItem = hist_fListTree->GetFirstItem();
-	  while(cur_ListTreeItem){
-	    if(cur_ListTreeItem->IsActive()){
-	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
-	    }
-	    cur_ListTreeItem = NextItem(cur_ListTreeItem);
-	  }
-	}
+	//if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+	//  TGListTreeItem *cur_ListTreeItem = 0;
+	//  hist_fListTree_active_items.Delete();
+	//  cur_ListTreeItem = hist_fListTree->GetFirstItem();
+	//  while(cur_ListTreeItem){
+	//    if(cur_ListTreeItem->IsActive()){
+	//      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
+	//    }
+	//    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+	//  }
+	//}
       }
     }
   }
@@ -818,9 +863,9 @@ public:
 	  while (cur_item){
 	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	    TObjString objstr_tmp(Form("%lld",cur_item));
-	    TObjString *objstr_ptr;
 	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));}
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+	    }
 	    if(cur_item == entry){
 	      break;
 	    }
