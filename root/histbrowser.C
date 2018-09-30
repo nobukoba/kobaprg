@@ -332,7 +332,6 @@ public:
     hist_browser(0),
     macro_fListTree(0),
     hist_fListTree(0),
-    hist_fListTree_old_item(0),
     timer_manager(0)
   {
     gROOT->GetListOfBrowsers()->Remove(this);
@@ -366,7 +365,7 @@ public:
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			     "HistBrowser", this,
 			     "MyClicked2(TGListTreeItem *, Int_t)");
-
+    
     //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
@@ -393,7 +392,6 @@ public:
     hist_browser->GetDrawOptionPointer()->GetTextEntry()->SetText("colz");
     cumtomTDirectoryFileMenu();
     cumtomTFolderMenu();
-
   }
   
   ~HistBrowser(){
@@ -536,7 +534,7 @@ public:
 	      cur_ListTree->GetSelected()->SetActive(kFALSE);
 	    }
 	    cur_ListTree->UnselectAll(kTRUE);
-	    hist_fListTree_old_active_item.Delete();
+	    hist_fListTree_active_items.Delete();
 	    cur_ListTree->ClearViewPort();
 	  }
 	}
@@ -560,11 +558,11 @@ public:
 
 	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 		TGListTreeItem *cur_ListTreeItem = 0;
-		hist_fListTree_old_active_item.Delete();
+		hist_fListTree_active_items.Delete();
 		cur_ListTreeItem = hist_fListTree->GetFirstItem();
 		while(cur_ListTreeItem){
 		  if(cur_ListTreeItem->IsActive()){
-		    hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
+		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
 		  }
 		  cur_ListTreeItem = NextItem(cur_ListTreeItem);
 		}
@@ -623,11 +621,11 @@ public:
 
 	if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	  TGListTreeItem *cur_ListTreeItem = 0;
-	  hist_fListTree_old_active_item.Delete();
+	  hist_fListTree_active_items.Delete();
 	  cur_ListTreeItem = hist_fListTree->GetFirstItem();
 	  while(cur_ListTreeItem){
 	    if(cur_ListTreeItem->IsActive()){
-	      hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
 	    }
 	    cur_ListTreeItem = NextItem(cur_ListTreeItem);
 	  }
@@ -789,13 +787,15 @@ public:
   }
   
   void MyClickedForHistFileBrowser(TGListTreeItem *entry, Int_t btn, UInt_t mask, Int_t x, Int_t y){
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      hist_fListTree_active_items.Delete();
+      hist_fListTree_active_items.Add(new TObjString(Form("%lld",entry)));
+    }
     if(mask & kKeyShiftMask){
-      //hist_fListTree->UnselectAll(kTRUE);
-      //std::cout << "mask & kKeyShiftMask" <<std::endl;
-      //std::cout << "entry->GetText():" << entry->GetText() << std::endl;
-      if (hist_fListTree_old_item) {
-	TGListTreeItem  *cur_item = hist_fListTree_old_item;
-	//std::cout << "cur_item->GetText():" << cur_item->GetText() << std::endl;
+      TGListTreeItem  *last_item = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+      if (last_item) {
+	TGListTreeItem  *cur_item = last_item;
 	Bool_t go_up   = false;
 	Bool_t go_down = false;
 	while (cur_item){
@@ -805,7 +805,7 @@ public:
 	  }
 	  cur_item = PrevItem(cur_item);
 	}
-	cur_item = hist_fListTree_old_item;
+	cur_item = last_item;
 	while (cur_item){
 	  if(cur_item == entry){
 	    go_down = true;
@@ -814,9 +814,13 @@ public:
 	  cur_item = NextItem(cur_item);
 	}
 	if(go_up || go_down){
-	  cur_item = hist_fListTree_old_item;
+	  cur_item = last_item;
 	  while (cur_item){
 	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
+	    TObjString objstr_tmp(Form("%lld",cur_item));
+	    TObjString *objstr_ptr;
+	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));}
 	    if(cur_item == entry){
 	      break;
 	    }
@@ -829,55 +833,51 @@ public:
 	}
       }
       TGListTreeItem *cur_ListTreeItem = 0;
-      TIter next(&hist_fListTree_old_active_item);
+      TIter next(&hist_fListTree_active_items);
       TObject * obj;
       while(obj = next()){
       	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
       	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
-      	//std::cout << "cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() <<std::endl;
       }
       hist_fListTree->SetSelected(entry);
-    }else{
-      hist_fListTree_old_item = entry;
     }
-
+    
     TGListTreeItem *cur_ListTreeItem = 0;
     if(mask & kKeyControlMask){
       TObjString objstr_tmp(Form("%lld",entry));
       TObjString *objstr_ptr;
-      if (objstr_ptr = (TObjString *)hist_fListTree_old_active_item.FindObject(&objstr_tmp)) {
-	hist_fListTree_old_active_item.Remove(&objstr_tmp);
+      if (objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	hist_fListTree_active_items.Remove(&objstr_tmp);
 	entry->SetActive(kFALSE);
 	delete objstr_ptr;
+      }else{
+	hist_fListTree_active_items.Add(new TObjString(Form("%lld",entry)));
       }
       
-      TIter next(&hist_fListTree_old_active_item);
+      TIter next(&hist_fListTree_active_items);
       TObject * obj;
       while(obj = next()){
       	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
       	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
-      	//std::cout << "cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() <<std::endl;
       }
     }
     
-    hist_fListTree_old_active_item.Delete();
-    cur_ListTreeItem = hist_fListTree->GetFirstItem();
-    while(cur_ListTreeItem){
-      if(cur_ListTreeItem->IsActive()){
-	hist_fListTree_old_active_item.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
-      }
-      cur_ListTreeItem = NextItem(cur_ListTreeItem);
-    }
-    
+    //TIter next(&hist_fListTree_active_items);
+    //TObject * obj;
+    //while(obj = next()){
+    //  cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+    //  if(!cur_ListTreeItem->IsActive()){
+    //	TObjString objstr_tmp(Form("%lld",cur_ListTreeItem));
+    //	hist_fListTree_active_items.Remove(&objstr_tmp);
+    //	obj->Delete();
+    //  }
+    //}
     hist_fListTree->ClearViewPort();
     return;
   }
   
   void SetCannotMove(TGListTreeItem *item, Int_t /* no use */){
-    if (!gPad) {
-      std::cout << "There is no gPad." << std::endl;
-      return;
-    }
+    if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
     gPad->GetFrame()->SetBit(TBox::kCannotMove);
     return;
   }
@@ -886,7 +886,7 @@ public:
     TCanvas *c = (TCanvas*)gTQSender;
     //    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
     //	   event, x, y, selected->IsA()->GetName());
-    if (event==kButton1Down) { 
+    if (event == kButton1Down) {
       //std::cout << "selected->ClassName()" << selected->ClassName() << std::endl;
       if (selected->InheritsFrom("TPad")||
 	  selected->InheritsFrom("TFrame")||
@@ -907,6 +907,7 @@ public:
   TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
   TGListTree *GetMacroListTree(){return macro_fListTree;}
   TGListTree *GetHistListTree(){return hist_fListTree;}
+  TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
   TTimer *GetTimerAddO2L(){return timer_manager->GetTimerAddO2L();}
   TTimer *GetTimerUpdatingGPad(){return timer_manager->GetTimerUpdatingGPad();}
   TTimer *GetTimerDelayedShot(){return timer_manager->GetTimerDelayedShot();}
@@ -917,8 +918,7 @@ protected:
   TGFileBrowserMod *hist_browser;
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
-  TGListTreeItem   *hist_fListTree_old_item;
-  TList            hist_fListTree_old_active_item;
+  TList            hist_fListTree_active_items;
   TimerManager     *timer_manager;
   ClassDef(HistBrowser,0)
 };
