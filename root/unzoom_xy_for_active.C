@@ -25,7 +25,7 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
   return SearchNextItem(cur_item);
 }
 
-void unzoom_x_for_active(){
+void unzoom_xy_for_active(){
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
