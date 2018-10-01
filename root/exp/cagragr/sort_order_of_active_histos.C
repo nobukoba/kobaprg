@@ -22,9 +22,11 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
+      std::cout << "active cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() << std::endl;
       TGListTreeItem *tmp_ListTreeItem;
       TIter next(items);
       TObject * obj;
+      
       while(obj = next()){
 	tmp_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
 	TString tmp_str = tmp_ListTreeItem->GetText();
@@ -38,14 +40,19 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
       }else{
 	TIter next2(items);
 	TObject * obj2;
+	Int_t added = 0;
 	while(obj2 = next2()){
 	  tmp_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj2)->GetString().Atoll());
 	  std::string cur_name = cur_ListTreeItem->GetText();
 	  std::string tmp_name = tmp_ListTreeItem->GetText();
 	  if(tmp_name.compare(cur_name) > 0){
 	    items->AddBefore(obj2, new TObjString(Form("%lld", cur_ListTreeItem)));
+	    added = 1;
 	    break;
 	  }
+	}
+	if (added == 0) {
+	  items->Add(new TObjString(Form("%lld", cur_ListTreeItem)));
 	}
       }
     }
