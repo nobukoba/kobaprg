@@ -524,7 +524,6 @@ public:
 	  }
 	  cur_ListTree->ClearViewPort();
 	}
-	
 	//std::cout << "cur_ListTree->GetBelowMouse(): " << cur_ListTree->GetBelowMouse() << std::endl;
 	
 	if ((!(event->fState & kKeyShiftMask))&&
@@ -569,26 +568,11 @@ public:
 		if (!hist_fListTree_active_items.FindObject(&objstr_tmp2)) {
 		  hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
 		}
-
-		//TGListTreeItem *cur_ListTreeItem = 0;
-		//hist_fListTree_active_items.Delete();
-		//cur_ListTreeItem = hist_fListTree->GetFirstItem();
-		//while(cur_ListTreeItem){
-		//  if(cur_ListTreeItem->IsActive()){
-		//    hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
-		//  }
-		//  cur_ListTreeItem = NextItem(cur_ListTreeItem);
-		//}
 	      }
 	    }
 	  } 
 	  return;
 	}
-	
-	//std::cout << "cur_ListTree->GetCurrent():" << cur_ListTree->GetCurrent()<< std::endl;
-	//if(cur_ListTree->GetCurrent()){
-	//  std::cout << "cur_ListTree->GetCurrent():" << cur_ListTree->GetCurrent()->GetText()Name()<< std::endl;
-	//}
 	
 	if (!cur_ListTree->GetCurrent()) {
 	  TGPosition pos = cur_ListTree->GetPagePosition();
@@ -663,18 +647,6 @@ public:
 	  }
 	  cur_ListTree->ClearViewPort();
 	}
-
-	//if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	//  TGListTreeItem *cur_ListTreeItem = 0;
-	//  hist_fListTree_active_items.Delete();
-	//  cur_ListTreeItem = hist_fListTree->GetFirstItem();
-	//  while(cur_ListTreeItem){
-	//    if(cur_ListTreeItem->IsActive()){
-	//      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_ListTreeItem)));
-	//    }
-	//    cur_ListTreeItem = NextItem(cur_ListTreeItem);
-	//  }
-	//}
       }
     }
   }
@@ -906,17 +878,6 @@ public:
       	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
       }
     }
-    
-    //TIter next(&hist_fListTree_active_items);
-    //TObject * obj;
-    //while(obj = next()){
-    //  cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
-    //  if(!cur_ListTreeItem->IsActive()){
-    //	TObjString objstr_tmp(Form("%lld",cur_ListTreeItem));
-    //	hist_fListTree_active_items.Remove(&objstr_tmp);
-    //	obj->Delete();
-    //  }
-    //}
     hist_fListTree->ClearViewPort();
     return;
   }

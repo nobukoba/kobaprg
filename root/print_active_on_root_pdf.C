@@ -13,18 +13,32 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
   }
   return SearchNextItem(cur_item);
 }
+void GetHistActiveItems(TList *items){
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  if (!hist_fListTree) {
+    std:: cout << std::endl << "pHistBrowser->GetHistListTree() is null." << std::endl;
+    return;
+  }
+  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+  while(cur_ListTreeItem){
+    if(cur_ListTreeItem->IsActive()){
+      items->Add(new TObjString(Form("%lld", cur_ListTreeItem)));
+    }
+    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+  }
+  return;
+}
 
 void print_active_on_root_pdf() {
+  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
+  if (named) {gSystem->cd(named->GetTitle());}
+  std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. Exit." << std::endl;
+    return;
+  }
   TCanvas *canvas = gPad->GetCanvas();
-  if (!canvas) {
-    std::cout << "There is no canvas. This script is terminated." << std::endl;
-    return;
-  }
   TList *listofpri = canvas->GetListOfPrimitives();
-  if (!listofpri) {
-    std::cout << "There is nothing in the canvas. This script is terminated." << std::endl;
-    return;
-  }
   Int_t npad = 0;
   TObject *obj;
   TIter next(listofpri);
@@ -43,40 +57,49 @@ void print_active_on_root_pdf() {
 
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad == 0;}
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  canvas->Print("../../root.pdf[","pdf");
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      if(((npad == 0) && (cur_pad == 0))||
-	 ((npad > 0)  && (cur_pad == 1))) {
-	canvas->Clear("D");
-      }
-      canvas->cd(cur_pad);
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (!userdata->InheritsFrom("TH1")){
-	continue;
-      }
-      hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
-      cur_pad++;
-      if (cur_pad > npad){
-	canvas->Print("../../root.pdf","pdf");
-	if(npad == 0) {
-	  cur_pad = 0;
-	}else{
-	  cur_pad = 1;
-	}
+  TList *ordered_items = (TList *) gROOT->ProcessLine("pHistBrowser->GetHistListTreeActiveItems();");
+  TList items_ins;
+  TList *items = &items_ins;
+  if (ordered_items) {
+    items = ordered_items;
+  }else{
+    GetHistActiveItems(items);
+  }
+  TH1 *subtracted = 0;
+  TGListTreeItem *cur_ListTreeItem;
+  TIter next(items);
+  TObject * obj;
+  canvas->Print("root.pdf[","pdf");
+  while(obj = next()){
+    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+    if(((npad == 0) && (cur_pad == 0))||
+       ((npad > 0)  && (cur_pad == 1))) {
+      canvas->Clear("D");
+    }
+    canvas->cd(cur_pad);
+    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
+    if (userdata->InheritsFrom("TKey")){
+      userdata = ((TKey*)userdata)->ReadObj();
+      cur_ListTreeItem->SetUserData(userdata);
+    }
+    if (!userdata->InheritsFrom("TH1")){
+      continue;
+    }
+    hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
+    cur_pad++;
+    if (cur_pad > npad){
+      canvas->Print("root.pdf","pdf");
+      if(npad == 0) {
+	cur_pad = 0;
+      }else{
+	cur_pad = 1;
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
   if(((npad == 0) && (cur_pad != 0))||
      ((npad > 0)  && (cur_pad != 1))) {
-    canvas->Print("../../root.pdf","pdf");
+    canvas->Print("root.pdf","pdf");
   }
-  canvas->Print("../../root.pdf]","pdf");
+  canvas->Print("root.pdf]","pdf");
   return;
 }
