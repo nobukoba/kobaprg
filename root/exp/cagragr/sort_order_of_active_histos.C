@@ -22,7 +22,6 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
-      std::cout << "active cur_ListTreeItem->GetText(): " << cur_ListTreeItem->GetText() << std::endl;
       TGListTreeItem *tmp_ListTreeItem;
       TIter next(items);
       TObject * obj;
