@@ -29,6 +29,16 @@ void scale_active_histos(){
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   char retstr[256] = "1.0";
+  TString disstr = "Please enter scale for the all histos";
+  new TGInputDialog(gClient->GetRoot(),0,
+		    disstr.Data(),retstr,retstr);
+  if(retstr[0] == 0 && retstr[1] == 0){
+    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
+    return;
+  }
+  std::istringstream iss(retstr);
+  Double_t par;
+  iss >> par;
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
       TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
@@ -47,20 +57,8 @@ void scale_active_histos(){
 	  str_n = Form("%s%d",str.Data(),num);
 	  num++;
 	}
-	TH1 *rev = (TH1*) hist->Clone(str_n);
-	TString disstr = "Please enter scale for ";
-	disstr += cur_ListTreeItem->GetText();
-	disstr += "\nFormat: %f";
-	new TGInputDialog(gClient->GetRoot(),0,
-			  disstr.Data(),retstr,retstr);
-	if(retstr[0] == 0 && retstr[1] == 0){
-	  std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-	  return;
-	}
-	std::istringstream iss(retstr);
-	Double_t par;
-	iss >> par;
-	rev->Scale(par);
+	TH1 *scl = (TH1*) hist->Clone(str_n);
+	scl->Scale(par);
       }
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
