@@ -49,14 +49,19 @@ void multi_fit_photo_peak_for_active(Double_t x0, Double_t x1){
 }
 
 void multi_fit_photo_peak_for_active(){
-  char command[1024] = "0.0 1.0";
+  char retstr[256];
   new TGInputDialog(gClient->GetRoot(),0,
   		    "Enter range: %f %f",
-  		    command,command);
-  TString str = command;
+  		    "0.0 1.0",retstr);
+  if(retstr[0] == 0 && retstr[1] == 0){
+    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
+    return;
+  }
+  TString str = retstr;
   str.ReplaceAll(","," ");
-  Double_t x0, x1;
-  sscanf(str.Data(),"%lf %lf", &x0, &x1);
-  multi_fit_photo_peak_for_active(x0,x1);
+  std::istringstream iss(str.Data());
+  Double_t par0, par1;
+  iss >> par0 >> par1;
+  multi_fit_photo_peak_for_active(par0,par1);
   return;
 }
