@@ -24,10 +24,19 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
 
 void multi_fit_photo_peak_for_active_results(){
   std::cout << std::endl << "Macro: multi_fit_photo_peak_for_active_results.C" << std::endl;
-
+  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
+  if (named) {gSystem->cd(named->GetTitle());}
+  std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
+  if (!gPad) {
+    std::cout << "There is no gPad. Exit." << std::endl;
+    return;
+  }
+  TCanvas *canvas = gPad->GetCanvas();
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+
+  canvas->Print("fit_results.pdf[","pdf");
   while(cur_ListTreeItem){
     if(!(cur_ListTreeItem->IsActive())){
       cur_ListTreeItem = NextItem(cur_ListTreeItem);
@@ -43,26 +52,31 @@ void multi_fit_photo_peak_for_active_results(){
       continue;
     }
     TH1D* hist = (TH1D *)userdata;
+    if (hist==0) {
+      std::cout << "hist is null." << std::endl;
+      continue;
+    }
     TList *funclist = hist->GetListOfFunctions();
     if(funclist == 0){
       std::cout << "The GetListOfFunctions() is null. The script is terminated." << std::endl;
       return;
     }
     gPad->GetCanvas()->Clear();
-    gPad->GetCanvas()->Divide(2,4);
+    gPad->GetCanvas()->Divide(2,2);
     TVirtualPad *sel_pad;
     sel_pad = gPad->GetCanvas()->cd(1);
     //hist->GetXaxis()->UnZoom();
-    hist->GetXaxis()->SetRangeUser(0., 2000.);
+    hist->GetXaxis()->SetRangeUser(0., 3000.);
     hist->DrawCopy();
     
     //return;
     
     Int_t j = 0;
     TF1 *funcobj = 0;
+    std::cout << userdata->GetName() << " center par: ";
     while (funcobj = (TF1*)funclist->FindObject(Form("fit_photo_peak_%d",j))) {
+      std::cout << funcobj->GetParameter(1) << ", ";
       sel_pad = gPad->GetCanvas()->cd(j+2);
-      
       Double_t xmin, xmax, xrange;
       funcobj->GetRange(xmin, xmax);
       xrange = xmax - xmin;
@@ -83,13 +97,17 @@ void multi_fit_photo_peak_for_active_results(){
 	pname = funcobj->GetParName(i);
 	pname += " "; /*In order to distinguish 'R' from 'RMS'*/
 	tconst = ps->GetLineWith(pname);
-	//std::cout << tconst->GetTitle() << std::endl;
 	pname += "= ";
 	fmt = Form("%%%s #pm %%%s",ps->GetFitFormat(),ps->GetFitFormat());
 	pname += Form(fmt.Data(),funcobj->GetParameter(i),funcobj->GetParError(i));
+	if (tconst == 0){
+	  break;
+	}
 	tconst->SetTitle(pname);
       }
-      
+      if (tconst == 0){
+	break;
+      }
       tconst = ps->GetLineWith("#chi^{2} / ndf");
       fmt = Form("#chi^{2} / ndf = %%%s / %%%s",ps->GetFitFormat(),ps->GetFitFormat());
       tconst->SetTitle(Form(fmt.Data(),funcobj->GetChisquare(),(Double_t)funcobj->GetNDF()));
@@ -110,7 +128,10 @@ void multi_fit_photo_peak_for_active_results(){
       gPad->Modified();
       j++;
     }
+    std::cout << std::endl;
+    canvas->Print("fit_results.pdf","pdf");
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
+  canvas->Print("fit_results.pdf]","pdf");
   return;
 }
