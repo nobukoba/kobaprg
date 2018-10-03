@@ -117,7 +117,7 @@ void cut_xy_gui(){
   std::cout << "2nd (x, y) = (" << x1 << ", " << y1 << ")"<< std::endl;
 
   if (x0 > x1) {
-    Double_t tmpx = x1;
+    Double_t tmpx = x0;
     x0 = x1;
     x1 = tmpx;
   } 
