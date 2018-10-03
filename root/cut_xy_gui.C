@@ -122,7 +122,7 @@ void cut_xy_gui(){
     x1 = tmpx;
   } 
   if (y0 > y1) {
-    Double_t tmpy = y1;
+    Double_t tmpy = y0;
     y0 = y1;
     y1 = tmpy;
   }
