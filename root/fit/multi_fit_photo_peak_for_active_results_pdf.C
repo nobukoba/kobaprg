@@ -22,7 +22,7 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
   return SearchNextItem(cur_item);
 }
 
-void multi_fit_photo_peak_for_active_results(){
+void multi_fit_photo_peak_for_active_results_pdf(){
   std::cout << std::endl << "Macro: multi_fit_photo_peak_for_active_results.C" << std::endl;
   TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
   if (named) {gSystem->cd(named->GetTitle());}
@@ -36,6 +36,7 @@ void multi_fit_photo_peak_for_active_results(){
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
 
+  canvas->Print("fit_results.pdf[","pdf");
   while(cur_ListTreeItem){
     if(!(cur_ListTreeItem->IsActive())){
       cur_ListTreeItem = NextItem(cur_ListTreeItem);
@@ -128,7 +129,9 @@ void multi_fit_photo_peak_for_active_results(){
       j++;
     }
     std::cout << std::endl;
+    canvas->Print("fit_results.pdf","pdf");
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
+  canvas->Print("fit_results.pdf]","pdf");
   return;
 }
