@@ -12,43 +12,49 @@
 #include "TCutG.h"
 #include "TString.h"
 
-TGraph * MyWaitPrimitive(Int_t number_of_points) {
-  if (!gPad) {
-    std::cout << "There is no gPad." << std::endl;
-    return 0;
+class MyWaitPrimitive{
+public:
+  ~MyWaitPrimitive(){
+    canvas->Disconnect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",this);
   }
-  TCanvas* canvas = gPad->GetCanvas();
-  TList *listofpri = gPad->GetListOfPrimitives();
-  TGraph gr;
-  Int_t fCrosshairPos = 0;
-  Int_t pxlast = 0, pylast = 0;
-  Int_t event = 0;
-  //gSystem->ProcessEvents();
-  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
-    event = gPad->GetEvent();
-    if (number_of_points > 1) {
+  MyWaitPrimitive(Int_t nop, TGraph *gr_ptr_in):
+    number_of_points(nop), gr_ptr(gr_ptr_in),
+    fCrosshairPos(0), pxlast(0), pylast(0){
+    canvas = gPad->GetCanvas();
+    canvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
+		    "MyWaitPrimitive", this, "DrawFunction(Int_t,Int_t,Int_t,TObject*)");
+    canvas->WaitPrimitive("MyPrimitive");
+  }
+  void DrawFunction(Int_t event, Int_t x_in, Int_t y_in, TObject*){
+    if (number_of_points > 0) {
       if (gr.GetN() == number_of_points){
-	break;
+ 	for (Int_t i = 0; i < gr.GetN(); i++){
+	  gr_ptr->SetPoint(i, gr.GetX()[i], gr.GetY()[i]);
+	}
+	gr_ptr->SetName("MyPrimitive");
+	gr_ptr->Draw("L*");
+	return;
       }
     } else {
       if (event == kButton1Double || event == kKeyPress) {
-	//the following statement is required against other loop executions
-	//before returning
-	//canvas->HandleInput((EEventType)-1,0,0);
-	break;
+ 	for (Int_t i = 0; i < gr.GetN(); i++){
+	  gr_ptr->SetPoint(i, gr.GetX()[i], gr.GetY()[i]);
+	}
+	gr_ptr->SetName("MyPrimitive");
+	gr_ptr->Draw("L*");
+	return;
       }
     }
     if (event == kButton1Down) {
       pxlast = gPad->GetEventX();
       pylast = gPad->GetEventY();
-      canvas->HandleInput((EEventType)-1,0,0);
       Double_t x = gPad->AbsPixeltoX(pxlast);
       Double_t y = gPad->AbsPixeltoY(pylast);
       gr.SetPoint(gr.GetN(), x, y);
       gr.Draw("L*");
     }
     if ((gr.GetN()>=1)) {
-      if (event == kMouseEnter) continue;
+      if (event == kMouseEnter) return;
       canvas->FeedbackMode(kTRUE);
       //erase old position and draw a line at current position
       Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
@@ -65,27 +71,34 @@ TGraph * MyWaitPrimitive(Int_t number_of_points) {
 	  event == kButton1Up   ||
 	  event == kMouseLeave) {
 	fCrosshairPos = 0;
-	continue;
+	return;
       }
       if (px && py) gVirtualX->DrawLine(pxlast,pylast,px,py);
       fCrosshairPos = px + 10000*py;
     }
-    gSystem->Sleep(10);
+    return;
   }
-  return (new TGraph(gr));
-}
+private:
+  Int_t number_of_points;
+  Int_t fCrosshairPos;
+  Int_t pxlast, pylast;
+  TCanvas *canvas;
+  TGraph gr;
+  TGraph *gr_ptr;
+};
 
 void plot_graphs(){
   if (!gPad) {
     std::cout << "There is no gPad." << std::endl;
     return;
   }
-  TGraph *gr;
-  while(gr = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
-    gr->Delete();
+  TGraph *gr_prev;
+  while(gr_prev = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
+    gr_prev->Delete();
   }
   gPad->SetCrosshair();
-  TGraph * gr = MyWaitPrimitive(0);
+  TGraph * gr = new TGraph();
+  MyWaitPrimitive primi(0, gr);
   gPad->SetCrosshair(0);
   TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);

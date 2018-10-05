@@ -9,24 +9,29 @@
 #include "TList.h"
 #include "TH2.h"
 
-Int_t WaitOneClickX(Double_t &x, Double_t &y) {
-  if (!gPad) {
-    std::cout << "There is no gPad." << std::endl;
-    return 0;
+class WaitOneClickX{
+public:
+  ~WaitOneClickX(){
+    canvas->Disconnect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",this);
   }
-  TCanvas* canvas = gPad->GetCanvas();
-  Int_t fCrosshairPos = 0;
-  Int_t event = 0;
-  while (!gSystem->ProcessEvents() && gROOT->GetSelectedPad()) {
-    event = gPad->GetEvent();
-    //  std::cout << "event: " << event << std::endl;
+  WaitOneClickX(Double_t *x_in, Double_t *y_in):
+    x(x_in), y(y_in),
+    fCrosshairPos(0), pxlast(0), pylast(0){
+    canvas = gPad->GetCanvas();
+    canvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
+		    "WaitOneClickX", this, "DrawFunction(Int_t,Int_t,Int_t,TObject*)");
+    canvas->WaitPrimitive("TMarker");
+  }
+  void DrawFunction(Int_t event, Int_t x_in, Int_t y_in, TObject*){
     if (event == kButton1Down) {
-      x = gPad->AbsPixeltoX(gROOT->GetSelectedPad()->GetEventX());
-      y = gPad->AbsPixeltoY(gROOT->GetSelectedPad()->GetEventY());
-      canvas->HandleInput((EEventType)-1,0,0);
-      break;
+      pxlast = gPad->GetEventX();
+      pylast = gPad->GetEventY();
+      *x = gPad->AbsPixeltoX(pxlast);
+      *y = gPad->AbsPixeltoY(pylast);
+      mk.PaintMarker(*x, *y);
+      return;
     }
-    if (event == kMouseEnter) continue;
+    if (event == kMouseEnter) return;
     canvas->FeedbackMode(kTRUE);
     //erase old position and draw a line at current position
     Int_t pxmin,pxmax,pymin,pymax,pxold,pyold,px,py;
@@ -44,15 +49,21 @@ Int_t WaitOneClickX(Double_t &x, Double_t &y) {
 	event == kButton1Up   ||
 	event == kMouseLeave) {
       fCrosshairPos = 0;
-      continue;
+      return;
     }
     gVirtualX->DrawLine(px,pymin,px,pymax);
     //gVirtualX->DrawLine(pxmin,py,pxmax,py);
     fCrosshairPos = px + 10000*py;
-    gSystem->Sleep(10);
+    return;
   }
-  return 1;
-}
+private:
+  Double_t *x;
+  Double_t *y;
+  Int_t fCrosshairPos;
+  Int_t pxlast, pylast;
+  TMarker mk;
+  TCanvas *canvas;
+};
 
 void bany_gui(Double_t par0, Double_t par1){
   if (!gPad) {
@@ -130,10 +141,8 @@ void bany_gui(){
     return;
   }
   Double_t x0, y0;
-  if (!WaitOneClickX(x0, y0)){
-    std::cout << "Can not get point. Exit." << std::endl;
-    return;
-  }
+  WaitOneClickX *primi = new WaitOneClickX(&x0, &y0); delete primi;
+  
   TList* listofpri = gPad->GetListOfPrimitives();
   TH2* hist = 0;
   TIter next(listofpri); TObject *obj;
@@ -150,10 +159,7 @@ void bany_gui(){
   TLine line;
   line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
   Double_t x1, y1;
-  if (!WaitOneClickX(x1, y1)){
-    std::cout << "Can not get point. Exit." << std::endl;
-    return;
-  }
+  primi = new WaitOneClickX(&x1, &y1); delete primi;
   line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
 
   std::cout << std::endl << "Clicked Positions" << std::endl;
