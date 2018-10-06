@@ -769,8 +769,11 @@ public:
     ml->AddFirst(n);
   }
   
-  void MyClicked2(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
-    item->SetOpen(!item->IsOpen());
+  void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      item->SetOpen(!item->IsOpen());
+    }
   }
   
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
