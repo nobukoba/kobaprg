@@ -33,6 +33,7 @@ public:
 	}
 	gr_ptr->SetName("MyPrimitive");
 	gr_ptr->Draw("L*");
+	gPad->Update();
 	return;
       }
     } else {
@@ -42,6 +43,7 @@ public:
 	}
 	gr_ptr->SetName("MyPrimitive");
 	gr_ptr->Draw("L*");
+	gPad->Update();
 	return;
       }
     }
@@ -52,6 +54,7 @@ public:
       Double_t y = gPad->AbsPixeltoY(pylast);
       gr.SetPoint(gr.GetN(), x, y);
       gr.Draw("L*");
+      gPad->Update();
     }
     if ((gr.GetN()>=1)) {
       if (event == kMouseEnter) return;
