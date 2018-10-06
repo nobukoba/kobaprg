@@ -41,16 +41,12 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
 }
 
 void CopyDir(TDirectory *source, TDirectory *target) {
-//source->ls();
-  std::cout << "Copy Dir: savdir->GetName(): " << savdir->GetName() <<  << std::endl;
-TDirectory *savdir = gDirectory;
-TKey *key;
+  TKey *key;
   TIter nextkey(source->GetListOfKeys());
   while ((key = (TKey*)nextkey())) {
     const char *classname = key->GetClassName();
     TClass *cl = gROOT->GetClass(classname);
     TObject *obj = key->ReadObj();
-     
     if (!cl) continue;
     if(target->FindObject(obj->GetName())){
       continue;
@@ -67,15 +63,11 @@ TKey *key;
       target->cd();
       obj->Clone(obj->GetName());
     }
+    delete obj;
   }
-  //adir->SaveSelf(kTRUE);
-  savdir->cd();
 }
 
 void MergeDir(TDirectory *source, TDirectory *target) {
-  //source->ls();
-  TDirectory *savdir = gDirectory;
-  std::cout << "savdir->GetName(): " << savdir->GetName() <<  << std::endl;
   TKey *key;
   TIter nextkey(source->GetListOfKeys());
   while ((key = (TKey*)nextkey())) {
@@ -99,7 +91,6 @@ void MergeDir(TDirectory *source, TDirectory *target) {
 		<< std::endl;
       continue;
     }
-    
     TObject *obj = key->ReadObj();
     if (!cl) continue;
     if (cl->InheritsFrom(TDirectory::Class())) {
@@ -113,9 +104,8 @@ void MergeDir(TDirectory *source, TDirectory *target) {
     } else if (cl->InheritsFrom(TH1::Class())){
       ((TH1*)tgt)->Add((TH1*)obj);
     }
+    delete obj;
   }
-  //adir->SaveSelf(kTRUE);
-  savdir->cd();
 }
 
 void add_active_dir(){
@@ -212,34 +202,3 @@ void add_active_dir(){
 }
 
 #endif
-
-//TH1 *added = 0;
-//TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-//while(cur_ListTreeItem){
-//  if(cur_ListTreeItem->IsActive()){
-//    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-//    if (userdata->InheritsFrom("TKey")){
-//    	userdata = ((TKey*)userdata)->ReadObj();
-//	cur_ListTreeItem->SetUserData(userdata);
-//    }
-//    if (userdata->InheritsFrom("TH1")){
-//	TH1 *hist = (TH1*)userdata;
-//	gROOT->cd();
-//	if (added == 0) {
-//	  TString str = hist->GetName();
-//	  str += "_add";
-//	  TString str_n = str;
-//	  Int_t num = 1;
-//	  while (gROOT->Get(str_n.Data())) {
-//	    str_n = Form("%s%d",str.Data(),num);
-//	    num++;
-//	  }
-//	  added = (TH1*) hist->Clone(str_n);
-//	  added->SetTitle(hist->GetTitle());
-//	}else{
-//	  added->Add(hist);
-//	}
-//    }
-//  }
-//  cur_ListTreeItem = NextItem(cur_ListTreeItem);
-//}
