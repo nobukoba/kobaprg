@@ -42,6 +42,7 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
 
 void CopyDir(TDirectory *source, TDirectory *target) {
 //source->ls();
+  std::cout << "Copy Dir: savdir->GetName(): " << savdir->GetName() <<  << std::endl;
 TDirectory *savdir = gDirectory;
 TKey *key;
   TIter nextkey(source->GetListOfKeys());
@@ -74,6 +75,7 @@ TKey *key;
 void MergeDir(TDirectory *source, TDirectory *target) {
   //source->ls();
   TDirectory *savdir = gDirectory;
+  std::cout << "savdir->GetName(): " << savdir->GetName() <<  << std::endl;
   TKey *key;
   TIter nextkey(source->GetListOfKeys());
   while ((key = (TKey*)nextkey())) {
