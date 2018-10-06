@@ -19,29 +19,49 @@ public:
   }
   MyWaitPrimitive(Int_t nop, TGraph *gr_ptr_in):
     number_of_points(nop), gr_ptr(gr_ptr_in),
-    fCrosshairPos(0), pxlast(0), pylast(0){
+    fCrosshairPos(0), pxlast(0), pylast(0), end_flag(0){
     canvas = gPad->GetCanvas();
     canvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		    "MyWaitPrimitive", this, "DrawFunction(Int_t,Int_t,Int_t,TObject*)");
-    canvas->WaitPrimitive("MyPrimitive");
+      Bool_t gpad_isedi = gPad->IsEditable();
+      gPad->SetEditable(kFALSE);
+      canvas->WaitPrimitive("MyPrimitive");
+      gPad->SetEditable(gpad_isedi);
   }
   void DrawFunction(Int_t event, Int_t x_in, Int_t y_in, TObject*){
+    if (end_flag){return;}
     if (number_of_points > 0) {
       if (gr.GetN() == number_of_points){
  	for (Int_t i = 0; i < gr.GetN(); i++){
 	  gr_ptr->SetPoint(i, gr.GetX()[i], gr.GetY()[i]);
 	}
 	gr_ptr->SetName("MyPrimitive");
+	gPad->SetEditable(kTRUE);
 	gr_ptr->Draw("L*");
+	gPad->SetEditable(kFALSE);
+	end_flag = 1;
 	return;
       }
     } else {
-      if (event == kButton1Double || event == kKeyPress) {
+      if (event == kButton1Double) {
+	pxlast = gPad->GetEventX();
+	pylast = gPad->GetEventY();
+	Double_t x = gPad->AbsPixeltoX(pxlast);
+	Double_t y = gPad->AbsPixeltoY(pylast);
+	Int_t last_num = gr.GetN()-1;
+	if ((gr.GetX()[last_num] != x)&&
+	    (gr.GetY()[last_num] != y)) {
+	  gr.SetPoint(gr.GetN(), x, y);
+	}
  	for (Int_t i = 0; i < gr.GetN(); i++){
 	  gr_ptr->SetPoint(i, gr.GetX()[i], gr.GetY()[i]);
 	}
 	gr_ptr->SetName("MyPrimitive");
+	gPad->SetEditable(kTRUE);
 	gr_ptr->Draw("L*");
+	gPad->SetEditable(kFALSE);
+	canvas->HandleInput((EEventType)-1,0,0);
+	end_flag = 1;
 	return;
       }
     }
@@ -51,7 +71,12 @@ public:
       Double_t x = gPad->AbsPixeltoX(pxlast);
       Double_t y = gPad->AbsPixeltoY(pylast);
       gr.SetPoint(gr.GetN(), x, y);
+      gPad->SetEditable(kTRUE);
       gr.Draw("L*");
+      //gPad->Update();
+      //gPad->Modified();
+      gPad->SetEditable(kFALSE);
+      return;
     }
     if ((gr.GetN()>=1)) {
       if (event == kMouseEnter) return;
@@ -85,6 +110,7 @@ private:
   TCanvas *canvas;
   TGraph gr;
   TGraph *gr_ptr;
+  Int_t end_flag;
 };
 
 void plot_graphs(){
@@ -97,8 +123,12 @@ void plot_graphs(){
     gr_prev->Delete();
   }
   gPad->SetCrosshair();
-  TGraph * gr = new TGraph();
-  MyWaitPrimitive primi(0, gr);
+  TGraph * gr_tmp = new TGraph();
+  MyWaitPrimitive primi(0, gr_tmp);
+  TGraph * gr = new TGraph(gr_tmp->GetN(),
+			   gr_tmp->GetX(),
+			   gr_tmp->GetY());
+  delete gr_tmp;
   gPad->SetCrosshair(0);
   TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
