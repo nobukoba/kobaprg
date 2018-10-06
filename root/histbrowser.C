@@ -362,9 +362,9 @@ public:
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			     "TGFileBrowserMod", macro_browser,
 			     "DoubleClicked(TGListTreeItem *, Int_t)");
-    macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+    macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			     "HistBrowser", this,
-			     "MyClicked2(TGListTreeItem *, Int_t)");
+			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     
     //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
@@ -372,9 +372,9 @@ public:
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "HistBrowser", this,
 			    "MyClicked(TGListTreeItem *, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
-			    "MyClicked2(TGListTreeItem *, Int_t)");
+			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "TGFileBrowserMod", hist_browser,
 			    "DoubleClicked(TGListTreeItem *, Int_t)");
@@ -769,7 +769,7 @@ public:
     ml->AddFirst(n);
   }
   
-  void MyClicked2(TGListTreeItem *item, Int_t /*btn*/){
+  void MyClicked2(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
     item->SetOpen(!item->IsOpen());
   }
   
