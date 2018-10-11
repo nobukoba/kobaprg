@@ -5,7 +5,7 @@ void print_root_pdf() {
 
   TString sprinter  = gEnv->GetValue("Print.Printer", "");
   TString sprintCmd = gEnv->GetValue("Print.Command", "lpr -o raw");
-  TString fn = "root.pdf";
+  TString fn = "./root.pdf";
   TString cmd = sprintCmd;
   if (cmd.Contains("%p"))
     cmd.ReplaceAll("%p", sprinter);
@@ -18,6 +18,7 @@ void print_root_pdf() {
   else {
     cmd += " "; cmd += fn; cmd += " ";
   }
+  std::cout << "Command: " << cmd << std::endl;
   gSystem->Exec(cmd);
   return;
 }
