@@ -625,6 +625,10 @@ public:
 	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
 	  //std::cout << "cur_item: " << cur_item->GetText() << std::endl;
 	  cur_ListTree->Clicked(cur_item, 1);
+	  if ((!(event->fState & kKeyShiftMask  ))&&
+	      (!(event->fState & kKeyControlMask))){
+	    cur_item->SetOpen(!cur_item->IsOpen());
+	  }
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	    if (event->fState & kKeyControlMask){
