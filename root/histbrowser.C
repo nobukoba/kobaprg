@@ -359,9 +359,9 @@ public:
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     macro_fListTree->ClearViewPort();
     
-    macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
-			     "TGFileBrowserMod", macro_browser,
-			     "DoubleClicked(TGListTreeItem *, Int_t)");
+    macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
+			     "HistBrowser", this,
+			     "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			     "HistBrowser", this,
 			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
@@ -369,9 +369,9 @@ public:
     //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
-			    "MyClicked(TGListTreeItem *, Int_t)");
+			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
@@ -656,7 +656,8 @@ public:
   }
 
   TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-    if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+    //if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+    if(cur_item->IsOpen()){
       if(cur_item->GetFirstChild()){
 	return cur_item->GetFirstChild();
       }
@@ -681,7 +682,8 @@ public:
     return 0;
   }
   TGListTreeItem *SearchLastItem(TGListTreeItem *cur_item){
-    if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+    //if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+    if(cur_item->IsOpen()){
       if(cur_item->GetLastChild()){
 	return SearchLastItem(cur_item->GetLastChild());
       }else{
@@ -773,12 +775,21 @@ public:
     ml->AddFirst(n);
   }
   
+  void MyDoubleClicked(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    TGListTree *lt = (TGListTree*)gTQSender;
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      lt->DoubleClicked(item,1);
+    }
+  }
+  
   void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       item->SetOpen(!item->IsOpen());
     }
   }
+
   
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
     TGListTree *lt = (TGListTree*)gTQSender;
