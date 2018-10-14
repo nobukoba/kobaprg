@@ -371,9 +371,6 @@ public:
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
-			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
@@ -381,6 +378,9 @@ public:
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "HistBrowser", this,
 			    "SetCannotMove(TGListTreeItem *, Int_t)");
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
+			    "HistBrowser", this,
+			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
 
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
@@ -825,7 +825,12 @@ public:
       hist_fListTree_active_items.Add(new TObjString(Form("%lld",entry)));
     }
     if(mask & kKeyShiftMask){
-      TGListTreeItem  *last_item = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+      TGListTreeItem  *last_item;
+      if (hist_fListTree_active_items.Last()) {
+        last_item = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+      }else{
+	last_item = entry;
+      }
       if (last_item) {
 	TGListTreeItem  *cur_item = last_item;
 	Bool_t go_up   = false;
