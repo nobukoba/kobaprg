@@ -369,18 +369,21 @@ public:
     //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+			    "HistBrowser", this,
+			    "MyClicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
+			    "HistBrowser", this,
+			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClickedForHistFileBrowser(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "HistBrowser", this,
 			    "SetCannotMove(TGListTreeItem *, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
-			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
 
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
@@ -621,9 +624,9 @@ public:
 	    (keysym == kKey_Enter)) {
 	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
 	  //std::cout << "cur_item: " << cur_item->GetText() << std::endl;
-	  cur_ListTree->Clicked(cur_item, 1);
 	  if ((!(event->fState & kKeyShiftMask  ))&&
 	      (!(event->fState & kKeyControlMask))){
+	    cur_ListTree->DoubleClicked(cur_item, 1);
 	    cur_item->SetOpen(!cur_item->IsOpen());
 	  }
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
