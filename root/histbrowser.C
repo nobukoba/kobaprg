@@ -375,9 +375,6 @@ public:
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
-			    "TGFileBrowserMod", hist_browser,
-			    "DoubleClicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClickedForHistFileBrowser(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
