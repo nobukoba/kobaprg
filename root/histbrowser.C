@@ -627,6 +627,7 @@ public:
 	  if ((!(event->fState & kKeyShiftMask  ))&&
 	      (!(event->fState & kKeyControlMask))){
 	    cur_ListTree->DoubleClicked(cur_item, 1);
+	    cur_ListTree->Clicked(cur_item, 1);
 	    cur_item->SetOpen(!cur_item->IsOpen());
 	  }
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
