@@ -909,10 +909,10 @@ public:
   
   void SetCannotMove(TGListTreeItem *item, Int_t /* no use */){
     if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
-    TCanvas* canvas = gPad->GetCanvas();
-    std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
-    //gPad->GetFrame()->SetBit(TBox::kCannotMove);
-    std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
+    //TCanvas* canvas = gPad->GetCanvas();
+    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
+    gPad->GetFrame()->SetBit(TBox::kCannotMove);
+    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
     return;
   }
   
