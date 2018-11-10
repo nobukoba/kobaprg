@@ -383,10 +383,10 @@ public:
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "MyClickedForHistFileBrowser(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
-    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
+   hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
-			    "SetCannotMove(TGListTreeItem *, Int_t)");
-
+			    "SetCannotMove(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
+ 
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
     TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
@@ -908,12 +908,10 @@ public:
     return;
   }
   
-  void SetCannotMove(TGListTreeItem *item, Int_t /* no use */){
+  void SetCannotMove(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
     if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
     //TCanvas* canvas = gPad->GetCanvas();
-    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
     gPad->GetFrame()->SetBit(TBox::kCannotMove);
-    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
     return;
   }
   
