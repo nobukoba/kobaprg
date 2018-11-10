@@ -83,15 +83,17 @@ public:
       return;
     }
     TCanvas* canvas = gPad->GetCanvas();
-    canvas->Modified();
+    //canvas->GetFrame()->SetBit(TBox::kCannotMove);
     canvas->Update();
+    canvas->Modified();
     TList* list     = canvas->GetListOfPrimitives();
     if (list->At(0)==0) {return;}
     if (strcmp(list->At(0)->GetName(),"Canvas_1_1")==0){
       Int_t    no_pads  = list->GetSize();
       for (Int_t i=0; i<no_pads; i++){
-	((TVirtualPad*)list->At(i))->Modified();
+	//((TVirtualPad*)list->At(i))->GetFrame()->SetBit(TBox::kCannotMove);
 	((TVirtualPad*)list->At(i))->Update();
+	((TVirtualPad*)list->At(i))->Modified();
 	//printf("gpad timer\n");
       }
     }
@@ -908,7 +910,10 @@ public:
   
   void SetCannotMove(TGListTreeItem *item, Int_t /* no use */){
     if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
+    //TCanvas* canvas = gPad->GetCanvas();
+    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
     gPad->GetFrame()->SetBit(TBox::kCannotMove);
+    //std::cout << "cannnot move bit: " << gPad->GetFrame()->TestBit(TBox::kCannotMove) << std::endl;
     return;
   }
   
