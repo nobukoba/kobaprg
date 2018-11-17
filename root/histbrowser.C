@@ -40,6 +40,7 @@
 #include "TFolder.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TGraphErrors.h"
 #include "KeySymbols.h"
 
 class TGFileBrowserMod : public TGFileBrowser {
@@ -128,29 +129,16 @@ public:
     TList *lst = gROOT->GetList();
     TIter next(lst);
     while (obj=next()) {
-      //printf("obj address: 0x%x\n",obj);
-      //printf("here1\n");
-      //printf("obj->GetName(): %s\n",obj->GetName());
-      //printf("here2\n");
-      if(hist_fListTree->FindChildByName(item_root_memo, obj->GetName())){
-	//printf("converted found %s\n",obj->GetName());
-	continue;
-      }
       open_cnt = 0;
       AddObj(obj, item_root_memo, open_cnt);
     }
     TCollection *lst2 = gROOT->GetListOfFiles(); 
     TIter next2(lst2);
     while (obj=next2()) {
-      if(hist_fListTree->FindChildByName(item_root_file, obj->GetName())){
-	//printf("converted found %s\n",obj->GetName());
-	continue;
-      }
       open_cnt = 0;
       AddObj(obj, item_root_file, open_cnt);
     }
   }
-  
   void AddObj(TObject *obj_in, TGListTreeItem *fListLevel, Int_t open_cnt){
     open_cnt++;
     TObject *obj = obj_in;
@@ -166,43 +154,57 @@ public:
       cl = gROOT->GetClass(classname);
     }
     TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-    if (cl->InheritsFrom(TDirectory::Class())) {
-      TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-      TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
-      const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
-      const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-      TGListTreeItem *cur_ListTreeItem =
-	hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
-      cur_ListTreeItem->CheckItem(0);
-      //cur_ListTreeItem->SetUserData(cur_ListTreeItem);
-      if (open_cnt <=1) {
-	hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
+    if ((cl->InheritsFrom(TDirectory::Class())) ||
+	(cl->InheritsFrom(TList::Class())     ) ) {
+      TGListTreeItem *cur_ListTreeItem = hist_fListTree->FindChildByName(fListLevel, obj->GetName());
+      if(!(cur_ListTreeItem)){
+	TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
+	const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
+	const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
+	cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
+	cur_ListTreeItem->CheckItem(0);
+	//cur_ListTreeItem->SetUserData(cur_ListTreeItem);
+	if (open_cnt <=1) {
+	  hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
+	}
       }
-      TList *lst = ((TDirectory *)obj)->GetListOfKeys();
-      if ((lst==0)||(lst->At(0)==0)) {
-	lst = ((TDirectory *)obj)->GetList();
+      TList *lst = 0;
+      if ((cl->InheritsFrom(TDirectory::Class()))){
+	lst = ((TDirectory *)obj)->GetListOfKeys();
+	if ((lst == 0)||(lst->At(0) == 0)) {
+	  lst = ((TDirectory *)obj)->GetList();
+	}
+      }else{
+	lst = (TList *)obj;
       }
-      if (lst==0) return;
+      if (lst == 0) return;
       TIter nextobj(lst);
-      TObject *subobj=0;
+      TObject *subobj = 0;
       while ((subobj = nextobj())) {
 	AddObj(subobj, cur_ListTreeItem, open_cnt);
       }
       /*} else { */
-    } else if((cl->InheritsFrom(TH1::Class())) || (cl->InheritsFrom(TTree::Class()))){
+    } else if((cl->InheritsFrom(TH1::Class())         ) ||
+	      (cl->InheritsFrom(TTree::Class())       ) ||
+	      (cl->InheritsFrom(TGraphErrors::Class())) ){
+      TString str = obj->GetName();
+      str += "; ";
+      str += obj->GetTitle();
+      if(hist_fListTree->FindChildByName(fListLevel, str)){
+	return;
+      }
       const TGPicture *pic=0;
       TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
       if (cl->InheritsFrom(TH2::Class())) {
 	pic = gClient->GetPicture("h2_t.xpm");
       }else if (cl->InheritsFrom(TH1::Class())){
 	pic = gClient->GetPicture("h1_t.xpm");
+      }else if (cl->InheritsFrom(TGraphErrors::Class())){
+	pic = gClient->GetPicture("profile_t.xpm");
       }else{
 	hist_browser->GetObjPicture(&pic, obj);
       }
       //printf("pic name %s\n",pic->GetName());
-      TString str = obj->GetName();
-      str += "; ";
-      str += obj->GetTitle();
       TGListTreeItem *cur_ListTreeItem =
 	hist_fListTree->AddItem(fListLevel, str, obj, pic, pic, 0);
       cur_ListTreeItem->SetCheckBox(1);
@@ -360,7 +362,6 @@ public:
     ltitem = macro_fListTree->FindChildByName(ltitem,"fit");
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     macro_fListTree->ClearViewPort();
-    
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			     "HistBrowser", this,
 			     "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
@@ -379,6 +380,9 @@ public:
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
+			    "MyClicked3(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
+    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
+			    "HistBrowser", this,
 			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
@@ -389,8 +393,8 @@ public:
  
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
-    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
-    
+    this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
+
     hist_browser->GetDrawOptionPointer()->GetTextEntry()->SetText("colz");
     cumtomTDirectoryFileMenu();
     cumtomTFolderMenu();
@@ -417,7 +421,7 @@ public:
     UInt_t keysym;
     if ((event->fType == kGKeyPress)) {
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
-      //printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
+      printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
 
       if (event->fState & kKeyControlMask) {
 	if (keysym == kKey_p) {
@@ -782,17 +786,30 @@ public:
     TGListTree *lt = (TGListTree*)gTQSender;
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
-      lt->DoubleClicked(item,1);
+      //lt->DoubleClicked(item,1);
+      lt->DoubleClicked(item,0);
     }
   }
   
   void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
-      item->SetOpen(!item->IsOpen());
+      if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
+	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0) {
+	item->SetOpen(!item->IsOpen());
+      }
     }
   }
 
+  void MyClicked3(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      TObject *userdata = (TObject*)item->GetUserData();
+      if (userdata->InheritsFrom("TGraphErrors")){
+	userdata->Draw("al*");
+      }
+    }
+  }
   
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
     TGListTree *lt = (TGListTree*)gTQSender;
