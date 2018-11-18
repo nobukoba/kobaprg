@@ -161,11 +161,19 @@ public:
 	TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
 	const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
 	const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-	cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
-	cur_ListTreeItem->CheckItem(0);
-	//cur_ListTreeItem->SetUserData(cur_ListTreeItem);
-	if (open_cnt <=1) {
-	  hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
+	if (cl->InheritsFrom(TList::Class())) {
+	  cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), obj, pic_ofolder, pic_folder, 0);
+	  cur_ListTreeItem->CheckItem(0);
+	  if (open_cnt <=1) {
+	    hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
+	  }
+	  return;
+	}else{
+	  cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
+	  cur_ListTreeItem->CheckItem(0);
+	  if (open_cnt <=1) {
+	    hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
+	  }
 	}
       }
       TList *lst = 0;
@@ -226,6 +234,28 @@ private:
   TTimer *timer_dshot;
   ClassDef(TimerManager,0)
 };
+
+void writeTList(TObject* c){
+  TString file_in_str = c->GetName();
+  if(file_in_str.EndsWith(".hb")){
+    file_in_str.Resize(file_in_str.Length()-3);
+  }
+  if(file_in_str.EndsWith(".hbk")){
+    file_in_str.Resize(file_in_str.Length()-4);
+  }
+  if(file_in_str.EndsWith(".hbook")){
+    file_in_str.Resize(file_in_str.Length()-6);
+  }
+  file_in_str += ".root";
+  
+  TFile *local = TFile::Open(file_in_str,"recreate");
+  TIter next((TList*)c);
+  TObject *obj;
+  while (obj=next()) {
+    obj->Write();
+  }
+  return;
+}
 
 void writeTDirectoryFile(TObject* c){
   TString file_in_str = c->GetTitle();
@@ -305,8 +335,6 @@ void writeTFolder(TObject* c){
   }
   file_in_str += ".root";
 
-  
-  
   TFile *local = TFile::Open(file_in_str,"recreate");
   TCollection* col = 0;
   if (memo_file_flag==1) {
@@ -394,10 +422,33 @@ public:
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
     this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
-
-    hist_browser->GetDrawOptionPointer()->GetTextEntry()->SetText("colz");
-    cumtomTDirectoryFileMenu();
-    cumtomTFolderMenu();
+    
+    Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
+    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); // line 15
+    hist_browser->GetDrawOptionPointer()->AddEntry("*",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("p",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("l",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("c",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("l*",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("c*",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("lp",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("cp",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("a",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("a*",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("ap",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("al",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("ac",  nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("al*", nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("ac*", nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("alp", nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("acp", nentry++);
+    hist_browser->GetDrawOptionPointer()->Select(3,1);
+    hist_browser->GetDrawOptionPointer()->
+      GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+    
+    customTListMenu();
+    customTDirectoryFileMenu();
+    customTFolderMenu();
   }
   
   ~HistBrowser(){
@@ -421,7 +472,7 @@ public:
     UInt_t keysym;
     if ((event->fType == kGKeyPress)) {
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
-      printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
+      //printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
 
       if (event->fState & kKeyControlMask) {
 	if (keysym == kKey_p) {
@@ -766,7 +817,15 @@ public:
     }
   }
 
-  void cumtomTDirectoryFileMenu(){
+  void customTListMenu(){
+    TClass *cl = gROOT->GetClass("TList");
+    TList  *ml = cl->GetMenuList();
+    TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
+					   "Write","writeTList",0,"TObject*",2);
+    ml->AddFirst(n);
+  }
+
+  void customTDirectoryFileMenu(){
     TClass *cl = gROOT->GetClass("TDirectoryFile");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
@@ -774,7 +833,7 @@ public:
     ml->AddFirst(n);
   }
   
-  void cumtomTFolderMenu(){
+  void customTFolderMenu(){
     TClass *cl = gROOT->GetClass("TFolder");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
@@ -805,8 +864,21 @@ public:
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       TObject *userdata = (TObject*)item->GetUserData();
+      Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
       if (userdata->InheritsFrom("TGraphErrors")){
-	userdata->Draw("al*");
+	if (isel <= 14) {
+	  hist_browser->GetDrawOptionPointer()->Select(29,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+	}
+	TString opt = hist_browser->GetDrawOptionPointer()->GetTextEntry()->GetText();
+	userdata->Draw(opt.Data());
+      } else if (userdata->InheritsFrom("TH1")){
+	if (isel >= 16) {
+	  hist_browser->GetDrawOptionPointer()->Select(3,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+	}
       }
     }
   }
@@ -821,7 +893,11 @@ public:
        strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0
        ){return;}
     TString opt = lt->GetParent()->GetParent()->GetParent()->GetDrawOption();
-    if (opt == "same") {return;}
+    Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
+    if ((opt == "same")||
+	((isel<=16)&&(isel>=23))){
+      return;
+    }
     TCanvas* canvas = gPad->GetCanvas();
     if(canvas->GetClickSelectedPad()){
       canvas->SetClickSelectedPad(0);
