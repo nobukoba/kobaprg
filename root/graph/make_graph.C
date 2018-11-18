@@ -80,7 +80,7 @@ public:
     pos.fX = pos.fY = 0;
     Long_t rowcount = fText->RowCount();
     Int_t ndata = 0;
-    TList *grlist = (TList *)gROOT->FindObject("grlist");
+    TList *grlist = (TList *)gROOT->GetList()->FindObject("grlist");
     if (!grlist) {
       // I need a directory for graphs. See http://root.cern.ch/root/roottalk/roottalk02/0672.html
       grlist = new TList();
