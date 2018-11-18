@@ -2,8 +2,8 @@
 {
   TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
   if (named) {gSystem->cd(named->GetTitle());}
-  gSystem->CompileMacro("./kobaprg/root/graph/make_graph.C","k");
-  make_graph();
+  gSystem->CompileMacro("./kobaprg/root/graph/text_to_graph.C","k");
+  text_to_graph();
 }
 #else
 
@@ -88,11 +88,14 @@ public:
       gROOT->Add(grlist);
     }
     TGraphErrors *gr = new TGraphErrors();
-    Int_t igr = 0;
-    while(grlist->FindObject(Form("data_graph_%d",igr))){
-      igr++;
+    TString str_n = "gr1";
+    Int_t num = 2;
+    while (grlist->FindObject(str_n.Data())) {
+      str_n = Form("gr%d",num);
+      num++;
     }
-    gr->SetName(Form("data_graph_%d",igr));
+    gr->SetName(str_n.Data());
+    gr->SetTitle(Form("data_graph_%d",num));
     grlist->Add(gr);
 
     while (pos.fY < rowcount) {
@@ -174,10 +177,10 @@ public:
   void DoClose(){ CloseWindow(); }
 };
 
-void make_graph(){
-  TGMainFrame * fMain = (TGMainFrame *) gROOT->ProcessLine("pHistBrowser->GetBrowserImp()->GetMainFrame();");
-  Editor *ed = new Editor(fMain, 600, 400);
-  //Editor *ed = new Editor(gClient->GetRoot(), 400, 600);
+void text_to_graph(){
+  //TGMainFrame * fMain = (TGMainFrame *) gROOT->ProcessLine("pHistBrowser->GetBrowserImp()->GetMainFrame();");
+  //Editor *ed = new Editor(fMain, 600, 400);
+  Editor *ed = new Editor(gClient->GetRoot(), 400, 600);
 }
 
 #endif

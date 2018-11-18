@@ -51,7 +51,7 @@
   gStyle->SetStatFontSize(0.04);
   gStyle->SetTitleFontSize(0.04);
   
-  gROOT->ForceStyle();
+  //gROOT->ForceStyle();
   if (gSystem->AccessPathName("lib/libAllGrutinizer.so")==0) {
     gSystem->Load("lib/libAllGrutinizer.so");
   }
