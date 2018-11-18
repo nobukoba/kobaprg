@@ -21,6 +21,7 @@ void files_to_graphs() {
   //const TString dir("."); 
   TGFileInfo fileinfo;
   char *filetypes[] = {"Text files", "*.txt",
+		       "Data files", "*.dat",
 		       "All files", "*",
 		       0, 0};
   fileinfo.fFileTypes = (const char**)filetypes;
