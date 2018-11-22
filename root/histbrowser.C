@@ -101,6 +101,8 @@ public:
   }
   
   void add_obj_to_list(){
+    TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
+    if (named) {gSystem->cd(named->GetTitle());}
     TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
     TGListTreeItem *item_root_memo = hist_fListTree->FindChildByName(0, "ROOT_Memory");
     if(!item_root_memo){
