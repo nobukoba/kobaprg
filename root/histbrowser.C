@@ -40,6 +40,7 @@
 #include "TFolder.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TF1.h"
 #include "TGraphErrors.h"
 #include "KeySymbols.h"
 
@@ -195,6 +196,7 @@ public:
       }
       /*} else { */
     } else if((cl->InheritsFrom(TH1::Class())         ) ||
+	      (cl->InheritsFrom(TF1::Class())         ) ||
 	      (cl->InheritsFrom(TTree::Class())       ) ||
 	      (cl->InheritsFrom(TGraphErrors::Class())) ){
       TString str = obj->GetName();
@@ -427,7 +429,7 @@ public:
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
     hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); // line 15
-    hist_browser->GetDrawOptionPointer()->AddEntry("*",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("*",   nentry++); // line 16
     hist_browser->GetDrawOptionPointer()->AddEntry("p",   nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("l",   nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("c",   nentry++);
@@ -442,8 +444,14 @@ public:
     hist_browser->GetDrawOptionPointer()->AddEntry("ac",  nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("al*", nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("ac*", nentry++);
-    hist_browser->GetDrawOptionPointer()->AddEntry("alp", nentry++);
-    hist_browser->GetDrawOptionPointer()->AddEntry("acp", nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("alp", nentry++); // line 31
+    hist_browser->GetDrawOptionPointer()->AddEntry("acp", nentry++); // line 32
+    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); // line 33
+    hist_browser->GetDrawOptionPointer()->AddEntry("same",nentry++); // line 34
+    hist_browser->GetDrawOptionPointer()->AddEntry("l",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("c",   nentry++);
+    hist_browser->GetDrawOptionPointer()->AddEntry("fc",  nentry++); // line 37
+
     hist_browser->GetDrawOptionPointer()->Select(3,1);
     hist_browser->GetDrawOptionPointer()->
       GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
@@ -868,13 +876,20 @@ public:
       TObject *userdata = (TObject*)item->GetUserData();
       Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
       if (userdata->InheritsFrom("TGraphErrors")){
-	if (isel <= 14) {
-	  hist_browser->GetDrawOptionPointer()->Select(29,1);
+	if (isel <= 14 || isel >=34) {
+	  hist_browser->GetDrawOptionPointer()->Select(31,1);
 	  hist_browser->GetDrawOptionPointer()->
 	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
 	}
 	TString opt = hist_browser->GetDrawOptionPointer()->GetTextEntry()->GetText();
 	userdata->Draw(opt.Data());
+
+      } else if (userdata->InheritsFrom("TF1")){
+	if (isel <= 32) {
+	  hist_browser->GetDrawOptionPointer()->Select(35,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+	}
       } else if (userdata->InheritsFrom("TH1")){
 	if (isel >= 16) {
 	  hist_browser->GetDrawOptionPointer()->Select(3,1);

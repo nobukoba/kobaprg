@@ -80,6 +80,8 @@ void files_to_graphs() {
     }
     gr->SetName(str_n.Data());
     gr->SetTitle(basename.c_str());
+    gr->SetMarkerStyle(20);
+    gr->SetMarkerSize(1.0);
     grlist->Add(gr);
     while(ifs && getline(ifs, buf)){ /* getline is very slow in CINT!*/
       TString str = buf;

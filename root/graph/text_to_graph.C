@@ -95,7 +95,9 @@ public:
       num++;
     }
     gr->SetName(str_n.Data());
-    gr->SetTitle(Form("data_graph_%d",num));
+    gr->SetTitle(Form("data_graph_%d",num-1));
+    gr->SetMarkerStyle(20);
+    gr->SetMarkerSize(1.0);
     grlist->Add(gr);
 
     while (pos.fY < rowcount) {

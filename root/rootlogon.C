@@ -36,6 +36,7 @@
   gStyle->SetOptStat(1111111);
   gStyle->SetOptFit(1);
   gStyle->SetOptDate(1);
+  gStyle->SetEndErrorSize(0);
   gStyle->SetPaperSize(20,26);
   gStyle->SetNdivisions(505,"X");
   gStyle->SetLabelFont(132,"XYZ");
