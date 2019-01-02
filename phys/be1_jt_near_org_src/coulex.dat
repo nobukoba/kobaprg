@@ -1,0 +1,18 @@
+29.0 0.963
+'fort.21'
+82 208 12
+244 0 0 0
+                                                                
+                                                                
+Data set requires						 
+----------------------------------------------------------	 
+AProj(AP)  separation_energy(Sn)				 
+file with BE1 distribution - fort.21 from be1.f		 
+ZTarg  ATarg  bmin (if >0 1.45(AT^.333+AP^.333), if <0 |bmin|)	 
+Energy1/u  Energy2/u  Energy3/u  Energy4/u			 
+----------------------------------------------------------	 
+Energy2/u =0 if single energy needed.				 
+								 
+Cross section versus continuum energy to fort.exs		 
+Virtual photon number spectrum to fort.18                       
+

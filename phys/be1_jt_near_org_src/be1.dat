@@ -1,0 +1,31 @@
+0
+1.2500 0.7 1600 0.05
+6.0 0
+28 1
+10
+0.963
+15
+1 0 1
+                                                 
+						  
+this for the Hamamoto potential		  
+---------------------------------------	  
+potential type (0=Woods-Saxon)			  
+radius  diffuseness  steps   step		  
+spin-orbit strength, and if fixed (1) **	  
+mass_core   mass_valence			  
+core charge					  
+separation energy from projectile		  
+maximum relative (continuum) energy		  
+2*j_value l-value   nodes			  
+---------------------------------------	  
+** Spin orbit explanation			  
+if e.g.    7.0  1				  
+then spin-orbit fixed at 7 MeV			  
+of e.g.    7.0  0				  
+then spin-orbit calculated as per		  
+Hamamoto and 7.0 is not used			  
+---------------------------------------	  
+B(E1)  distribution to fort.21			  
+bound wave function to fort.19                   
+
