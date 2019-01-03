@@ -5,12 +5,445 @@
 #include "TLatex.h"
 #include <iostream>
 
+//     ---------------------------------------------------------      
+void FandG(const double eta, const double krval, const int lmax,
+	   double fa[26], double ga[26], double sa[26]) {
+  /* implicit real*8(a-h,o-z) */
+  const double gd[101] = {+0.,+12.,-360.,1260.,-1680.,1188.};
+  const double cg0 =  1.223406016e+0;
+  const double cg1 =  4.959570165e-2;
+  const double cg2 =  8.888888889e-3;
+  const double cg3 =  2.455199181e-3;
+  const double cg4 =  9.108958061e-4;
+  const double cg5 =  2.534684115e-4;
+  const double cgp = -7.078817734e-1;
+  const double cp1 =  1.728260369e-1;
+  const double cp2 =  3.174603174e-4;
+  const double cp3 =  3.581214850e-3;
+  const double cp4 =  3.117824680e-4;
+  const double cp5 =  9.073966427e-4;
+  double drho=1.;
+  int nr=1;
+  double eps=1.0e-12;
+  double eta2=eta+eta;
+  double etas=eta*eta;
+  int lp;
+  if (lmax>12) {lp=lmax+1;}
+  else         {lp=12+1;}
+  double t=lp;
+  double u=t*t+etas;
+  double v=t/u;
+  double w=eta/u;
+  double x=v*v-w*w;
+  double y=2.*v*w;
+  u=sqrt (u);
+  double sig0=eta*(log(u)-1.)+(t-0.5)*atan(eta/t);
+  for (int i=1; i<=5; i++) {
+    sig0=sig0-w/gd[i];
+    t=v*x-w*y;
+    w=v*y+w*x;
+    v=t;
+  }
+  while (true) {
+    if (lp <= lmax+1) sa[lp-1]=sig0;
+    lp=lp-1;
+    if (lp <= 0) break;
+    t=lp;
+    sig0=sig0- atan (eta/t);
+  }
+  double emax=pow(1.0e-5/eps,0.16666667);
+  double r, g, gp;
+  if (!(eta < emax)) {//go to 200
+    r=eta2;
+    t=6.0;
+    t=pow(eta,(1.0/t));
+    w=eta*t;
+    u=t-t*(cg2+cg4/etas)/etas;
+    v=(cg1+(cg3+cg5/etas)/etas)/w;
+    g=cg0*(u+v);
+    t=1./t;
+    w=eta*t;
+    u=t+t*(cp2+cp4/etas)/etas;
+    v=(cp1+(cp3+cp5/etas)/etas)/w;
+    gp=cgp*(u-v);
+    //  go to 300
+  }else{
+    if (nr>1) {r=nr-1;}
+    else      {r=1-1;}
+    r=krval+r*drho;
+    t=12.+1.4*eta;
+    if (t > r) r=t;
+    double fk=1.;
+    double f=1.;
+    double gk=0.;
+    g=0.;
+    double fsk=0.;
+    double fp=0.;
+    double gsk=1.-eta/r;
+    gp=gsk;
+    double epss=eps*eps;
+    int n=r+r;
+    for (int kp=1; kp<=n; kp++) {
+      t=kp+kp;
+      u=t*r;
+      double ak=(t-1.)*eta/u;
+      v=kp*(kp-1);
+      double bk=(etas-v)/u;
+      t=ak*fk-bk*gk;
+      gk=ak*gk+bk*fk;
+      fk=t;
+      t=ak*fsk-bk*gsk-fk/r;
+      gsk=ak*gsk+bk*fsk-gk/r;
+      fsk=t;
+      f=f+fk;
+      g=g+gk;
+      fp=fp+fsk;
+      gp=gp+gsk;
+      double test=fk*fk+gk*gk+fsk*fsk + gsk*gsk;
+      if (test < epss) break;
+    }
+    t=r-eta*log(r+r)+sig0;
+    u=cos (t);
+    v=sin (t);
+    g=f*u-g*v;
+    gp=fp*u-gp*v;
+  }
+  double rs=r;
+  double rho=krval;
+  double f=g;
+  double fp=gp;
+  int is=0;
+  int ir=1;
+  t=r-rho;
+  printf("rs: %10.20f\n", rs);
+  printf("rho: %10.20f\n", rho);
+  printf("f: %10.20f\n", f);
+  printf("fp: %10.20f\n", fp);
+  printf("t: %10.20f\n", t);
+  int line_number = 0;
+  if (t<0.) {//600,700,310
+    line_number = 600;
+  }else if (t==0.){
+    line_number = 700;
+  }else{
+    line_number = 310;
+  }
+  double gg=0.;
+  while (true) {
+    if (line_number == 310) {
+      if (!(nr <= 1)) {//go to 320
+	is=t/drho;
+	/* is=min0 (is+1,nr) */
+	if ((is+1)<nr) {is=is+1;}
+	else           {is=nr;}
+      }
+      t=is;
+      rho=krval+t*drho;
+      gg=rho;
+      is=is+1;
+      ir=is;
+      rho=rho-drho; // label: 330
+      ir=ir-1;
+      if (!(ir > 0)) {//go to 600
+	/* ir=max0 (is,1) */
+	if (is>1) {ir=is;}
+	else      {ir=1;}
+	r=rs;
+	rho=gg;
+	f=g;
+	fp=gp;
+	if (ir > nr) return;
+      }
+      line_number = 600; continue;
+    }else if (line_number == 600) {
+      double h=0.5; // label: 600
+      w=r-eta2;
+      if ((r-1.0)<0.) {//601,602,602
+	h=0.5*r;
+      }
+      if (w<0.) {//603,605,605
+	t=sqrt (-r/(w+w));
+	if ((t-h)<0.) {//604,605,605
+	  h=t;
+	}
+      }
+      int last=0;
+      t=rho-r;
+      if (t<0.) {//606,700,607
+	h=-h;
+      }else if (t==0.){
+	line_number = 700; continue;
+      }
+      u=t-h;
+      if ((u*h)>=0.) {//608,608,609
+	h=t;
+	last=1;
+      }
+      u=0.0;
+      t=1.0;
+      double b1=0.0;
+      double b2=f;
+      double b3=h*fp;
+      f=f+b3;
+      v=0.0;
+      int it=0; // label: 610
+      while (true) {
+	v=-h*(h*b1+w*b2+u*v)/(r*t); // label: 620
+	fp=fp+v;
+	u=t;
+	t=t+1.0;
+	b1=b2;
+	b2=b3;
+	b3=h*v/t;
+	f=f+b3;
+	double test=b3;
+	double testp=v;
+	if (w<0.) {//630,640,640
+	  test=b3/f;
+	  testp=v/fp;
+	}
+	if ((fabs(test)+fabs(testp)-eps)<0.) {//650,610,610
+	  if (it <=0) {//660,660,670
+	    it=1;
+	    continue;
+	  }else{
+	    r=r+h;
+	  }
+	  if (last<=0) {//600,600,700
+	    line_number = 600; break;
+	  }else{
+	    line_number = 700; break;
+	  }
+	}else{
+	  it=0;
+	  continue;
+	}
+      }
+    }else if (line_number==700) {
+      int k=lmax+1;
+      x=f;
+      y=fp;
+      for (int j=1; j<=k; j++) {
+	ga[j-1]=x;
+	double al=j;
+	t=j*j;
+	u=t/rho+eta;
+	v=sqrt (t+etas);
+	w=(u*x-al*y)/v;
+	y=(v*x-u*w)/al;
+	x=w;
+      }
+      lp=rho;
+      /* lp=max0 (lp+10, lmax+20) */
+      if ((lp+10)>(lmax+20)) {lp=lp+10;}
+      else                   {lp=lmax+20;}
+      double b3=0.;
+      double b2=1.0e-20;
+      w=1.0/rho;
+      double al=lp+1;
+      v=eta/al;
+      u=0.;
+      double b1=0.;
+      for (int j=1; j<=lp; j++) {
+	k=lp+1-j;
+	al=k;
+	t=k+k+1;
+	b1=t*(v/al+w)*b2-u*b3;
+	v=eta/al;
+	u=sqrt (1.0+v*v);
+	b1=b1/u;
+	b3=b2;
+	b2=b1;
+	if ((k-lmax-1)<=0) {//810,810,820
+	  fa[k-1]=b1;
+	}else{
+	  double test=b1;
+	  if ((fabs(test)-1.)>0.) {//840,840,830
+	    b2=b2*1.0e-20;
+	    b3=b3*1.0e-20;
+	  }
+	}
+      }
+      t=(w+eta)*b2-u*b3;
+      u=1./(t*f-b1*fp);
+      k=lmax+1;
+      printf("aft line 700 t: %10.20f\n", t);
+      printf("aft line 700 u: %10.20f\n", u);
+      printf("aft line 700 k: %d\n", k);
+
+      for (int j=1; j<=k; j++) {
+	fa[j-1]=u*fa[j-1];
+      }
+      if ((ir-is)<0) {//330,340,340
+	rho=rho-drho; // label: 330
+	ir=ir-1;
+	if (!(ir > 0)) {//go to 600
+	  /* ir=max0 (is,1) */
+	  if (is>1) {ir=is;}
+	  else      {ir=1;}
+	  r=rs;
+	  rho=gg;
+	  f=g;
+	  fp=gp;
+	  if (ir > nr) return;
+	}
+      }else{
+	rho=rho+drho;
+	ir=ir+1;
+	if (ir > nr) return;
+      }
+      line_number = 600; continue;
+    }else{
+      std::cout << "Unknown line_number: " << line_number << std::endl;
+    }
+  }
+}
+
+//     ---------------------------------------------------------        
+double V(const int j, const int l, const double r,
+	 const double rmu, const double conno1, const double pi,
+	 const double vdepth, const double wal,
+	 const double wr0, const double wls, const int ib) {
+  /* implicit real*8 (a-h,o-z)   
+     common rmu,conno1,pi,vdepth,wal,wr0,wls,ib */
+  double s=0.5;
+  double rj=j/2.;
+  double V_result=0.;
+  if(ib==1) {
+    V_result = -vdepth*exp(-r*r/wal/wal);
+  }else if(ib==0) {
+    double expfac=exp((r-wr0)/wal);
+    V_result = -vdepth/(1.+expfac);
+    double opls=(rj*(rj+1)-l*(l+1)-s*(s+1))*wls;
+    double Vso=-2*opls*expfac/pow(1+expfac,2)/r/wal;
+    V_result=V_result+Vso;
+  }
+  return V_result;
+}
+
+//     ---------------------------------------------------------         
+void wf(double u[6603], const double h,
+	const int nsteps, const double erel,
+	const int j, const int l, 
+	double &A, double &B,
+	const double fmuh, const double con,
+	const double pi, const double vdepth,
+	const double wal, const double wr0,
+	const double wls, const int ib) {
+  /* implicit real*8 (a-h,o-z) */
+  /* double u(0:6602) */
+  double Astart,Anew,Aold,Dnew,Dold,det;
+  double C,Kold,Knew;
+  //     complex*16 T,S
+  double fa1[26],ga1[26],sa[26],fa2[26],ga2[26];
+  /* common fmuh,con,pi */
+  //     ---------------------------------------------------------            
+  //     erel=energy in the centre of mass frame
+  //     fmuh=reduced mass of projectile-target system
+  //     l=orbital angular momentum 
+  //     h=radial integration step size
+  //     nsteps=number of radial integration steps
+  //     ---------------------------------------------------------        
+  //     con is sqrt(2*[1amu]/hbar**2) in MeV**(0.5) fm**(-1)
+  //     ---------------------------------------------------------            
+  //     const is 2*fmuh/hbar**2, rk is centre of mass wavenumber
+  double const_=pow(con,2)*fmuh;
+  double rk=sqrt(const_*erel);
+  //     print*,' k = ',rk
+  //     ---------------------------------------------------------
+  int i1=nsteps-2;
+  double r1=i1*h;
+  FandG(0.,rk*r1,20,fa1,ga1,sa);
+  int i2=i1-10;
+  double r2=i2*h;
+  FandG(0.,rk*r2,20,fa2,ga2,sa);
+  //     ---------------------------------------------------------            
+  //     Subtracted Cowell/Numerov method used for integration
+  //     ---------------------------------------------------------                  
+  //     starting values: at r=0 and r=h
+  //     u(i) stores radial wavefunction at i*h
+  //     ---------------------------------------------------------              
+  u[0]=0.;
+  u[1]=pow(h,(l+1));
+  Kold=l*(l+1)/pow(h,2)+const_*
+    (V(j,l,h,fmuh,con,pi,vdepth,wal,wr0,wls,ib)-erel);
+  Aold=(1.-h*h*Kold/12.)*u[1];
+  //     Astart is analogue of Aold but at r=0 (care needed)!!
+  Astart=0.;
+  if(l==1) Astart=-2./12.*h*h;
+  Dold=Aold-Astart;
+  for (int i=2; i<=nsteps; i++){
+    double r=i*h;
+    //*        print*,V(j,l,r)
+    Dnew=Dold+h*h*Kold*u[i-1];
+    Anew=Aold+Dnew;
+    Knew=l*(l+1)/pow(r,2)+const_*
+      (V(j,l,r,fmuh,con,pi,vdepth,wal,wr0,wls,ib)-erel);
+    u[i]=Anew/(1.-h*h*Knew/12.);
+    Kold=Knew;
+    Dold=Dnew;
+    Aold=Anew;
+  }
+  //     ---------------------------------------------------------            
+  //     now need to match numerical wavefunction to physical
+  //     form assumed for r > potential range
+  //     ------ RADIUS 1  ----------------------------------------
+  double F1=fa1[l];
+  double G1=ga1[l];
+  //     ------ RADIUS 2  ----------------------------------------
+  double F2=fa2[l];
+  double G2=ga2[l];
+  //     ---------------------------------------------------------       
+  //     solve linear equations for A and B
+  //     so A=C*cos(delta) and B=C*sin(delta), C=sqrt(A**2+B**2)
+  //     ---------------------------------------------------------             
+  det=F1*G2-F2*G1;
+  printf("F1: %10.20f\n", F1);
+  printf("F2: %10.20f\n", F2);
+  printf("G1: %10.20f\n", G1);
+  printf("G2: %10.20f\n", G2);
+  A=(u[i1]*G2-u[i2]*G1)/det;
+  B=(u[i2]*F1-u[i1]*F2)/det;
+  C=sqrt(pow(A,2)+pow(B,2));
+  A=A/C;
+  B=B/C;
+  //     ---------------------------------------------------------       
+  //     now: A = cos(delta) and B = sin(delta)
+  //     having matched, re-normalise the numerical wavefunction
+  //     ---------------------------------------------------------             
+  for (int i=0; i<=nsteps; i++) {
+    u[i]=u[i]/C;
+  }
+  if(A<0.) {
+    B=-B;
+    A=-A;
+    for (int i=0; i<=nsteps; i++) {
+      u[i]=-u[i];
+    }
+  }
+  //     ---------------------------------------------------------       
+  //     function norm is now sin(kr...+delta) as r-> infinity               
+  //     calculate and print various derived quantities
+  //     ---------------------------------------------------------             
+  //     print*,' cos(delta) = ',A
+  //     print*,' sin(delta) = ',B
+  //     compute partial wave T(l) = exp(i*delta)*sin(delta)
+  //     T=(A+(0.,1.)*B)*B
+  //     print*,' T(l) = ',T
+  //     compute partial wave S(l) = exp(2*i*delta)
+  //     S=(A+(0.,1.)*B)**2
+  //     Smod=abs(S)
+  //     print*,' S(l) = ',S,' with modulus ',Smod
+  //     ---------------------------------------------------------      
+}
+
+
 void bound(const int ia, const int ib, const int ic,
 	   const int is2, const int j2, const int lmom,
 	   const int nod, const int nramax, const int jhw,
 	   const double cmass, const double vmass,
 	   const double wzz, const double wa,
-	   const double wr0, double wls,
+	   const double wr0, double &wls,
 	   const int isof,
 	   double ffr[6603][5], double &vdepth,
 	   double &bengy, const double dmat,
@@ -73,7 +506,7 @@ void bound(const int ia, const int ib, const int ic,
   if((ia-1)<0){
     vdepth=bengy+pow(3.1415926*(fnod+0.5*flmom1),2)/
       (0.048228*vmass*pow(radi+drz,2)); // label: 10
-    printf("label 10 vdepth: %10.20f\n",vdepth);
+    //printf("label 10 vdepth: %10.20f\n",vdepth);
   }else{
     while (true){
       bengy=vdepth-pow(3.1415926*(fnod+0.5*flmom1),2)/
@@ -131,7 +564,7 @@ void bound(const int ia, const int ib, const int ic,
   double fl1=lmom*lmom1;
  label100:;
   double wrho=wdrho; // label: 100
-  printf("aft label100 %10.20f\n",wdrho);
+  //printf("aft label100 %10.20f\n",wdrho);
   double wvc=vdepth/bengy;
   double zer=1.0;
   for (int j=1; j<=lmom2; j++){ 
@@ -210,7 +643,7 @@ void bound(const int ia, const int ib, const int ic,
   double dffr1=((ffr[match+3][jhw]-ffr[match-3][jhw])/60.0
 		+3.0*(ffr[match-2][jhw]-ffr[match+2][jhw])/
 		20.0+3.0*(ffr[match+1][jhw]-ffr[match-1][jhw])/4.0)/wdrho;
-  printf("aft dffr1 %10.20f\n",dffr1);
+  //printf("aft dffr1 %10.20f\n",dffr1);
   korec=0;
   double rhoa=wk*drd[jhw]*(double)(nramax);
   wrho=rhoa;
@@ -252,12 +685,12 @@ void bound(const int ia, const int ib, const int ic,
   double dffr2=((ffr[match+3][jhw+2]-ffr[match-3][jhw+2])/
 		60.0+3.0*(ffr[match-2][jhw+2]-ffr[match+2][jhw+2])/20.0
 		+3.0*(ffr[match+1][jhw+2]-ffr[match-1][jhw+2])/4.0)/wdrho;
-  printf("aft dffr2 %10.20f\n",dffr2);
+  //printf("aft dffr2 %10.20f\n",dffr2);
   double ratio=ffr[match][jhw]/ffr[match][jhw+2];
   double tlogd1=dffr1/ffr[match][jhw];
   double tlogd2=dffr2/ffr[match][jhw+2];
   double difnce=fabs(tlogd1-tlogd2);
-  printf("difnce %10.20f\n",difnce);
+  //printf("difnce %10.20f\n",difnce);
   if((difnce-eps7)>0.) {//510,510,400
     niter=niter+1;
     if((niter-100)>0) {//410,410,405
@@ -300,11 +733,11 @@ void bound(const int ia, const int ib, const int ic,
     double denom=sum*wdrho/3.0;
     incr=0;
     double ram1=fnum/denom;
-    printf("bfr ramda vdepth: %10.20f\n",vdepth);
-    printf("ramda: %10.20f\n",ramda);
-    printf("denom: %10.20f\n",denom);
-    printf("sum: %10.20f\n",sum);
-    printf("wdrho: %10.20f\n",wdrho);
+    //printf("bfr ramda vdepth: %10.20f\n",vdepth);
+    //printf("ramda: %10.20f\n",ramda);
+    //printf("denom: %10.20f\n",denom);
+    //printf("sum: %10.20f\n",sum);
+    //printf("wdrho: %10.20f\n",wdrho);
     while (true) {
       ramda=1.0+ram1;
       if((ramda-eps7)<=0.) {//485,485,488
@@ -324,7 +757,7 @@ void bound(const int ia, const int ib, const int ic,
     if((ia-1)<0) {//489,500,500
       if((ramda-2.0)<0.0) {//490,495,495
 	vdepth=ramda*vdepth;
-	printf("aft ramda vdepth: %10.20f\n",vdepth);
+	//printf("aft ramda vdepth: %10.20f\n",vdepth);
 	if(isof!=1) wls=0.1767*vdepth;
 	wvs=2.*wls*wk/(bengy*wals);
 	goto label100;
@@ -409,7 +842,7 @@ void make_jt_wf() {
   int    ia     = 0;      // search well depth for ia=0, search energy for ia=1
   int    ic     = 1;      // option for residual
   int    ib     = 0;      // potential type
-  double wr0    = 1.2434; // potential radius
+  double wr0    = 1.25; // potential radius
   double wal    = 0.7;    // potential diffuseness
   int    nramax = 1600;   // steps
   double drx    = 0.05;   // step
@@ -417,32 +850,27 @@ void make_jt_wf() {
   int    isof   = 0;      // fixed for isof = 1, hamamoto for isof = 0
   double cmass  = 28;     // cmass
   double vmass  = 1;      // vmass
-  double bengy  = 0.01;  // bengy
-  int    j2a    = 3;      // 2*j
-  int    lmoma  = 2;      // lmoma
-  int    nodd   = 2;      // nodd
+  double bengy  = 0.963;  // bengy
+  int    j2a    = 1;      // 2*j
+  int    lmoma  = 0;      // lmoma
+  int    nodd   = 1;      // nodd
   double wzz    = 0.0;    // ?
   int    is2    = 1;      // ?
   int    jhw    = 1;      // ?
-  double dmat   = 0.;     // ?
+  double dmat   = 0.0;    // ?
   double wrz    = wr0;    // ?
-  double pnloc  = 0.;     // ?
+  double pnloc  = 0.0;    // ?
   double wr0ls  = wr0;    // ?
   double wals   = wal;    // ?
   double chis[11];
   double ffr[6603][5];
   double vdepth;
   int    kcheck;
-  bound(ia,ib,ic,is2,j2a,
-	lmoma,nodd,nramax,jhw,
-	cmass,vmass,
-	wzz,wal,wr0,wls,
-	isof,
-	ffr,vdepth,bengy,dmat,
-	kcheck,wrz,chis,drx,
-	pnloc,wr0ls,wals);
+  bound(ia,ib,ic,is2,j2a,lmoma,nodd,nramax,jhw,cmass,vmass,
+	wzz,wal,wr0,wls,isof,ffr,vdepth,bengy,dmat,
+	kcheck,wrz,chis,drx,pnloc,wr0ls,wals);
   double u[6603],vv[6603];
-  std::cout << "vdepth" << vdepth << std::endl;
+  std::cout << "vdepth: " << vdepth << std::endl;
   u[1]=0.;
   vv[1]=0.;
   for (int i =1; i <=nramax; i++) {
@@ -452,7 +880,7 @@ void make_jt_wf() {
   for (int i =1; i <=nramax+1; i++) {
     double r=(i-1)*drx;
     u[i] = r*u[i];
-    std::cout << r << "," << u[i] << std::endl;
+    //std::cout << r << "," << u[i] << std::endl;
   }
   gROOT->cd();
   TH1D*  h = new TH1D("h0","h0",1601,-0.025,80.025);
@@ -461,5 +889,42 @@ void make_jt_wf() {
   }
   h->Draw();
   
+  double w[6603],A,B;
+  double ebe1 = 10.;
+  int lfin  = 3;
+  int jvals = 5;
+  double conno1=0.2195376;
+  double pi=4.*atan(1.);
+  double pmass=cmass+vmass;
+  double rmu=cmass*vmass/pmass;
+  wr0=wr0*pow(cmass,0.333333333333);
   
+  wf(w,drx,nramax,ebe1,jvals,lfin,A,B,
+     rmu,conno1,pi,vdepth,wal,wr0,wls,ib);
+  
+  for (int i =1; i <=nramax; i++) {
+    double r=(i-1)*drx;
+    std::cout << r << "," << w[i-1] << std::endl;
+  }
+  TH1D*  h1 = new TH1D("h1","h1",1601,-0.025,80.025);
+  for (int i =1; i <=nramax+1; i++) {
+    h1->SetBinContent(i,w[i-1]);
+  }
+  
+  h1->Draw();
+  
+  std::cout << "A,B: " << A << "," << B << std::endl;
+  printf("drx: %10.20f\n", drx);
+  printf("nramax: %d\n", nramax);
+  printf("ebe1: %10.20f\n", ebe1);
+  printf("jvals: %d\n", jvals);
+  printf("lfin: %d\n", lfin);
+  printf("rmu: %10.20f\n", rmu);
+  printf("conno1: %10.20f\n", conno1);
+  printf("pi: %10.20f\n", pi);
+  printf("vdepth: %10.20f\n", vdepth);
+  printf("wal: %10.20f\n", wal);
+  printf("wr0: %10.20f\n", wr0);
+  printf("wls: %10.20f\n", wls);
+  printf("ib: %d\n", ib);
 }
