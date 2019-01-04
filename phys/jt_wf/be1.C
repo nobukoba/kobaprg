@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 
 //     ---------------------------------------------------------        
 void sim(double fa[6603], double &res,
