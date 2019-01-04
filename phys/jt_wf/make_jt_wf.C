@@ -270,7 +270,6 @@ void FandG(const double eta, const double krval, const int lmax,
       printf("aft line 700 t: %10.20f\n", t);
       printf("aft line 700 u: %10.20f\n", u);
       printf("aft line 700 k: %d\n", k);
-
       for (int j=1; j<=k; j++) {
 	fa[j-1]=u*fa[j-1];
       }
@@ -437,7 +436,6 @@ void wf(double u[6603], const double h,
   //     ---------------------------------------------------------      
 }
 
-
 void bound(const int ia, const int ib, const int ic,
 	   const int is2, const int j2, const int lmom,
 	   const int nod, const int nramax, const int jhw,
@@ -486,11 +484,10 @@ void bound(const int ia, const int ib, const int ic,
     double exls=exp(zzz);
     int ib1=ib+1;
     if      (ib1 == 1) { wfcr[i]=1.0/(1.0+ex); }
-    else if (ib1 == 2) { wfcr[i]=1.0/(1.0+ex); }
-    else if (ib1 == 3) { wfcr[i]=exp(-(wr/wa)*(wr/wa)); }
-    else if (ib1 == 4) { wfcr[i]=exp(-wa*wr)/wr; }
-    else if (ib1 == 5) { wfcr[i]=exp(-wa*wr)/(exp(-wr0*wr)-exp(-wa*wr)); }
-    else if (ib1 == 6) { wfcr[i]=(1.0+yyyy)/(cosh(wr/wa)+yyyy); }
+    else if (ib1 == 2) { wfcr[i]=exp(-(wr/wa)*(wr/wa)); }
+    else if (ib1 == 3) { wfcr[i]=exp(-wa*wr)/wr; }
+    else if (ib1 == 4) { wfcr[i]=exp(-wa*wr)/(exp(-wr0*wr)-exp(-wa*wr)); }
+    else if (ib1 == 5) { wfcr[i]=(1.0+yyyy)/(cosh(wr/wa)+yyyy); }
     wfsr[i]=exls/(1.0+exls)/(1.0+exls);
     if ((wr-radi)<=0.) {
       wfc[i]=0.7199262*wzz*(3.0-wr*wr/(radi*radi))/radi;
@@ -849,7 +846,6 @@ void bound(const int ia, const int ib, const int ic,
   return;
 }
 //c     ---------------------------------------------------------         
-
 
 void make_jt_wf() {
   int    ia     = 0;      // search well depth for ia=0, search energy for ia=1

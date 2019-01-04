@@ -149,8 +149,36 @@
       ieb=0
       llmin=lmoma-1
       llmax=lmoma+1
+
+* tmp nobu -->
+*      lfin  = 3;
+*      jvals = 5;
+*      ebe1 = 0.45;
+*      call wf(w,drx,nramax,ebe1,jvals,lfin,A,B) 
+*      do i=1,nramax
+*         r=(i-1)*drx
+**         write(*,*) r,w(i-1)
+*      enddo
+*      write(*,*) 'A,B: ',A,B
+*      write(*,*) 'drx', drx
+*      write(*,*) 'nramax', nramax
+*      write(*,*) 'ebe1', ebe1
+*      write(*,*) 'jvals', jvals
+*      write(*,*) 'lfin', lfin
+*      write(*,*) 'rmu', rmu
+*      write(*,*) 'conno1', conno1
+*      write(*,*) 'pi', pi
+*      write(*,*) 'vdepth', vdepth
+*      write(*,*) 'wal', wal
+*      write(*,*) 'wr0', wr0
+*      write(*,*) 'wls', wls
+*      write(*,*) 'ib', ib
+*      return
+* --> temp nobu end
+
       if(llmin.lt.0) llmin=llmax
       do ebe1=0.01d0,e1enmax,0.01d0
+*      do ebe1=0.45d0,e1enmax,100.01d0
        qbe1=sqrt((0.2195376d0**2*rmu)*ebe1)
        be1dist=0.d0
        ieb=ieb+1
@@ -345,7 +373,7 @@
       dr12=0.1*dr56
       fl1=lmom*lmom1
   100 wrho=wdrho
-      write(*,*) 'aft label100', wdrho
+*      write(*,*) 'aft label100', wdrho
       wvc=vdepth/bengy
       zer=1.0
       do 180 j=1,lmom2
@@ -411,7 +439,7 @@
   240 dffr1=((ffr(match+3,jhw)-ffr(match-3,jhw))/60.0+3.0*(ffr(match-2,
      1jhw)-ffr(match+2,jhw))/20.0+3.0*(ffr(match+1,jhw)-ffr(match-1,jhw)
      2)/4.0)/wdrho
-      write(*,*) 'aft dffr1', dffr1
+*      write(*,*) 'aft dffr1', dffr1
       korec=0
       rhoa=wk*drd(jhw)*real(nramax)
       wrho=rhoa
@@ -448,12 +476,12 @@
       dffr2=((ffr(match+3,jhw+2)-ffr(match-3,jhw+2))/60.0+3.0*(ffr(match
      1-2,jhw+2)-ffr(match+2,jhw+2))/20.0+3.0*(ffr(match+1,jhw+2)
      2-ffr(match-1,jhw+2))/4.0)/wdrho
-      write(*,*) 'aft dffr2', dffr2
+*      write(*,*) 'aft dffr2', dffr2
       ratio=ffr(match,jhw)/ffr(match,jhw+2)
       tlogd1=dffr1/ffr(match,jhw)
       tlogd2=dffr2/ffr(match,jhw+2)
       difnce=dabs(tlogd1-tlogd2)
-      write(*,*) 'difnce', difnce
+*      write(*,*) 'difnce', difnce
       if(difnce-eps7) 510,510,400
   400 niter=niter+1
       if(niter-100) 410,410,405
@@ -601,7 +629,7 @@ c     *****( non-local correction )*****
 *     u(i) stores radial wavefunction at i*h
 *     ---------------------------------------------------------              
       u(0)=0.d0
-      u(1)=h**(l+1)  
+      u(1)=h**(l+1)
       Kold=l*(l+1)/h**2+const*(V(j,l,h)-erel)                
       Aold=(1.d0-h*h*Kold/12.d0)*u(1)
 *     Astart is analogue of Aold but at r=0 (care needed)!!
@@ -633,6 +661,10 @@ c     *****( non-local correction )*****
 *     so A=C*cos(delta) and B=C*sin(delta), C=sqrt(A**2+B**2)
 *     ---------------------------------------------------------             
       det=F1*G2-F2*G1
+*      write(*,*) 'F1', F1
+*      write(*,*) 'F2', F2
+*      write(*,*) 'G1', G1
+*      write(*,*) 'G2', G2
       A=(u(i1)*G2-u(i2)*G1)/det
       B=(u(i2)*F1-u(i1)*F2)/det
       C=sqrt(A**2+B**2)
@@ -766,6 +798,11 @@ c     *****( non-local correction )*****
       is=0
       ir=1
       t=r-rho
+*      write(*,*) 'rs', rs
+*      write(*,*) 'rho', rho
+*      write(*,*) 'f', f
+*      write(*,*) 'fp', fp
+*      write(*,*) 't', t
       if (t) 600,700,310
   310 if (nr .le. 1) go to 320
       is=t/drho
@@ -777,6 +814,7 @@ c     *****( non-local correction )*****
       ir=is
   330 rho=rho-drho
       ir=ir-1
+*      write(*,*) 'in line 310 ir', ir
       if (ir .gt. 0) go to 600
       ir=max0 (is,1)
       r=rs
@@ -788,6 +826,11 @@ c     *****( non-local correction )*****
       ir=ir+1
   350 if (ir .gt. nr) return
   600 h=0.5
+*      write(*,*) 'aft line 600 r', r
+*      write(*,*) 'aft line 600 rho', rho
+*      write(*,*) 'aft line 600 f', f
+*      write(*,*) 'aft line 600 fp', fp
+*      write(*,*) 'aft line 600 t', t
       w=r-eta2
       if (r-1.0) 601,602,602
   601 h=0.5*r
@@ -872,6 +915,9 @@ c     *****( non-local correction )*****
       t=(w+eta)*b2-u*b3
       u=1./(t*f-b1*fp)
       k=lmax+1
+*      write(*,*) 'aft line 700 t:', t
+*      write(*,*) 'aft line 700 u:', u
+*      write(*,*) 'aft line 700 k:', k
       do 850 j=1,k
       fa(j-1)=u*fa(j-1)
   850 continue

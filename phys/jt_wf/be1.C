@@ -1,5 +1,7 @@
 #include <iostream>
 #include <math.h>
+#include "TH1.h"
+#include "TH2.h"
 
 //     ---------------------------------------------------------        
 void sim(double fa[6603], double &res,
@@ -629,11 +631,10 @@ void bound(const int ia, const int ib, const int ic,
     double exls=exp(zzz);
     int ib1=ib+1;
     if      (ib1 == 1) { wfcr[i]=1.0/(1.0+ex); }
-    else if (ib1 == 2) { wfcr[i]=1.0/(1.0+ex); }
-    else if (ib1 == 3) { wfcr[i]=exp(-(wr/wa)*(wr/wa)); }
-    else if (ib1 == 4) { wfcr[i]=exp(-wa*wr)/wr; }
-    else if (ib1 == 5) { wfcr[i]=exp(-wa*wr)/(exp(-wr0*wr)-exp(-wa*wr)); }
-    else if (ib1 == 6) { wfcr[i]=(1.0+yyyy)/(cosh(wr/wa)+yyyy); }
+    else if (ib1 == 2) { wfcr[i]=exp(-(wr/wa)*(wr/wa)); }
+    else if (ib1 == 3) { wfcr[i]=exp(-wa*wr)/wr; }
+    else if (ib1 == 4) { wfcr[i]=exp(-wa*wr)/(exp(-wr0*wr)-exp(-wa*wr)); }
+    else if (ib1 == 5) { wfcr[i]=(1.0+yyyy)/(cosh(wr/wa)+yyyy); }
     wfsr[i]=exls/(1.0+exls)/(1.0+exls);
     if ((wr-radi)<=0.) {
       wfc[i]=0.7199262*wzz*(3.0-wr*wr/(radi*radi))/radi;
@@ -1009,8 +1010,8 @@ void be1() {
   double zc      = 10.;   // core charge
   double bengy   = 0.963; // bengy
   double e1enmax = 15.;   // E1 energy max
-  int    j2a     = 1;     // 2*j
-  int    lmoma   = 0;     // lmoma
+  int    j2a     = 5;     // 2*j
+  int    lmoma   = 2;     // lmoma
   int    nodd    = 1;     // nodd
   
   int    ia=0;// search well depth for ia=0, search energy for ia=1
@@ -1084,12 +1085,40 @@ void be1() {
   int ieb=0;
   int llmin=lmoma-1;
   int llmax=lmoma+1;
-  if(llmin<0) llmin=llmax;
-  for( double ebe1=0.01; ebe1 <= e1enmax; ebe1+=0.01){
-  //for( double ebe1=0.45; ebe1 <= e1enmax; ebe1+=0.01){
+  if(llmin<0) {llmin=llmax;}
+  int neb = e1enmax/0.01 + 0.0001;
+  double e1enmax2 = 0.01*neb;
+  TH1D* hbe1 = new TH1D("hbe1","hbe1",neb+1,-0.005,e1enmax2+0.005);
+  TH1D *hbe1_lj[4];
+  hbe1_lj[0] = new TH1D("hbe1_ll_jl","hbe1_ll_jl",neb+1,-0.005,e1enmax2+0.005);
+  hbe1_lj[1] = new TH1D("hbe1_ll_ju","hbe1_ll_ju",neb+1,-0.005,e1enmax2+0.005);
+  hbe1_lj[2] = new TH1D("hbe1_lu_jl","hbe1_lu_jl",neb+1,-0.005,e1enmax2+0.005);
+  hbe1_lj[3] = new TH1D("hbe1_lu_ju","hbe1_lu_ju",neb+1,-0.005,e1enmax2+0.005);
+  TH2D *hwf[4], *hbs2[4];
+  hwf[0]  = new TH2D("hwf_ll_jl","hwf_ll_jl",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hwf[1]  = new TH2D("hwf_ll_ju","hwf_ll_ju",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hwf[2]  = new TH2D("hwf_lu_jl","hwf_lu_jl",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hwf[3]  = new TH2D("hwf_lu_ju","hwf_lu_ju",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hbs2[0] = new TH2D("hbs2_ll_jl","hbs2_ll_jl",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hbs2[1] = new TH2D("hbs2_ll_ju","hbs2_ll_ju",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hbs2[2] = new TH2D("hbs2_lu_jl","hbs2_lu_jl",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+  hbs2[3] = new TH2D("hbs2_lu_ju","hbs2_lu_ju",
+		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
+
+  //for( double ebe1=0.01; ebe1 <= e1enmax; ebe1+=0.01){
+  for (int ieb=1; ieb<=neb; ieb++){
+    double ebe1 = ieb*0.01;
     double qbe1=sqrt((pow(0.2195376,2)*rmu)*ebe1);
     double be1dist=0.;
-    ieb=ieb+1;
+    //ieb=ieb+1;
+    int lj=0;
     for (int lfin=llmin; lfin<=llmax; lfin+=2) {
       for (int jstep=-1; jstep<=1; jstep+=2) {
         double rlfin=lfin;
@@ -1140,14 +1169,21 @@ void be1() {
 	  //       zero-range limit (numerically)
 	  //---------------------------------------------------------------------
 	  //       bs (i)=r*r*bes1(qbe1*r)*sqrt(2*bsalfa)*exp(-bsalfa*r)
+	  hwf[lj]->Fill(r,ebe1,w[i-1]);
+	  hbs2[lj]->Fill(r,ebe1,bs2[i]);
 	}
 	double rnorm2;
 	sim(bs2,rnorm2,1,nramax,drx);
 	//       call sim(bs,rnorm,1,nramax,drx)
 	//       print*,rnorm2
 	be1dist=be1dist+qbe1*pow(rnorm2,2)*rcj*cgc;
+	hbe1_lj[lj]->Fill(ebe1,qbe1*pow(rnorm2,2)*rcj*cgc);
+	lj++;
       }
     }
-    std::cout << ebe1 << ", " << be1dist << std::endl;
+    //std::cout << ebe1 << ", " << be1dist << std::endl;
+    hbe1->Fill(ebe1,be1dist);
   }
+  hbe1->Draw();
+  return;
 }
