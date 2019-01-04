@@ -21,5 +21,5 @@ $(TARGET2): $(OBJECT2)
 	$(FC) $(FFLAGS) -o $(TARGET2) $(OBJECT2)
 #
 clean:
-	$(RM) $(TARGET) *.o *~
+	$(RM) $(TARGET1) $(TARGET2) *.o *~
 #
