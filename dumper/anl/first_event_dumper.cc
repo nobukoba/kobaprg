@@ -17,6 +17,10 @@ unsigned int SwapInt(unsigned int datum) {
   return (t1<<24) + (t2<<8) + (t3>>8) + (datum>>24);
 }
 
+short GetSigned14BitFromUShort(unsigned short ushort) {
+  return ((short)((ushort & 0x3fff) << 2))/4;
+}
+
 struct GEBArgonneHead {
   unsigned short GA_packetlength;
   unsigned short ud_channel;
@@ -105,6 +109,15 @@ int main(int argc, char* argv[]){
     event.base_sample			= SwapShort(event.base_sample);			
     event.peak_sample			= SwapShort(event.peak_sample);
   
+    short          fGetCFD0                    = GetSigned14BitFromUShort(event.cfd_sample0);
+    short          fGetCFD1                    = GetSigned14BitFromUShort(event.cfd_sample1);
+    short          fGetCFD2                    = GetSigned14BitFromUShort(event.cfd_sample2);
+    double         fGetCFD                     = (double) fDisc + (0. - fGetCFD2*2./(fGetCFD2-fGetCFD0));
+    unsigned long  fGetPrevCFD;
+    unsigned int   fGetBaseline                = ((event.sampled_baseline & 0x00FFFFFF) >> 0);
+    unsigned int   fGetPreRiseE                = (event.postrise_sum_low_prerise_sum & 0xffffff);
+    unsigned int   fGetPostRiseE               = ((event.postrise_sum_low_prerise_sum & 0xff000000)>>24) + (((unsigned int)event.postrise_sum_high) << 8);
+    unsigned long  fGetTrigTimestamp           = ((unsigned long)event.timestamp_trigger_low) /*+ (((ULong_t)timestamp_trigger_high)<<16)*/; // not fully implemented
     unsigned short fGetLastPostRiseEnterSample = event.last_postrise_enter_sample & 0x3fff;
     unsigned short fGetPostRiseSampleBegin     = event.postrise_begin_sample & 0x3fff;
     unsigned short fGetPostRiseSampleEnd       = event.postrise_end_sample & 0x3fff;
@@ -123,6 +136,14 @@ int main(int argc, char* argv[]){
     unsigned short fGeneralErrorFlag           = (event.flags & 0x2000)>>13;
     unsigned short fPileUpOnlyFlag             = (event.flags & 0x4000)>>14;
     unsigned short fPileUpFlag                 = (event.flags & 0x8000)>>15;
+
+          
+    if (fTSMatchFlag == 1) {
+      unsigned long current_cfd= fDisc;
+      fGetPrevCFD = ((current_cfd & 0x00ffffc0000000) + (((unsigned long)(event.cfd_mid_prev & 0x3fff)) << 16) + (unsigned long)event.cfd_low_prev);
+    } else {
+      fGetPrevCFD = 0xffffffffffffffff;
+    }
 
     std::cout << "ival1                               : 0x" << std::setw(8)  << ival1                               << std::endl;
     std::cout << "ival2                               : 0x" << std::setw(8)  << ival2                               << std::endl;
@@ -158,6 +179,15 @@ int main(int argc, char* argv[]){
     std::cout << "event.prerise_begin_sample          : 0x" << std::setw(4)  << event.prerise_begin_sample          << std::endl;
     std::cout << "event.base_sample                   : 0x" << std::setw(4)  << event.base_sample                   << std::endl;
     std::cout << "event.peak_sample                   : 0x" << std::setw(4)  << event.peak_sample                   << std::endl;
+    std::cout << "fGetCFD0                            : 0x" << std::setw(4)  << fGetCFD0                            << std::endl;
+    std::cout << "fGetCFD1                            : 0x" << std::setw(4)  << fGetCFD1                            << std::endl;
+    std::cout << "fGetCFD2                            : 0x" << std::setw(4)  << fGetCFD2                            << std::endl;
+    std::cout << "fGetCFD                             : "   << std::dec      << fGetCFD << std::hex                 << std::endl;
+    std::cout << "fGetPrevCFD                         : 0x" << std::setw(16) << fGetPrevCFD                         << std::endl;
+    std::cout << "fGetBaseline                        : 0x" << std::setw(8)  << fGetBaseline                        << std::endl;
+    std::cout << "fGetPreRiseE                        : 0x" << std::setw(8)  << fGetPreRiseE                        << std::endl;
+    std::cout << "fGetPostRiseE                       : 0x" << std::setw(8)  << fGetPostRiseE                       << std::endl;
+    std::cout << "fGetTrigTimestamp                   : 0x" << std::setw(16) << fGetTrigTimestamp                   << std::endl;
     std::cout << "fGetLastPostRiseEnterSample         : 0x" << std::setw(4)  << fGetLastPostRiseEnterSample         << std::endl;
     std::cout << "fGetPostRiseSampleBegin             : 0x" << std::setw(4)  << fGetPostRiseSampleBegin             << std::endl;
     std::cout << "fGetPostRiseSampleEnd               : 0x" << std::setw(4)  << fGetPostRiseSampleEnd               << std::endl;
