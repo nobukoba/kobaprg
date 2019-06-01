@@ -50,7 +50,8 @@ void very_simple_raw_data_dumper(const char* filename){
 void very_simple_raw_data_dumper(){
   std::cout << "Macro: very_simple_raw_data_dumper()" << std::endl;
   //very_simple_raw_data_dumper("./data/run_2100.gtd05_000_0120");
-  very_simple_raw_data_dumper("./data/run_2100.gtd05_001_0120");
+  //very_simple_raw_data_dumper("./data/run_2100.gtd05_001_0120");
+  very_simple_raw_data_dumper("./data/cagra/E450/run_2100.gtd05_001_0120");
   //very_simple_raw_data_dumper("./data/run_2100.save");
   return;
 }
