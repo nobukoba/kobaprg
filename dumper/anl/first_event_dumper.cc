@@ -56,8 +56,8 @@ int main(int argc, char* argv[]){
     return 0;
   }
   for (int i=1; i < argc; i++){
-    std::cout << "Opening filename: " << argv[1] << std::endl;
-    std::ifstream ifs(argv[1], std::ios::in | std::ios::binary);
+    std::cout << "Opening filename: " << argv[i] << std::endl;
+    std::ifstream ifs(argv[i], std::ios::in | std::ios::binary);
   
     if (!ifs){
       std::cout << "The file was not opened." << std::endl;
