@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 int print_bytes (std::ifstream &ifs,
                  unsigned long start_pos,
@@ -60,7 +61,7 @@ int main(int argc, char* argv[]){
     if (argv[1][0] != '-') {
       std::cout << "Usage: " << argv[0] << " [-n] file_name" << std::endl;
     }
-    std::stringstream ss((char*)argv[1]+1);
+    std::stringstream ss((char*)(argv[1]+1));
     ss >> num;
   }
 
