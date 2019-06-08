@@ -2,14 +2,12 @@ CXX = g++
 CXXFLAGS = $(shell root-config --cflags)
 ROOTLIBS = $(shell root-config --libs)
 
-PROGRAM1 = gtd_to_tree
-PROGRAM2 = gtd_tree_sort
+PROGRAM = gtd_to_tree gtd_to_tree_w_trace gtd_tree_sort draw_traces
 
-all: $(PROGRAM1)  $(PROGRAM2)
-$(PROGRAM1): $(PROGRAM1).o
-	$(CXX) $(CXXFLAGS) -o $(PROGRAM1) $(PROGRAM1).o $(ROOTLIBS)
-$(PROGRAM2): $(PROGRAM2).o
-	$(CXX) $(CXXFLAGS) -o $(PROGRAM2) $(PROGRAM2).o $(ROOTLIBS)
+all: $(PROGRAM)
+%: %.cc
+	$(CXX) $(CXXFLAGS) -c $@.cc -o $@.o
+	$(CXX) $(CXXFLAGS) $(ROOTLIBS) $@.o -o $@
 clean:
 	rm -f *.o *~
-	rm -f $(PROGRAM1) $(PROGRAM2)
+	rm -f $(PROGRAM)
