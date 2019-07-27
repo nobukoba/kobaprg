@@ -88,15 +88,15 @@ Int_t merging() {
   TString filenames[nsets][nfiles];
   Int_t   set_runs[nsets][nfiles];
   Int_t   set_nrun[nsets] = {0};
-  TString str_head = "./run";
+  TString str_head = "./output/date20190727/run";
   TString str_tail = "/hist_MakeClover_Nobu_20190727_1st.root";
   Int_t set_runs[nsets][nfiles];
   Int_t set_nrun[nsets] = {0};
 
-  for(Int_t i = 2066; i <= 2111; i++) { set_runs[0][(set_nrun[0])++] = i; }
-  for(Int_t i = 2112; i <= 2114; i++) { set_runs[1][(set_nrun[1])++] = i; }
-  for(Int_t i = 2115; i <= 2118; i++) { set_runs[2][(set_nrun[2])++] = i; }
-  for(Int_t i = 2119; i <= 2200; i++) { set_runs[3][(set_nrun[3])++] = i; }
+  for(Int_t i = 2130; i <= 2132; i++) { set_runs[0][(set_nrun[0])++] = i; }
+  for(Int_t i = 2130; i <= 2132; i++) { set_runs[1][(set_nrun[1])++] = i; }
+  for(Int_t i = 2130; i <= 2132; i++) { set_runs[2][(set_nrun[2])++] = i; }
+  for(Int_t i = 2130; i <= 2132; i++) { set_runs[3][(set_nrun[3])++] = i; }
   
   for (Int_t j = 0; j < nsets; j++) {
     for (Int_t i = 0; i < set_nrun[j]; i++) {
@@ -105,16 +105,28 @@ Int_t merging() {
     }
   }
   
-  TDirectory *mergedroot = TFile::Open("merged.root","recreate");
-  TDirectory *first_dir  = TFile::Open("output/date20190727/run2130/hist_MakeClover_Nobu_20190727_1st.root","read");
-  TDirectory *second_dir = TFile::Open("output/date20190727/run2131/hist_MakeClover_Nobu_20190727_1st.root","read");
-  
-  std::cout << std::endl << "Merge start." << std::endl;
-  std::cout << "Base dir: " << first_dir->GetName() << std::endl;
-  CopyDir(first_dir, mergedroot);
-  MergeDir(second_dir, mergedroot);
-  mergedroot->Write();
-  mergedroot->Close();
-  std::cout << "Mearge finished." << std::endl;
+  TDirectory *mergedroot[nsets];
+  mergedroot[0] = TFile::Open("./output/date20190727/merged0.root","recreate");
+  mergedroot[1] = TFile::Open("./output/date20190727/merged1.root","recreate");
+  mergedroot[2] = TFile::Open("./output/date20190727/merged2.root","recreate");
+  mergedroot[3] = TFile::Open("./output/date20190727/merged3.root","recreate");
+  //mergedroot[0] = TFile::Open("./merged0.root","recreate");
+  //mergedroot[1] = TFile::Open("./merged1.root","recreate");
+  //mergedroot[2] = TFile::Open("./merged2.root","recreate");
+  //mergedroot[3] = TFile::Open("./merged3.root","recreate");
+
+  for (Int_t j = 0; j < nsets; j++) {
+    std::cout << "Merging set " << j <<" started." << std::endl;
+    std::cout << "Base dir: " << filenames[j][0] << std::endl;
+    //TDirectory *tmpfile = TFile::Open(filenames[j][0],"read");
+    //CopyDir(tmpfile, mergedroot[j]);
+    for (Int_t i = 1; i < set_nrun[j]; i++) {
+      //TDirectory *tmpfile = TFile::Open(filenames[j][i],"read");
+      //MergeDir(tmpfile, mergedroot[j]);
+      mergedroot[j]->Write();
+      mergedroot[j]->Close();
+    }
+    std::cout << "Merging set " << j <<" finished." << std::endl;
+  }
   return;
 }
