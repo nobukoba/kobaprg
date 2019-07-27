@@ -106,8 +106,8 @@ Int_t merging() {
   }
   
   TDirectory *mergedroot = TFile::Open("merged.root","recreate");
-  TDirectory *first_dir  = TFile::Open("run2130/hist_MakeClover_Nobu_20190727_1st.root","read");
-  TDirectory *second_dir = TFile::Open("run2131/hist_MakeClover_Nobu_20190727_1st.root","read");
+  TDirectory *first_dir  = TFile::Open("output/date20190727/run2130/hist_MakeClover_Nobu_20190727_1st.root","read");
+  TDirectory *second_dir = TFile::Open("output/date20190727/run2131/hist_MakeClover_Nobu_20190727_1st.root","read");
   
   std::cout << std::endl << "Merge start." << std::endl;
   std::cout << "Base dir: " << first_dir->GetName() << std::endl;
