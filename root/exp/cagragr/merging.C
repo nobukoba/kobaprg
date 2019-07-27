@@ -110,10 +110,6 @@ Int_t merging() {
   mergedroot[1] = TFile::Open("./output/date20190727/merged1.root","recreate");
   mergedroot[2] = TFile::Open("./output/date20190727/merged2.root","recreate");
   mergedroot[3] = TFile::Open("./output/date20190727/merged3.root","recreate");
-  //mergedroot[0] = TFile::Open("./merged0.root","recreate");
-  //mergedroot[1] = TFile::Open("./merged1.root","recreate");
-  //mergedroot[2] = TFile::Open("./merged2.root","recreate");
-  //mergedroot[3] = TFile::Open("./merged3.root","recreate");
 
   for (Int_t j = 0; j < nsets; j++) {
     std::cout << "Merging set " << j <<" started." << std::endl;
@@ -123,11 +119,12 @@ Int_t merging() {
     for (Int_t i = 1; i < set_nrun[j]; i++) {
       TDirectory *tmpfile = TFile::Open(filenames[j][i],"read");
       MergeDir(tmpfile, mergedroot[j]);
-      mergedroot[j]->Write();
-      mergedroot[j]->Close();
     }
+    mergedroot[j]->Write();
+    mergedroot[j]->Close();
     std::cout << "Merging set " << j <<" finished." << std::endl;
     std::cout << mergedroot[j]->GetName() << " was created." << std::endl;
+    std::cout << std::endl;
   }
   return;
 }
