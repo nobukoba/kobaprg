@@ -118,15 +118,16 @@ Int_t merging() {
   for (Int_t j = 0; j < nsets; j++) {
     std::cout << "Merging set " << j <<" started." << std::endl;
     std::cout << "Base dir: " << filenames[j][0] << std::endl;
-    //TDirectory *tmpfile = TFile::Open(filenames[j][0],"read");
-    //CopyDir(tmpfile, mergedroot[j]);
+    TDirectory *tmpfile = TFile::Open(filenames[j][0],"read");
+    CopyDir(tmpfile, mergedroot[j]);
     for (Int_t i = 1; i < set_nrun[j]; i++) {
-      //TDirectory *tmpfile = TFile::Open(filenames[j][i],"read");
-      //MergeDir(tmpfile, mergedroot[j]);
+      TDirectory *tmpfile = TFile::Open(filenames[j][i],"read");
+      MergeDir(tmpfile, mergedroot[j]);
       mergedroot[j]->Write();
       mergedroot[j]->Close();
     }
     std::cout << "Merging set " << j <<" finished." << std::endl;
+    std::cout << mergedroot[j]->GetName() << " was created." << std::endl;
   }
   return;
 }
