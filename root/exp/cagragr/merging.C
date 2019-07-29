@@ -94,7 +94,8 @@ Int_t merging() {
   Int_t set_nrun[nsets] = {0};
 
   for(Int_t i = 2075; i <= 2081; i++) { set_runs[0][(set_nrun[0])++] = i; }
-  for(Int_t i = 2083; i <= 2101; i++) { set_runs[0][(set_nrun[0])++] = i; }
+  for(Int_t i = 2083; i <= 2098; i++) { set_runs[0][(set_nrun[0])++] = i; }
+  for(Int_t i = 2100; i <= 2101; i++) { set_runs[0][(set_nrun[0])++] = i; }
   for(Int_t i = 2102; i <= 2114; i++) { set_runs[1][(set_nrun[1])++] = i; }
   for(Int_t i = 2116; i <= 2130; i++) { set_runs[1][(set_nrun[1])++] = i; }
   for(Int_t i = 2132; i <= 2158; i++) { set_runs[2][(set_nrun[2])++] = i; }
