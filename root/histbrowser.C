@@ -34,7 +34,6 @@
 #include "TList.h"
 #include "TClass.h"
 #include "TTree.h"
-#include "TTimer.h"
 #include "TClassMenuItem.h"
 #include "TKey.h"
 #include "TFolder.h"
@@ -53,203 +52,6 @@ public:
   void ResetListLevel(){fListLevel = 0;}
   TGComboBox* GetDrawOptionPointer(){return fDrawOption;}
   ClassDef(TGFileBrowserMod,0)
-};
-
-class TimerManager{
-public:
-  ~TimerManager(){
-    delete timer_add_o_l;
-    delete timer_gpad;
-    delete timer_dshot;
-  }
-  TimerManager(TBrowser * tb) :
-    timer_add_o_l(0),
-    timer_gpad(0),
-    timer_dshot(0)
-  {
-    timer_add_o_l = new TTimer();
-    timer_gpad    = new TTimer();
-    timer_dshot   = new TTimer();
-    timer_add_o_l->Connect("Timeout()","TimerManager",this,"add_obj_to_list()");
-    timer_gpad->   Connect("Timeout()","TimerManager",this,"UpdatingGPad()");
-    timer_dshot->  Connect("Timeout()","TimerManager",this,"DelayedShot()");
-    TBrowserTimer *pTBrowserTimer = tb->fTimer;
-    std::cout << "tb" << tb << std::endl;
-    std::cout << "pTbrowserTimer "<< pTBrowserTimer << std::endl;
-    std::cout << "timer_gpad "<< timer_gpad << std::endl;
-
-    //pTBrowserTimer->Connect("Timeout()","TimerManager",this,"Test()");
-
-    gSystem->AddTimer(timer_gpad);
-    timer_add_o_l->Start(1000,kFALSE);
-    timer_gpad->   Start(1000,kFALSE);
-    //pTBrowserTimer->   Start(1000,kFALSE);
-    timer_dshot->  Start(1000,1);
-  }
-
-  void Test(){
-    std::cout << "Test()" << std::endl;
-  }
-  void UpdatingGPad(){
-    //std::cout << "UpdatingGPad()" << std::endl;
-    if (!gROOT->FindObjectAny("shm_flag")) {return;}
-    if (!gPad) {
-      timer_gpad->Stop();
-      return;
-    }
-    TCanvas* canvas = gPad->GetCanvas();
-    //canvas->GetFrame()->SetBit(TBox::kCannotMove);
-    canvas->Update();
-    canvas->Modified();
-    TList* list     = canvas->GetListOfPrimitives();
-    if (list->At(0)==0) {return;}
-    if (strcmp(list->At(0)->GetName(),"Canvas_1_1")==0){
-      Int_t    no_pads  = list->GetSize();
-      for (Int_t i=0; i<no_pads; i++){
-	//((TVirtualPad*)list->At(i))->GetFrame()->SetBit(TBox::kCannotMove);
-	((TVirtualPad*)list->At(i))->Update();
-	((TVirtualPad*)list->At(i))->Modified();
-	//printf("gpad timer\n");
-      }
-    }
-  }
-  
-  void add_obj_to_list(){
-    TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
-    if (named) {gSystem->cd(named->GetTitle());}
-    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-    TGListTreeItem *item_root_memo = hist_fListTree->FindChildByName(0, "ROOT_Memory");
-    if(!item_root_memo){
-      TFolder *tf = new TFolder("ROOT_Memory","ROOT_Memory");
-      const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
-      const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-      item_root_memo =
-	hist_fListTree->AddItem(0,tf->GetName(),tf,pic_ofolder,pic_folder,0);
-      hist_fListTree->DoubleClicked(item_root_memo,1); item_root_memo->SetOpen(1);
-      item_root_memo->CheckItem(0);
-    }
-
-    TGListTreeItem *item_root_file = hist_fListTree->FindChildByName(0, "ROOT_Files");
-    if(!item_root_file){
-      TFolder *tf = new TFolder("ROOT_Files","ROOT_Files");
-      const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
-      const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-      item_root_file =
-	hist_fListTree->AddItem(0,tf->GetName(),tf,pic_ofolder,pic_folder,0);
-      hist_fListTree->DoubleClicked(item_root_file,1); item_root_file->SetOpen(1);
-      item_root_file->CheckItem(0);
-    }
-    
-    TObject *obj = 0;
-    Int_t open_cnt = 0;
-    TList *lst = gROOT->GetList();
-    TIter next(lst);
-    while (obj=next()) {
-      open_cnt = 0;
-      AddObj(obj, item_root_memo, open_cnt);
-    }
-    TCollection *lst2 = gROOT->GetListOfFiles(); 
-    TIter next2(lst2);
-    while (obj=next2()) {
-      open_cnt = 0;
-      AddObj(obj, item_root_file, open_cnt);
-    }
-  }
-  void AddObj(TObject *obj_in, TGListTreeItem *fListLevel, Int_t open_cnt){
-    open_cnt++;
-    TObject *obj = obj_in;
-    TClass *cl = 0;
-    if (obj_in->InheritsFrom(TKey::Class())) {
-      const char *classname = ((TKey*)obj_in)->GetClassName();
-      cl = gROOT->GetClass(classname);
-      if(cl->InheritsFrom(TDirectory::Class())){
-	obj = ((TKey*)obj_in)->ReadObj();
-      }
-    }else{
-      const char *classname = obj_in->ClassName();
-      cl = gROOT->GetClass(classname);
-    }
-    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-    if ((cl->InheritsFrom(TDirectory::Class())) ||
-	(cl->InheritsFrom(TList::Class())     ) ) {
-      TGListTreeItem *cur_ListTreeItem = hist_fListTree->FindChildByName(fListLevel, obj->GetName());
-      if(!(cur_ListTreeItem)){
-	TFolder *tf = new TFolder(obj->GetName(),obj->GetName());
-	const TGPicture *pic_folder  = gClient->GetPicture("folder_t.xpm");
-	const TGPicture *pic_ofolder = gClient->GetPicture("ofolder_t.xpm");
-	if (cl->InheritsFrom(TList::Class())) {
-	  cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), obj, pic_ofolder, pic_folder, 0);
-	  cur_ListTreeItem->CheckItem(0);
-	  if (open_cnt <=1) {
-	    hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
-	  }
-	  return;
-	}else{
-	  cur_ListTreeItem = hist_fListTree->AddItem(fListLevel, obj->GetName(), tf, pic_ofolder, pic_folder, 0);
-	  cur_ListTreeItem->CheckItem(0);
-	  if (open_cnt <=1) {
-	    hist_fListTree->DoubleClicked(cur_ListTreeItem,1); cur_ListTreeItem->SetOpen(1);
-	  }
-	}
-      }
-      TList *lst = 0;
-      if ((cl->InheritsFrom(TDirectory::Class()))){
-	lst = ((TDirectory *)obj)->GetListOfKeys();
-	if ((lst == 0)||(lst->At(0) == 0)) {
-	  lst = ((TDirectory *)obj)->GetList();
-	}
-      }else{
-	lst = (TList *)obj;
-      }
-      if (lst == 0) return;
-      TIter nextobj(lst);
-      TObject *subobj = 0;
-      while ((subobj = nextobj())) {
-	AddObj(subobj, cur_ListTreeItem, open_cnt);
-      }
-      /*} else { */
-    } else if((cl->InheritsFrom(TH1::Class())         ) ||
-	      (cl->InheritsFrom(TF1::Class())         ) ||
-	      (cl->InheritsFrom(TTree::Class())       ) ||
-	      (cl->InheritsFrom(TGraphErrors::Class())) ){
-      TString str = obj->GetName();
-      str += "; ";
-      str += obj->GetTitle();
-      if(hist_fListTree->FindChildByName(fListLevel, str)){
-	return;
-      }
-      const TGPicture *pic=0;
-      TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
-      if (cl->InheritsFrom(TH2::Class())) {
-	pic = gClient->GetPicture("h2_t.xpm");
-      }else if (cl->InheritsFrom(TH1::Class())){
-	pic = gClient->GetPicture("h1_t.xpm");
-      }else if (cl->InheritsFrom(TGraphErrors::Class())){
-	pic = gClient->GetPicture("profile_t.xpm");
-      }else{
-	hist_browser->GetObjPicture(&pic, obj);
-      }
-      //printf("pic name %s\n",pic->GetName());
-      TGListTreeItem *cur_ListTreeItem =
-	hist_fListTree->AddItem(fListLevel, str, obj, pic, pic, 0);
-      cur_ListTreeItem->SetCheckBox(1);
-      cur_ListTreeItem->CheckItem(0);
-    }
-  }
-
-  void DelayedShot(){
-    gROOT->ProcessLine("((TRootBrowser*)pHistBrowser->GetBrowserImp())->GetTabLeft()->SetTab(2,0);");
-  }
-  
-
-  TTimer *GetTimerAddO2L(){return timer_add_o_l;}
-  TTimer *GetTimerUpdatingGPad(){return timer_gpad;}
-  TTimer *GetTimerDelayedShot(){return timer_dshot;}
-private:
-  TTimer *timer_add_o_l;
-  TTimer *timer_gpad;
-  TTimer *timer_dshot;
-  ClassDef(TimerManager,0)
 };
 
 void writeTList(TObject* c){
@@ -380,13 +182,11 @@ public:
     macro_browser(0),
     hist_browser(0),
     macro_fListTree(0),
-    hist_fListTree(0),
-    timer_manager(0)
+    hist_fListTree(0)
   {
     gROOT->GetListOfBrowsers()->Remove(this);
     //delete GetContextMenu();
     this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
-    //timer_manager = new TimerManager(this);
 
     StartEmbedding(TRootBrowser::kLeft,-1);
     macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
@@ -441,6 +241,9 @@ public:
    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "SetCannotMove(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
+   hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
+			    "HistBrowser", this,
+			    "RemoveAndSetText(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
  
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
@@ -483,11 +286,9 @@ public:
   ~HistBrowser(){
     //delete hist_browser;
     //delete macro_browser;
-    //delete timer_manager;
   }
   
   void CloseWindow(){
-    delete timer_manager;
     gApplication->Terminate();
     //this->GetBrowserImp()->GetMainFrame()->CloseWindow();
     
@@ -831,7 +632,7 @@ public:
     while (cur_item){
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
 	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
 	lt->DoubleClicked(cur_item,1);
 	cur_item->SetOpen(1);
       }
@@ -840,7 +641,7 @@ public:
       SetDNDSourceRecursive(lt, cur_item->GetFirstChild(), bl);
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
 	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
 	lt->DoubleClicked(cur_item,1);
 	cur_item->SetOpen(0);
       }
@@ -848,12 +649,18 @@ public:
     }
   }
 
-  void RemoveAndSetText(TGListTreeItem* item){
-    TGListTreeItem* cur_item = item;
+  void RemoveAndSetText(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
+    TGListTree *lt = (TGListTree*)gTQSender;
+    TGListTreeItem* cur_item = item->GetFirstChild();
     while (cur_item){
-      printf("cur_item %s\n",cur_item->GetText());
-      
+      //printf("cur_item %s\n",cur_item->GetText());
       TObject *userdata = (TObject*)cur_item->GetUserData();
+      if(userdata->InheritsFrom("TKey")){
+        TString str = userdata->GetName();
+        str += "; ";
+        str += userdata->GetTitle();
+        cur_item->SetText(str);
+      }
       if(userdata->InheritsFrom("TH1")){
         TString str = userdata->GetName();
         str += "; ";
@@ -861,8 +668,8 @@ public:
         cur_item->SetText(str);
       }
       if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
-        RemoveAndSetText(cur_item->GetFirstChild());
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
+        RemoveAndSetText(cur_item,0,0,0,0);
       }
       cur_item = cur_item->GetNextSibling();
     }
@@ -905,13 +712,9 @@ public:
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
-	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
         item->SetOpen(!item->IsOpen());
-      }
-      if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
-        RemoveAndSetText(item->GetFirstChild());
       }
     }
   }
@@ -953,8 +756,9 @@ public:
       item->SetUserData(((TKey*)userdata)->ReadObj());
     }
     if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
-       strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0
-       ){return;}
+       strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+       strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0)
+      {return;}
     TString opt = lt->GetParent()->GetParent()->GetParent()->GetDrawOption();
     Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
     if ((opt == "same")||
@@ -1097,9 +901,6 @@ public:
   TGListTree *GetMacroListTree(){return macro_fListTree;}
   TGListTree *GetHistListTree(){return hist_fListTree;}
   TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
-  TTimer *GetTimerAddO2L(){return timer_manager->GetTimerAddO2L();}
-  TTimer *GetTimerUpdatingGPad(){return timer_manager->GetTimerUpdatingGPad();}
-  TTimer *GetTimerDelayedShot(){return timer_manager->GetTimerDelayedShot();}
   void  ResetListLevel(){hist_browser->ResetListLevel();}
 protected:
   TGFileBrowserMod *file_browser;
@@ -1108,7 +909,6 @@ protected:
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
-  TimerManager     *timer_manager;
   ClassDef(HistBrowser,0)
 };
 
@@ -1121,7 +921,5 @@ void histbrowser(){
   gROOT->Add(new TNamed("histbrowser_flag","histbrowser_flag"));
   gROOT->Add(new TNamed("initial_working_dir", gSystem->pwd()));
   pHistBrowser = new HistBrowser();
-  std::cout << "pHistBrowser "<< pHistBrowser << std::endl;
-  std::cout << "pHistBrowser->fTimer "<< pHistBrowser->fTimer << std::endl;
 }
 #endif
