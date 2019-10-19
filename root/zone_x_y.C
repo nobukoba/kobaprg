@@ -15,7 +15,7 @@ void zone_x_y(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Int_t par0, par1;
   iss >> par0 >> par1;
   plot_selected_x_y(par0, par1);
