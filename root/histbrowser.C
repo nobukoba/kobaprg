@@ -62,7 +62,7 @@ public:
     delete timer_gpad;
     delete timer_dshot;
   }
-  TimerManager() :
+  TimerManager(TBrowser * tb) :
     timer_add_o_l(0),
     timer_gpad(0),
     timer_dshot(0)
@@ -73,12 +73,25 @@ public:
     timer_add_o_l->Connect("Timeout()","TimerManager",this,"add_obj_to_list()");
     timer_gpad->   Connect("Timeout()","TimerManager",this,"UpdatingGPad()");
     timer_dshot->  Connect("Timeout()","TimerManager",this,"DelayedShot()");
+    TBrowserTimer *pTBrowserTimer = tb->fTimer;
+    std::cout << "tb" << tb << std::endl;
+    std::cout << "pTbrowserTimer "<< pTBrowserTimer << std::endl;
+    std::cout << "timer_gpad "<< timer_gpad << std::endl;
+
+    //pTBrowserTimer->Connect("Timeout()","TimerManager",this,"Test()");
+
+    gSystem->AddTimer(timer_gpad);
     timer_add_o_l->Start(1000,kFALSE);
     timer_gpad->   Start(1000,kFALSE);
+    //pTBrowserTimer->   Start(1000,kFALSE);
     timer_dshot->  Start(1000,1);
   }
-  
+
+  void Test(){
+    std::cout << "Test()" << std::endl;
+  }
   void UpdatingGPad(){
+    //std::cout << "UpdatingGPad()" << std::endl;
     if (!gROOT->FindObjectAny("shm_flag")) {return;}
     if (!gPad) {
       timer_gpad->Stop();
@@ -373,9 +386,8 @@ public:
     gROOT->GetListOfBrowsers()->Remove(this);
     //delete GetContextMenu();
     this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
-    
-    timer_manager = new TimerManager();
-    
+    //timer_manager = new TimerManager(this);
+
     StartEmbedding(TRootBrowser::kLeft,-1);
     macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
     StopEmbedding("Macros");
@@ -383,6 +395,12 @@ public:
     StartEmbedding(TRootBrowser::kLeft,-1);
     hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
     StopEmbedding("Histos");
+    
+    TFolder *fld = new TFolder();
+    fld->SetName("fld");
+    fld->AddFolder("ROOT_Memory","List of Objects in the gROOT Directory",gDirectory->GetList());
+    fld->AddFolder("ROOT_Files","List of Connected ROOT Files", gROOT->GetListOfFiles());
+    fld->Browse(this);
     
     macro_fListTree = macro_browser->GetListTree();
     macro_browser->AddFSDirectory("kobaprg/root","kobaprg/root","Add");
@@ -403,6 +421,7 @@ public:
     
     //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
     hist_fListTree = hist_browser->GetListTree();
+    SetDNDSourceRecursive(hist_fListTree,hist_fListTree->GetFirstItem(),0);
     //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "HistBrowser", this,
@@ -626,14 +645,14 @@ public:
 
 	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 		if(old_item){
-		  TObjString objstr_tmp1(Form("%lld",old_item));
+		  TObjString objstr_tmp1(Form("%p",old_item));
 		  if (!hist_fListTree_active_items.FindObject(&objstr_tmp1)) {
-		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",old_item)));
+		    hist_fListTree_active_items.Add(new TObjString(Form("%p",old_item)));
 		  }
 		}
-		TObjString objstr_tmp2(Form("%lld",cur_item));
+		TObjString objstr_tmp2(Form("%p",cur_item));
 		if (!hist_fListTree_active_items.FindObject(&objstr_tmp2)) {
-		  hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+		  hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
 		}
 	      }
 	    }
@@ -655,9 +674,9 @@ public:
 	  if (event->fState & kKeyShiftMask) {
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%lld",cur_item));
+	      TObjString objstr_tmp(Form("%p",cur_item));
 	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
 	      }
 	    }
 	  }
@@ -671,9 +690,9 @@ public:
 	    cur_item = cur_ListTree->GetCurrent();
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%lld",cur_item));
+	      TObjString objstr_tmp(Form("%p",cur_item));
 	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
 	      }
 	    }
 	  }
@@ -700,20 +719,20 @@ public:
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	    if (event->fState & kKeyControlMask){
-	      TObjString objstr_tmp(Form("%lld", cur_item));
+	      TObjString objstr_tmp(Form("%p", cur_item));
 	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp);
 	      if (objstr_ptr) {
 		hist_fListTree_active_items.Remove(&objstr_tmp);
 		cur_item->SetActive(kFALSE);
 		delete objstr_ptr;
 	      }else{
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld", cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%p", cur_item)));
 	      }
 	    }else{
-	      TObjString objstr_tmp(Form("%lld", cur_item));
+	      TObjString objstr_tmp(Form("%p", cur_item));
 	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp); 
 	      if (!objstr_ptr) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld", cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%p", cur_item)));
 	      }
 	    }
 	  }
@@ -811,7 +830,8 @@ public:
     TGListTreeItem* cur_item = item;
     while (cur_item){
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
-	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
 	lt->DoubleClicked(cur_item,1);
 	cur_item->SetOpen(1);
       }
@@ -819,9 +839,30 @@ public:
       cur_item->SetDNDSource(bl);
       SetDNDSourceRecursive(lt, cur_item->GetFirstChild(), bl);
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
-	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
+	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
 	lt->DoubleClicked(cur_item,1);
 	cur_item->SetOpen(0);
+      }
+      cur_item = cur_item->GetNextSibling();
+    }
+  }
+
+  void RemoveAndSetText(TGListTreeItem* item){
+    TGListTreeItem* cur_item = item;
+    while (cur_item){
+      printf("cur_item %s\n",cur_item->GetText());
+      
+      TObject *userdata = (TObject*)cur_item->GetUserData();
+      if(userdata->InheritsFrom("TH1")){
+        TString str = userdata->GetName();
+        str += "; ";
+        str += userdata->GetTitle();
+        cur_item->SetText(str);
+      }
+      if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+        RemoveAndSetText(cur_item->GetFirstChild());
       }
       cur_item = cur_item->GetNextSibling();
     }
@@ -864,12 +905,17 @@ public:
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
-	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0) {
-	item->SetOpen(!item->IsOpen());
+	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+        item->SetOpen(!item->IsOpen());
+      }
+      if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm")==0 ){
+        RemoveAndSetText(item->GetFirstChild());
       }
     }
   }
-
+  
   void MyClicked3(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
@@ -938,7 +984,7 @@ public:
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       hist_fListTree_active_items.Delete();
-      hist_fListTree_active_items.Add(new TObjString(Form("%lld",entry)));
+      hist_fListTree_active_items.Add(new TObjString(Form("%p", entry)));
     }
     if(mask & kKeyShiftMask){
       TGListTreeItem  *last_item;
@@ -970,9 +1016,9 @@ public:
 	  cur_item = last_item;
 	  while (cur_item){
 	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	    TObjString objstr_tmp(Form("%lld",cur_item));
+	    TObjString objstr_tmp(Form("%p",cur_item));
 	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",cur_item)));
+	      hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
 	    }
 	    if(cur_item == entry){
 	      break;
@@ -997,14 +1043,14 @@ public:
     
     TGListTreeItem *cur_ListTreeItem = 0;
     if(mask & kKeyControlMask){
-      TObjString objstr_tmp(Form("%lld",entry));
+      TObjString objstr_tmp(Form("%p",entry));
       TObjString *objstr_ptr;
       if (objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp)) {
 	hist_fListTree_active_items.Remove(&objstr_tmp);
 	entry->SetActive(kFALSE);
 	delete objstr_ptr;
       }else{
-	hist_fListTree_active_items.Add(new TObjString(Form("%lld",entry)));
+	hist_fListTree_active_items.Add(new TObjString(Form("%p", entry)));
       }
       
       TIter next(&hist_fListTree_active_items);
@@ -1075,5 +1121,7 @@ void histbrowser(){
   gROOT->Add(new TNamed("histbrowser_flag","histbrowser_flag"));
   gROOT->Add(new TNamed("initial_working_dir", gSystem->pwd()));
   pHistBrowser = new HistBrowser();
+  std::cout << "pHistBrowser "<< pHistBrowser << std::endl;
+  std::cout << "pHistBrowser->fTimer "<< pHistBrowser->fTimer << std::endl;
 }
 #endif

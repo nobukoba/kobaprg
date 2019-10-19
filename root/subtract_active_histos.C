@@ -33,7 +33,7 @@ void GetHistActiveItems(TList *items){
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
-      items->Add(new TObjString(Form("%lld", cur_ListTreeItem)));
+      items->Add(new TObjString(Form("%p", cur_ListTreeItem)));
     }
     cur_ListTreeItem = NextItem(cur_ListTreeItem);
   }
