@@ -35,7 +35,7 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
 	}
       }
       if (items->GetEntries() == 0) {
-	items->Add(new TObjString(Form("%lld", cur_ListTreeItem)));
+	items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
       }else{
 	TIter next2(items);
 	TObject * obj2;
@@ -45,13 +45,13 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
 	  std::string cur_name = cur_ListTreeItem->GetText();
 	  std::string tmp_name = tmp_ListTreeItem->GetText();
 	  if(tmp_name.compare(cur_name) > 0){
-	    items->AddBefore(obj2, new TObjString(Form("%lld", cur_ListTreeItem)));
+	    items->AddBefore(obj2, new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
 	    added = 1;
 	    break;
 	  }
 	}
 	if (added == 0) {
-	  items->Add(new TObjString(Form("%lld", cur_ListTreeItem)));
+	  items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
 	}
       }
     }
