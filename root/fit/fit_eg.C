@@ -103,8 +103,8 @@ void fit_eg() {
     x1 = tmpx;
   }
 
-  Double_t y0 = hist->GetBinContent(hist->GetBin(x0));
-  Double_t y1 = hist->GetBinContent(hist->GetBin(x1));
+  y0 = hist->GetBinContent(hist->GetBin(x0));
+  y1 = hist->GetBinContent(hist->GetBin(x1));
   if (y0 == 0.){y0 = 1.;}
   if (y1 == 0.){y1 = 1.;}
   
