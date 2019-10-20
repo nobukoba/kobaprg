@@ -426,7 +426,7 @@ public:
 	    cur_ListTree->ClearViewPort();
 	  }
 	}
-
+        
 	if (inside_of_filebrowser) {
 	  if (event->fState & kKeyShiftMask) {
 	    if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
@@ -446,14 +446,14 @@ public:
 
 	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 		if(old_item){
-		  TObjString objstr_tmp1(Form("%p",old_item));
+		  TObjString objstr_tmp1(Form("%lld",(unsigned long long)old_item));
 		  if (!hist_fListTree_active_items.FindObject(&objstr_tmp1)) {
-		    hist_fListTree_active_items.Add(new TObjString(Form("%p",old_item)));
+		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)old_item)));
 		  }
 		}
-		TObjString objstr_tmp2(Form("%p",cur_item));
+		TObjString objstr_tmp2(Form("%lld",(unsigned long long)cur_item));
 		if (!hist_fListTree_active_items.FindObject(&objstr_tmp2)) {
-		  hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
+		  hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
 		}
 	      }
 	    }
@@ -475,9 +475,9 @@ public:
 	  if (event->fState & kKeyShiftMask) {
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%p",cur_item));
+	      TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
 	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
 	      }
 	    }
 	  }
@@ -491,9 +491,9 @@ public:
 	    cur_item = cur_ListTree->GetCurrent();
 	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%p",cur_item));
+	      TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
 	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
 	      }
 	    }
 	  }
@@ -520,20 +520,20 @@ public:
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
 	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	    if (event->fState & kKeyControlMask){
-	      TObjString objstr_tmp(Form("%p", cur_item));
+	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
 	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp);
 	      if (objstr_ptr) {
 		hist_fListTree_active_items.Remove(&objstr_tmp);
 		cur_item->SetActive(kFALSE);
 		delete objstr_ptr;
 	      }else{
-		hist_fListTree_active_items.Add(new TObjString(Form("%p", cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)cur_item)));
 	      }
 	    }else{
-	      TObjString objstr_tmp(Form("%p", cur_item));
+	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
 	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp); 
 	      if (!objstr_ptr) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%p", cur_item)));
+		hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)cur_item)));
 	      }
 	    }
 	  }
@@ -656,7 +656,8 @@ public:
       //printf("cur_item %s\n",cur_item->GetText());
       TObject *userdata = (TObject*)cur_item->GetUserData();
       if(userdata->InheritsFrom("TKey")){
-        TString str = userdata->GetName();
+        TString str = "KEY: ";
+        str += userdata->GetName();
         str += "; ";
         str += userdata->GetTitle();
         cur_item->SetText(str);
@@ -752,9 +753,9 @@ public:
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
     TGListTree *lt = (TGListTree*)gTQSender;
     TObject *userdata = (TObject*)item->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      item->SetUserData(((TKey*)userdata)->ReadObj());
-    }
+    //if (userdata->InheritsFrom("TKey")){
+    //  item->SetUserData(((TKey*)userdata)->ReadObj());
+    //}
     if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
        strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
        strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0)
@@ -788,7 +789,7 @@ public:
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       hist_fListTree_active_items.Delete();
-      hist_fListTree_active_items.Add(new TObjString(Form("%p", entry)));
+      hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
     }
     if(mask & kKeyShiftMask){
       TGListTreeItem  *last_item;
@@ -820,9 +821,9 @@ public:
 	  cur_item = last_item;
 	  while (cur_item){
 	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	    TObjString objstr_tmp(Form("%p",cur_item));
+	    TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
 	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-	      hist_fListTree_active_items.Add(new TObjString(Form("%p",cur_item)));
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
 	    }
 	    if(cur_item == entry){
 	      break;
@@ -847,14 +848,14 @@ public:
     
     TGListTreeItem *cur_ListTreeItem = 0;
     if(mask & kKeyControlMask){
-      TObjString objstr_tmp(Form("%p",entry));
+      TObjString objstr_tmp(Form("%lld",(unsigned long long)entry));
       TObjString *objstr_ptr;
       if (objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp)) {
 	hist_fListTree_active_items.Remove(&objstr_tmp);
 	entry->SetActive(kFALSE);
 	delete objstr_ptr;
       }else{
-	hist_fListTree_active_items.Add(new TObjString(Form("%p", entry)));
+	hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
       }
       
       TIter next(&hist_fListTree_active_items);
