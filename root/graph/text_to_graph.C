@@ -1,7 +1,9 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
-  if (named) {gSystem->cd(named->GetTitle());}
+  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser_tmp) {
+    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  }else{return;}
   gSystem->CompileMacro("./kobaprg/root/graph/text_to_graph.C","k");
   text_to_graph();
 }

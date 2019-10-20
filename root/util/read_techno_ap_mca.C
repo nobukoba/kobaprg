@@ -13,8 +13,10 @@
 
 void read_techno_ap_mca() {
   std::cout << std::endl << "Macro: read_techno_ap_mca.C" << std::endl;
-  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
-  if (named) {gSystem->cd(named->GetTitle());}
+  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser_tmp) {
+    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  }else{return;}
 
   TString dir("."); 
   //const TString dir("."); 

@@ -14,8 +14,10 @@
 
 void files_to_graphs() {
   std::cout << std::endl << "Macro: files_to_graphs.C" << std::endl;
-  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
-  if (named) {gSystem->cd(named->GetTitle());}
+  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser_tmp) {
+    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  }else{return;}
 
   TString dir("."); 
   //const TString dir("."); 

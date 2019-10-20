@@ -177,24 +177,36 @@ void writeTFolder(TObject* c){
 class HistBrowser : public TBrowser {
 public:
   HistBrowser() :
-    TBrowser("tb","roothb browser",800,1000,0,"FCI"),
+    TBrowser("kobahb","HistBrowser",800,1000,0,"CI"),
+    /* if option="FCI" is used, segv will occur for
+       typing ".q" command for this HistBrowser and also TBrowser.*/
     file_browser(0),
     macro_browser(0),
     hist_browser(0),
     macro_fListTree(0),
     hist_fListTree(0)
   {
-    gROOT->GetListOfBrowsers()->Remove(this);
-    //delete GetContextMenu();
-    this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
+    //gROOT->GetListOfBrowsers()->Remove(this);
+    //delete this->GetContextMenu();
+    //this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
+    //gROOT->GetListOfCleanups()->Remove(this);
+    //gROOT->GetListOfCleanups()->Remove(macro_browser);
+    //gROOT->GetListOfCleanups()->Remove(hist_browser);
+    //StartEmbedding(TRootBrowser::kLeft,-1);
+    //macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    //StopEmbedding("Macros");
+    //StartEmbedding(TRootBrowser::kLeft,-1);
+    //hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    //StopEmbedding("Histos");
+    initial_working_dir = gSystem->pwd();
 
-    StartEmbedding(TRootBrowser::kLeft,-1);
-    macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
-    StopEmbedding("Macros");
-    
-    StartEmbedding(TRootBrowser::kLeft,-1);
-    hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
-    StopEmbedding("Histos");
+    TString cmd;
+
+    cmd.Form("new TGFileBrowserMod(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
+    macro_browser = (TGFileBrowserMod*) this->ExecPlugin("Macros", 0, cmd.Data(), 0);
+  
+    cmd.Form("new TGFileBrowserMod(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
+    hist_browser = (TGFileBrowserMod*)  this->ExecPlugin("Histos", 0, cmd.Data(), 0);
     
     TFolder *fld = new TFolder();
     fld->SetName("fld");
@@ -284,18 +296,20 @@ public:
   }
   
   ~HistBrowser(){
+    //printf("~HistBrowser");
+    //gROOT->GetListOfBrowsers()->Remove(this);
     //delete hist_browser;
     //delete macro_browser;
   }
   
-  void CloseWindow(){
-    gApplication->Terminate();
-    //this->GetBrowserImp()->GetMainFrame()->CloseWindow();
-    
-    //this->Delete();
-    //delete this;
-    //gClient->Delete();
-  }
+  //void CloseWindow(){
+  //  gApplication->Terminate();
+  //  this->GetBrowserImp()->GetMainFrame()->CloseWindow();
+  //  
+  //  //this->Delete();
+  //  //delete this;
+  //  //gClient->Delete();
+  //}
   
   void HandleKey(Event_t* event){
     char   input[10];
@@ -903,6 +917,8 @@ public:
   TGListTree *GetHistListTree(){return hist_fListTree;}
   TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
   void  ResetListLevel(){hist_browser->ResetListLevel();}
+  TString GetInitialWorkingDir(){return initial_working_dir;}
+  
 protected:
   TGFileBrowserMod *file_browser;
   TGFileBrowserMod *macro_browser;
@@ -910,17 +926,16 @@ protected:
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
+  TString          initial_working_dir;
   ClassDef(HistBrowser,0)
 };
 
 HistBrowser *pHistBrowser;
 void histbrowser(){
-  if (gROOT->FindObjectAny("histbrowser_flag")){
-    printf("Warning: alredy histbrowser is there!\n");
+  if (gROOT->GetListOfBrowsers()->FindObject("kobahb")){
+    printf("Warning: alredy HistBrowser is runing!\n");
     return;
   }
-  gROOT->Add(new TNamed("histbrowser_flag","histbrowser_flag"));
-  gROOT->Add(new TNamed("initial_working_dir", gSystem->pwd()));
   pHistBrowser = new HistBrowser();
 }
 #endif

@@ -24,8 +24,10 @@ TGListTreeItem *NextItem(TGListTreeItem *cur_item){
 
 void multi_fit_photo_peak_for_active_results(){
   std::cout << std::endl << "Macro: multi_fit_photo_peak_for_active_results.C" << std::endl;
-  TNamed *named = (TNamed*)gROOT->FindObjectAny("initial_working_dir");
-  if (named) {gSystem->cd(named->GetTitle());}
+  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser_tmp) {
+    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   if (!gPad) {
     std::cout << "There is no gPad. Exit." << std::endl;
