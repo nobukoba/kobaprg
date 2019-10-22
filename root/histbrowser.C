@@ -51,6 +51,7 @@ public:
   TGListTreeItem* GetListLevel(){return fListLevel;}
   void ResetListLevel(){fListLevel = 0;}
   TGComboBox* GetDrawOptionPointer(){return fDrawOption;}
+  TGPictureButton* GetRefreshButtonPointer(){return fRefreshButton;}
   ClassDef(TGFileBrowserMod,0)
 };
 
@@ -95,7 +96,7 @@ void writeTDirectoryFile(TObject* c){
   while (obj=next()) {
     obj->Write();
   }
-  //delete local;
+  /* delete local; */
   return;
 }
 
@@ -186,18 +187,18 @@ public:
     macro_fListTree(0),
     hist_fListTree(0)
   {
-    //gROOT->GetListOfBrowsers()->Remove(this);
-    //delete this->GetContextMenu();
-    //this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
-    //gROOT->GetListOfCleanups()->Remove(this);
-    //gROOT->GetListOfCleanups()->Remove(macro_browser);
-    //gROOT->GetListOfCleanups()->Remove(hist_browser);
-    //StartEmbedding(TRootBrowser::kLeft,-1);
-    //macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
-    //StopEmbedding("Macros");
-    //StartEmbedding(TRootBrowser::kLeft,-1);
-    //hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
-    //StopEmbedding("Histos");
+    /* gROOT->GetListOfBrowsers()->Remove(this);
+    delete this->GetContextMenu();
+    this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
+    gROOT->GetListOfCleanups()->Remove(this);
+    gROOT->GetListOfCleanups()->Remove(macro_browser);
+    gROOT->GetListOfCleanups()->Remove(hist_browser);
+    StartEmbedding(TRootBrowser::kLeft,-1);
+    macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    StopEmbedding("Macros");
+    StartEmbedding(TRootBrowser::kLeft,-1);
+    hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    StopEmbedding("Histos"); */
     initial_working_dir = gSystem->pwd();
 
     TString cmd;
@@ -231,10 +232,9 @@ public:
 			     "HistBrowser", this,
 			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     
-    //hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory")));
+    /* hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory"))); */
     hist_fListTree = hist_browser->GetListTree();
-    SetDNDSourceRecursive(hist_fListTree,hist_fListTree->GetFirstItem(),0);
-    //hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)");
+    /* hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)"); */
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
 			    "HistBrowser", this,
 			    "MyClicked(TGListTreeItem *, Int_t)");
@@ -256,14 +256,16 @@ public:
    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			    "HistBrowser", this,
 			    "RemoveAndSetText(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
- 
+
+   hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "HistBrowser", this, "HistBrowserRefresh()");
+
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
     this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
-    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); // line 15
-    hist_browser->GetDrawOptionPointer()->AddEntry("*",   nentry++); // line 16
+    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); /* line 15 */
+    hist_browser->GetDrawOptionPointer()->AddEntry("*",   nentry++); /* line 16 */
     hist_browser->GetDrawOptionPointer()->AddEntry("p",   nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("l",   nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("c",   nentry++);
@@ -278,14 +280,13 @@ public:
     hist_browser->GetDrawOptionPointer()->AddEntry("ac",  nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("al*", nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("ac*", nentry++);
-    hist_browser->GetDrawOptionPointer()->AddEntry("alp", nentry++); // line 31
-    hist_browser->GetDrawOptionPointer()->AddEntry("acp", nentry++); // line 32
-    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); // line 33
-    hist_browser->GetDrawOptionPointer()->AddEntry("same",nentry++); // line 34
+    hist_browser->GetDrawOptionPointer()->AddEntry("alp", nentry++); /* line 31 */
+    hist_browser->GetDrawOptionPointer()->AddEntry("acp", nentry++); /* line 32 */
+    hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); /* line 33 */
+    hist_browser->GetDrawOptionPointer()->AddEntry("same",nentry++); /* line 34 */
     hist_browser->GetDrawOptionPointer()->AddEntry("l",   nentry++);
     hist_browser->GetDrawOptionPointer()->AddEntry("c",   nentry++);
-    hist_browser->GetDrawOptionPointer()->AddEntry("fc",  nentry++); // line 37
-
+    hist_browser->GetDrawOptionPointer()->AddEntry("fc",  nentry++); /* line 37 */
     hist_browser->GetDrawOptionPointer()->Select(3,1);
     hist_browser->GetDrawOptionPointer()->
       GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
@@ -293,30 +294,30 @@ public:
     customTListMenu();
     customTDirectoryFileMenu();
     customTFolderMenu();
+    SetDNDSourceRecursive(hist_fListTree,hist_fListTree->GetFirstItem(),0);
   }
   
   ~HistBrowser(){
-    //printf("~HistBrowser");
-    //gROOT->GetListOfBrowsers()->Remove(this);
-    //delete hist_browser;
-    //delete macro_browser;
+    /* printf("~HistBrowser");
+       gROOT->GetListOfBrowsers()->Remove(this);
+       delete hist_browser;
+       delete macro_browser; */
   }
-  
-  //void CloseWindow(){
-  //  gApplication->Terminate();
-  //  this->GetBrowserImp()->GetMainFrame()->CloseWindow();
-  //  
-  //  //this->Delete();
-  //  //delete this;
-  //  //gClient->Delete();
-  //}
-  
+  /* void CloseWindow(){
+     gApplication->Terminate();
+     this->GetBrowserImp()->GetMainFrame()->CloseWindow();
+     
+     this->Delete();
+     delete this;
+     gClient->Delete();
+     } */
+
   void HandleKey(Event_t* event){
     char   input[10];
     UInt_t keysym;
     if ((event->fType == kGKeyPress)) {
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
-      //printf("(EKeySym)keysym %d\n", (EKeySym)keysym);
+      /* printf("(EKeySym)keysym %d\n", (EKeySym)keysym); */
 
       if (event->fState & kKeyControlMask) {
 	if (keysym == kKey_p) {
@@ -343,9 +344,9 @@ public:
 	inside_of_filebrowser = true;
       }
 
-      //std::cout << "event->fX" << event->fX<< std::endl;
-      //std::cout << "event->fY" << event->fY<< std::endl;
-      //std::cout << "((TObject*)gTQSender)->GetName()" << ((TObject*)gTQSender)->GetName()<< std::endl;
+      /* std::cout << "event->fX" << event->fX<< std::endl;
+      std::cout << "event->fY" << event->fY<< std::endl;
+      std::cout << "((TObject*)gTQSender)->GetName()" << ((TObject*)gTQSender)->GetName()<< std::endl; */
 
       TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
       
@@ -425,14 +426,14 @@ public:
 	  }
 	  cur_ListTree->ClearViewPort();
 	}
-	//std::cout << "cur_ListTree->GetBelowMouse(): " << cur_ListTree->GetBelowMouse() << std::endl;
+	/* std::cout << "cur_ListTree->GetBelowMouse(): " << cur_ListTree->GetBelowMouse() << std::endl; */
 	
 	if ((!(event->fState & kKeyShiftMask))&&
 	    (!(event->fState & kKeyControlMask))) {
 	  if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
-	    //if((cur_ListTree->GetSelected())){
-	    //  cur_ListTree->GetSelected()->SetActive(kFALSE);
-	    //}
+	    /* if((cur_ListTree->GetSelected())){
+               cur_ListTree->GetSelected()->SetActive(kFALSE);
+              } */
 	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	      hist_fListTree_active_items.Delete();
 	    }
@@ -524,7 +525,7 @@ public:
 	if ((keysym == kKey_Return)||
 	    (keysym == kKey_Enter)) {
 	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
-	  //std::cout << "cur_item: " << cur_item->GetText() << std::endl;
+	  /* std::cout << "cur_item: " << cur_item->GetText() << std::endl; */
 	  if ((!(event->fState & kKeyShiftMask  ))&&
 	      (!(event->fState & kKeyControlMask))){
 	    cur_ListTree->DoubleClicked(cur_item, 1);
@@ -558,7 +559,6 @@ public:
   }
 
   TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-    //if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
     if(cur_item->IsOpen()){
       if(cur_item->GetFirstChild()){
 	return cur_item->GetFirstChild();
@@ -584,7 +584,6 @@ public:
     return 0;
   }
   TGListTreeItem *SearchLastItem(TGListTreeItem *cur_item){
-    //if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0){
     if(cur_item->IsOpen()){
       if(cur_item->GetLastChild()){
 	return SearchLastItem(cur_item->GetLastChild());
@@ -597,7 +596,7 @@ public:
   }
 
   void PrintCanvas(){
-    // Print the canvas.
+    /* Print the canvas. */
     gStyle->SetPaperSize(20,26);
     TString sprinter  = gEnv->GetValue("Print.Printer", "");
     TString sprintCmd = gEnv->GetValue("Print.Command", "lpr");
@@ -630,7 +629,7 @@ public:
 
   
   void KeyPressed(Int_t key){
-    //printf("%d\n",key);
+    /* printf("%d\n",key); */
   }
 
   void KeyPressed(TGListTreeItem *entry, UInt_t keysym, UInt_t mask){
@@ -644,18 +643,34 @@ public:
   void SetDNDSourceRecursive(TGListTree* lt, TGListTreeItem* item, Bool_t bl){
     TGListTreeItem* cur_item = item;
     while (cur_item){
+      /*
+        printf("here cur_item %p",cur_item);
+        printf("here cur_item %s",cur_item->GetText());
+        TClass *cl = TClass::GetClass(((TObject*)(cur_item->GetUserData()))->ClassName());
+        if (cl->InheritsFrom("TKey")) {
+        cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
+        }
+        if (cl->InheritsFrom("TFolder")||cl->InheritsFrom("TDirectory")||cl->InheritsFrom("TTree")) {
+        lt->DoubleClicked(cur_item,1);
+        cur_item->SetOpen(1);
+        }
+      */
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
 	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
-	lt->DoubleClicked(cur_item,1);
-	cur_item->SetOpen(1);
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
+        lt->DoubleClicked(cur_item,1);
+        cur_item->SetOpen(1);
       }
-      //printf("cur_item %s\n",cur_item->GetText());
+      /* printf("cur_item %s\n",cur_item->GetText()); */
       cur_item->SetDNDSource(bl);
       SetDNDSourceRecursive(lt, cur_item->GetFirstChild(), bl);
       if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
 	 strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
 	lt->DoubleClicked(cur_item,1);
 	cur_item->SetOpen(0);
       }
@@ -667,7 +682,7 @@ public:
     TGListTree *lt = (TGListTree*)gTQSender;
     TGListTreeItem* cur_item = item->GetFirstChild();
     while (cur_item){
-      //printf("cur_item %s\n",cur_item->GetText());
+      /* printf("cur_item %s\n",cur_item->GetText()); */
       TObject *userdata = (TObject*)cur_item->GetUserData();
       if(userdata->InheritsFrom("TKey")){
         TString str = "KEY: ";
@@ -683,7 +698,9 @@ public:
         cur_item->SetText(str);
       }
       if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
+         strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+         strcmp(cur_item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ) {
         RemoveAndSetText(cur_item,0,0,0,0);
       }
       cur_item = cur_item->GetNextSibling();
@@ -718,17 +735,20 @@ public:
     TGListTree *lt = (TGListTree*)gTQSender;
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
-      //lt->DoubleClicked(item,1);
+      /* lt->DoubleClicked(item,1); */
       lt->DoubleClicked(item,0);
     }
   }
   
   void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    /* printf("item pic name %s", item->GetPicture()->GetName()); */
     if((!(mask & kKeyShiftMask))&&
        (!(mask & kKeyControlMask))){
       if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
 	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ){
+         strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+         strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+         strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
         item->SetOpen(!item->IsOpen());
       }
     }
@@ -767,12 +787,14 @@ public:
   void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
     TGListTree *lt = (TGListTree*)gTQSender;
     TObject *userdata = (TObject*)item->GetUserData();
-    //if (userdata->InheritsFrom("TKey")){
-    //  item->SetUserData(((TKey*)userdata)->ReadObj());
-    //}
+    /* if (userdata->InheritsFrom("TKey")){
+      item->SetUserData(((TKey*)userdata)->ReadObj());
+      } */
     if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
        strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-       strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0)
+       strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+       strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+       strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 )
       {return;}
     TString opt = lt->GetParent()->GetParent()->GetParent()->GetDrawOption();
     Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
@@ -882,20 +904,40 @@ public:
     hist_fListTree->ClearViewPort();
     return;
   }
+  void HistBrowserRefresh() {
+    RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
+  }
+  void RefreshDir(TGListTree* lt, TGListTreeItem* item){
+    TGListTreeItem* cur_item = item;
+    while (cur_item){
+      TClass *cl = TClass::GetClass(((TObject*)cur_item->GetUserData())->ClassName());
+      if (cl->InheritsFrom("TKey")) {
+        cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
+      }
+      if (cl->InheritsFrom("TFolder")||cl->InheritsFrom("TDirectory")||cl->InheritsFrom("TTree")) {
+        if (cur_item->IsOpen()) {
+          lt->DoubleClicked(cur_item,1);
+          lt->DoubleClicked(cur_item,1);
+        }
+      }
+      RefreshDir(lt, cur_item->GetFirstChild());
+      cur_item = cur_item->GetNextSibling();
+    }
+  }
   
   void SetCannotMove(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
     if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
-    //TCanvas* canvas = gPad->GetCanvas();
+    /* TCanvas* canvas = gPad->GetCanvas(); */
     gPad->GetFrame()->SetBit(TBox::kCannotMove);
     return;
   }
   
   void change_canvas(Int_t event, Int_t x, Int_t y, TObject* selected) {
     TCanvas *c = (TCanvas*)gTQSender;
-    //    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
-    //	   event, x, y, selected->IsA()->GetName());
+    /*    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
+          event, x, y, selected->IsA()->GetName()); */
     if (event == kButton1Down) {
-      //std::cout << "selected->ClassName()" << selected->ClassName() << std::endl;
+      /* std::cout << "selected->ClassName()" << selected->ClassName() << std::endl; */
       if (selected->InheritsFrom("TPad")||
 	  selected->InheritsFrom("TFrame")||
 	  selected->InheritsFrom("TH2")||
