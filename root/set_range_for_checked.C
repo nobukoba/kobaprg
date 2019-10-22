@@ -59,7 +59,7 @@ void set_range_for_checked(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t par0, par1;
   iss >> par0 >> par1;
   set_range_for_checked(par0, par1);

@@ -8,7 +8,6 @@
 #include "TGInputDialog.h"
 #include "TH1.h"
 
-
 TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
   if(cur_item->GetNextSibling()){
     return cur_item->GetNextSibling();
@@ -57,7 +56,7 @@ void set_y_range_for_active(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t par0, par1;
   iss >> par0 >> par1;
   set_y_range_for_active(par0, par1);

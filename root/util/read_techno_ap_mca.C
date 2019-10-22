@@ -19,12 +19,12 @@ void read_techno_ap_mca() {
   }else{return;}
 
   TString dir("."); 
-  //const TString dir("."); 
+  /* onst TString dir(".");  */
   TGFileInfo fileinfo;
   char *filetypes[] = {"All files", "*",
 		       0, 0};
   fileinfo.fFileTypes = (const char**)filetypes;
-  //fileinfo.fFileTypes = filetypes;
+  /* fileinfo.fFileTypes = filetypes; */
   fileinfo.fIniDir    = StrDup(dir);
   fileinfo.SetMultipleSelection(kTRUE);
   TGFileDialog* dialog = new TGFileDialog(gClient->GetRoot(),gClient->GetRoot(),kFDOpen,&fileinfo);
@@ -83,13 +83,13 @@ void read_techno_ap_mca() {
     std::ifstream ifs(filename.c_str());
     std::string buf;
     TString tbuf;
-    //Int_t xmin, xmax;
+    /*/ Int_t xmin, xmax; */
 
     while(ifs && getline(ifs, buf)){ /* getline is very slow in CINT!*/
       tbuf = buf;
-      //std::cout << tbuf << std::endl;
+      /* std::cout << tbuf << std::endl; */
       if(tbuf.BeginsWith("[Data]")){
-        std::cout << "[Data] here\n" << std::endl;
+        /* std::cout << "[Data] here\n" << std::endl; */
         TString str_n = "f1_ch1";
         Int_t num = 1;
         while (gROOT->Get(str_n.Data())) {
@@ -104,42 +104,42 @@ void read_techno_ap_mca() {
         break;
       }
     }
-//      iline++;
-//      if (iline <= 9){
-//      	std::cout << "Line " << iline << ": " << buf << std::endl;
-//      }
-//      if (iline == 7){
-//      	std::istringstream iss(buf);
-//      	iss >> live_time[ifile] >> meas_time[ifile];
-//      }
-//      if (iline == 9){
-//      	std::istringstream iss(buf);
-//      	iss >> xmin >> xmax;
-//      	Int_t nbin = xmax - xmin;
+    /* iline++;
+       if (iline <= 9){
+       std::cout << "Line " << iline << ": " << buf << std::endl;
+       }
+       if (iline == 7){
+       std::istringstream iss(buf);
+       iss >> live_time[ifile] >> meas_time[ifile];
+       }
+       if (iline == 9){
+       std::istringstream iss(buf);
+       iss >> xmin >> xmax;
+       Int_t nbin = xmax - xmin; */
     Int_t iline = 0;
     Double_t val[5];
     while(ifs && getline(ifs, buf)){
       iline++;
       tbuf = buf;
       tbuf.ReplaceAll(","," ");
-      std::istringstream iss(tbuf);
+      std::istringstream iss(tbuf.Data());
       iss >> val[0] >> val[1] >> val[2] >> val[3] >> val[4];
-      //Int_t spe_line = iline - 10;
-      //if (spe_line <= xmax){
-	//std::cout<< "spe_line:" << spe_line << "val:" << val<< std::endl;
+      /* Int_t spe_line = iline - 10;
+      if (spe_line <= xmax){
+      std::cout<< "spe_line:" << spe_line << "val:" << val<< std::endl; */
 	(hist_meas_ch1[ifile])->SetBinContent(iline,val[1]);
 	(hist_meas_ch2[ifile])->SetBinContent(iline,val[2]);
 	(hist_meas_ch3[ifile])->SetBinContent(iline,val[3]);
 	(hist_meas_ch4[ifile])->SetBinContent(iline,val[4]);
-      //}else{
-      //  break;
-      //}
+        /*}else{
+        break;
+        }*/
     }
     ifile++;
   }
 
   return;
-  
+  /*  
   for (Int_t i = 0; i < nofiles; i++) {
     TString str = (hist_meas[i])->GetName();
     str += "_real";
@@ -170,5 +170,5 @@ void read_techno_ap_mca() {
   }
   delete [] meas_time;
   delete [] live_time;
-  return;
+  return; */
 }

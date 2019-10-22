@@ -19,13 +19,13 @@ void read_kromek_spe_files() {
   }else{return;}
 
   TString dir("."); 
-  //const TString dir("."); 
+  /* const TString dir(".");  */
   TGFileInfo fileinfo;
   char *filetypes[] = {"hst files", "*.spe",
 		       "All files", "*",
 		       0, 0};
   fileinfo.fFileTypes = (const char**)filetypes;
-  //fileinfo.fFileTypes = filetypes;
+  /* fileinfo.fFileTypes = filetypes; */
   fileinfo.fIniDir    = StrDup(dir);
   fileinfo.SetMultipleSelection(kTRUE);
   TGFileDialog* dialog = new TGFileDialog(gClient->GetRoot(),gClient->GetRoot(),kFDOpen,&fileinfo);

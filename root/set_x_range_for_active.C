@@ -57,7 +57,7 @@ void set_x_range_for_active(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t par0, par1;
   iss >> par0 >> par1;
   set_x_range_for_active(par0, par1);
