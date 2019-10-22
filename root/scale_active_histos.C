@@ -36,7 +36,7 @@ void scale_active_histos(){
     std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
     return;
   }
-  std::istringstream iss(retstr);
+  std::istringstream iss(retstr.Data());
   Double_t par;
   iss >> par;
   while(cur_ListTreeItem){

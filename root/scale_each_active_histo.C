@@ -84,7 +84,7 @@ void scale_each_active_histo(){
 	std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
 	return;
       }
-      std::istringstream iss(retstr);
+      std::istringstream iss(retstr.Data());
       Double_t par;
       iss >> par;
       scl->Scale(par);
