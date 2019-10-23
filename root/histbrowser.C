@@ -55,126 +55,6 @@ public:
   ClassDef(TGFileBrowserMod,0)
 };
 
-void writeTList(TObject* c){
-  TString file_in_str = c->GetName();
-  if(file_in_str.EndsWith(".hb")){
-    file_in_str.Resize(file_in_str.Length()-3);
-  }
-  if(file_in_str.EndsWith(".hbk")){
-    file_in_str.Resize(file_in_str.Length()-4);
-  }
-  if(file_in_str.EndsWith(".hbook")){
-    file_in_str.Resize(file_in_str.Length()-6);
-  }
-  file_in_str += ".root";
-  
-  TFile *local = TFile::Open(file_in_str,"recreate");
-  TIter next((TList*)c);
-  TObject *obj;
-  while (obj=next()) {
-    obj->Write();
-  }
-  return;
-}
-
-void writeTDirectoryFile(TObject* c){
-  TString file_in_str = c->GetTitle();
-  if(file_in_str.EndsWith(".hb")){
-    file_in_str.Resize(file_in_str.Length()-3);
-  }
-  if(file_in_str.EndsWith(".hbk")){
-    file_in_str.Resize(file_in_str.Length()-4);
-  }
-  if(file_in_str.EndsWith(".hbook")){
-    file_in_str.Resize(file_in_str.Length()-6);
-  }
-  file_in_str += ".root";
-  
-  TFile *local = TFile::Open(file_in_str,"recreate");
-  TIter next(((TDirectoryFile*)c)->GetList());
-  TObject *obj;
-  while (obj=next()) {
-    obj->Write();
-  }
-  /* delete local; */
-  return;
-}
-
-void writeTFolder(TObject* c){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");  
-  TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
-  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
-  TString fullpath = hist_browser->FullPathName(item);
-  
-  TDirectory *cur_dir = 0;
-  Int_t memo_file_flag = 0;
-  TString filename = "";
-  if (fullpath.EqualTo("ROOT_Memory")){
-    memo_file_flag = 1;
-    cur_dir = gROOT;
-    filename = fullpath;
-  }else if (fullpath.BeginsWith("ROOT_Memory/")){
-    memo_file_flag = 1;
-    fullpath.Replace(0,12,"");
-    cur_dir = (TDirectory *)gROOT->Get(fullpath);
-    filename = fullpath;
-  }else if(fullpath.BeginsWith("ROOT_Files/")){
-    memo_file_flag = 2;
-    fullpath.Replace(0,11,"");
-    TCollection *lst = gROOT->GetListOfFiles(); 
-    TIter next(lst);
-    TFile *file;
-    while(file=(TFile*)next()){
-      filename = file->GetName();
-      if(fullpath.BeginsWith(filename)){
-	if(fullpath.Length()==filename.Length()){
-	  cur_dir = (TDirectory *)file;
-	}else{
-	  fullpath.Replace(0,filename.Length()+1,"");
-	  cur_dir = (TDirectory *)file->Get(fullpath);
-	}
-	break;
-      }
-    }
-  }
-  printf("Fullpath: %s\n",fullpath.Data());
-  printf("Filename: %s\n",filename.Data());
-  if (cur_dir==0) {
-    return;
-  }
-  
-  TString file_in_str = filename;
-  if(file_in_str.EndsWith(".hb")){
-    file_in_str.Resize(file_in_str.Length()-3);
-  }
-  if(file_in_str.EndsWith(".hbk")){
-    file_in_str.Resize(file_in_str.Length()-4);
-  }
-  if(file_in_str.EndsWith(".hbook")){
-    file_in_str.Resize(file_in_str.Length()-6);
-  }
-  file_in_str += ".root";
-
-  TFile *local = TFile::Open(file_in_str,"recreate");
-  TCollection* col = 0;
-  if (memo_file_flag==1) {
-    col = ((TDirectory*)cur_dir)->GetList();
-  }else if (memo_file_flag==2){
-    col = ((TDirectory*)cur_dir)->GetListOfKeys();
-  }
-  TIter nextobj(col);
-  TObject *obj, *objw;
-  while (obj=nextobj()) {
-    if (memo_file_flag==2) {
-      objw = ((TKey*)obj)->ReadObj();
-    }else{
-      objw = obj;
-    }
-    objw->Write();
-  }
-  return;
-}
-
 class HistBrowser : public TBrowser {
 public:
   HistBrowser() :
@@ -187,7 +67,7 @@ public:
     macro_fListTree(0),
     hist_fListTree(0)
   {
-    /* gROOT->GetListOfBrowsers()->Remove(this);
+      /* gROOT->GetListOfBrowsers()->Remove(this);
     delete this->GetContextMenu();
     this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
     gROOT->GetListOfCleanups()->Remove(this);
@@ -706,12 +586,20 @@ public:
       cur_item = cur_item->GetNextSibling();
     }
   }
-
-  void customTListMenu(){
+  
+  /*void customTListMenu(){
     TClass *cl = gROOT->GetClass("TList");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
 					   "Write","writeTList",0,"TObject*",2);
+    ml->AddFirst(n);
+    }*/
+
+    void customTListMenu(){
+    TClass *cl = gROOT->GetClass("TList");
+    TList  *ml = cl->GetMenuList();
+    TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
+					   "Write","writeTList",this,"TObject*",2);
     ml->AddFirst(n);
   }
 
@@ -719,7 +607,7 @@ public:
     TClass *cl = gROOT->GetClass("TDirectoryFile");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
-					   "Write","writeTDirectoryFile",0,"TObject*",2);
+					   "Write","writeTDirectoryFile",this,"TObject*",2);
     ml->AddFirst(n);
   }
   
@@ -727,8 +615,129 @@ public:
     TClass *cl = gROOT->GetClass("TFolder");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
-					   "Write","writeTFolder",0,"TObject*",2);
+					   "Write","writeTFolder",this,"TObject*",2);
     ml->AddFirst(n);
+  }
+
+  void writeTList(TObject* c){
+    TString file_in_str = c->GetName();
+    if(file_in_str.EndsWith(".hb")){
+      file_in_str.Resize(file_in_str.Length()-3);
+    }
+    if(file_in_str.EndsWith(".hbk")){
+      file_in_str.Resize(file_in_str.Length()-4);
+    }
+    if(file_in_str.EndsWith(".hbook")){
+      file_in_str.Resize(file_in_str.Length()-6);
+    }
+    file_in_str += ".root";
+    
+    TFile *local = TFile::Open(file_in_str,"recreate");
+    TIter next((TList*)c);
+    TObject *obj;
+    while (obj=next()) {
+      obj->Write();
+    }
+    return;
+  }
+  
+  
+  void writeTDirectoryFile(TObject* c){
+    TString file_in_str = c->GetTitle();
+    if(file_in_str.EndsWith(".hb")){
+      file_in_str.Resize(file_in_str.Length()-3);
+    }
+    if(file_in_str.EndsWith(".hbk")){
+      file_in_str.Resize(file_in_str.Length()-4);
+    }
+    if(file_in_str.EndsWith(".hbook")){
+      file_in_str.Resize(file_in_str.Length()-6);
+    }
+    file_in_str += ".root";
+    
+    TFile *local = TFile::Open(file_in_str,"recreate");
+    TIter next(((TDirectoryFile*)c)->GetList());
+    TObject *obj;
+    while (obj=next()) {
+      obj->Write();
+    }
+    /* delete local; */
+    return;
+  }
+  
+  void writeTFolder(TObject* c){
+    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");  
+    TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
+    TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
+    TString fullpath = hist_browser->FullPathName(item);
+    
+    TDirectory *cur_dir = 0;
+    Int_t memo_file_flag = 0;
+    TString filename = "";
+    if (fullpath.EqualTo("ROOT_Memory")){
+      memo_file_flag = 1;
+      cur_dir = gROOT;
+      filename = fullpath;
+    }else if (fullpath.BeginsWith("ROOT_Memory/")){
+      memo_file_flag = 1;
+      fullpath.Replace(0,12,"");
+      cur_dir = (TDirectory *)gROOT->Get(fullpath);
+      filename = fullpath;
+    }else if(fullpath.BeginsWith("ROOT_Files/")){
+      memo_file_flag = 2;
+      fullpath.Replace(0,11,"");
+      TCollection *lst = gROOT->GetListOfFiles(); 
+      TIter next(lst);
+      TFile *file;
+      while(file=(TFile*)next()){
+        filename = file->GetName();
+        if(fullpath.BeginsWith(filename)){
+          if(fullpath.Length()==filename.Length()){
+            cur_dir = (TDirectory *)file;
+	}else{
+            fullpath.Replace(0,filename.Length()+1,"");
+	  cur_dir = (TDirectory *)file->Get(fullpath);
+          }
+          break;
+        }
+      }
+    }
+    printf("Fullpath: %s\n",fullpath.Data());
+    printf("Filename: %s\n",filename.Data());
+    if (cur_dir==0) {
+      return;
+    }
+    
+    TString file_in_str = filename;
+    if(file_in_str.EndsWith(".hb")){
+      file_in_str.Resize(file_in_str.Length()-3);
+    }
+    if(file_in_str.EndsWith(".hbk")){
+      file_in_str.Resize(file_in_str.Length()-4);
+    }
+    if(file_in_str.EndsWith(".hbook")){
+      file_in_str.Resize(file_in_str.Length()-6);
+    }
+    file_in_str += ".root";
+    
+    TFile *local = TFile::Open(file_in_str,"recreate");
+    TCollection* col = 0;
+    if (memo_file_flag==1) {
+      col = ((TDirectory*)cur_dir)->GetList();
+    }else if (memo_file_flag==2){
+      col = ((TDirectory*)cur_dir)->GetListOfKeys();
+    }
+    TIter nextobj(col);
+    TObject *obj, *objw;
+    while (obj=nextobj()) {
+      if (memo_file_flag==2) {
+        objw = ((TKey*)obj)->ReadObj();
+      }else{
+        objw = obj;
+      }
+      objw->Write();
+    }
+    return;
   }
   
   void MyDoubleClicked(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
@@ -972,12 +981,11 @@ protected:
   ClassDef(HistBrowser,0)
 };
 
-HistBrowser *pHistBrowser;
 void histbrowser(){
   if (gROOT->GetListOfBrowsers()->FindObject("kobahb")){
     printf("Warning: alredy HistBrowser is runing!\n");
     return;
   }
-  pHistBrowser = new HistBrowser();
+  gROOT->ProcessLine("HistBrowser *pHistBrowser =  new HistBrowser();");  
 }
 #endif
