@@ -113,6 +113,7 @@ public:
 			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     
     /* hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory"))); */
+    hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "HistBrowser", this, "HistBrowserRefresh()");
     hist_fListTree = hist_browser->GetListTree();
     /* hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)"); */
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
@@ -137,7 +138,6 @@ public:
 			    "HistBrowser", this,
 			    "RemoveAndSetText(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
 
-   hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "HistBrowser", this, "HistBrowserRefresh()");
 
     TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
@@ -175,6 +175,10 @@ public:
     customTDirectoryFileMenu();
     customTFolderMenu();
     SetDNDSourceRecursive(hist_fListTree,hist_fListTree->GetFirstItem(),0);
+    ltitem = hist_fListTree->GetFirstItem();
+    hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
+    ltitem = hist_fListTree->FindChildByName(0,"ROOT_Files");
+    hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
   }
   
   ~HistBrowser(){
@@ -191,14 +195,13 @@ public:
      delete this;
      gClient->Delete();
      } */
-
+  
   void HandleKey(Event_t* event){
     char   input[10];
     UInt_t keysym;
     if ((event->fType == kGKeyPress)) {
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
-      /* printf("(EKeySym)keysym %d\n", (EKeySym)keysym); */
-
+      /*printf("(EKeySym)keysym %d\n", (EKeySym)keysym);*/
       if (event->fState & kKeyControlMask) {
 	if (keysym == kKey_p) {
 	  PrintCanvas();
@@ -229,13 +232,7 @@ public:
       std::cout << "((TObject*)gTQSender)->GetName()" << ((TObject*)gTQSender)->GetName()<< std::endl; */
 
       TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
-      
       Int_t ntab = ptab->GetNumberOfTabs();
-      if (event->fState & kKeyMod1Mask){
- 	if (keysym == kKey_f) { ptab->SetTab(0,0); }
-	if (keysym == kKey_m) { ptab->SetTab(1,0); }
-	if (keysym == kKey_h) { ptab->SetTab(2,0); }
-      }
       static UInt_t prev_keysym = 0;
       static Int_t  prev_tab    = 1;
       if (event->fState & kKeyControlMask) {
@@ -253,7 +250,6 @@ public:
 	}
       }
       prev_keysym = keysym;
-
       
       if ((keysym == kKey_Up)||
 	  (keysym == kKey_Down)||
@@ -557,7 +553,7 @@ public:
       cur_item = cur_item->GetNextSibling();
     }
   }
-
+  
   void RemoveAndSetText(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
     TGListTree *lt = (TGListTree*)gTQSender;
     TGListTreeItem* cur_item = item->GetFirstChild();
@@ -587,15 +583,7 @@ public:
     }
   }
   
-  /*void customTListMenu(){
-    TClass *cl = gROOT->GetClass("TList");
-    TList  *ml = cl->GetMenuList();
-    TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
-					   "Write","writeTList",0,"TObject*",2);
-    ml->AddFirst(n);
-    }*/
-
-    void customTListMenu(){
+  void customTListMenu(){
     TClass *cl = gROOT->GetClass("TList");
     TList  *ml = cl->GetMenuList();
     TClassMenuItem *n = new TClassMenuItem(TClassMenuItem::kPopupUserFunction,cl,
@@ -915,6 +903,7 @@ public:
   }
   void HistBrowserRefresh() {
     RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
+    
   }
   void RefreshDir(TGListTree* lt, TGListTreeItem* item){
     TGListTreeItem* cur_item = item;
@@ -926,7 +915,8 @@ public:
       if (cl->InheritsFrom("TFolder")||cl->InheritsFrom("TDirectory")||cl->InheritsFrom("TTree")) {
         if (cur_item->IsOpen()) {
           lt->DoubleClicked(cur_item,1);
-          lt->DoubleClicked(cur_item,1);
+	  RemoveAndSetText(cur_item,0,0,0,0);
+	  lt->DoubleClicked(cur_item,1);
         }
       }
       RefreshDir(lt, cur_item->GetFirstChild());
