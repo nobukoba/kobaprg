@@ -4,24 +4,6 @@
 #include "TBox.h"
 #include "TGListTree.h"
 
-void zone_x_y(){
-  char retstr[256];
-  new TGInputDialog(gClient->GetRoot(),0,
-		    "Enter numer of colums and rows: nx ny",
-                    "2 2",retstr);
-  if(retstr[0] == 0 && retstr[1] == 0){
-    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-    return;
-  }
-  TString str = retstr;
-  str.ReplaceAll(","," ");
-  std::istringstream iss(str.Data());
-  Int_t par0, par1;
-  iss >> par0 >> par1;
-  plot_selected_x_y(par0, par1);
-  return;
-}
-
 void zone_x_y(const Int_t nx = 2, const Int_t ny = 2){
   //std::cout << std::endl << "Macro: zone_x_y.C" << std::endl;
   TCanvas* canvas = gPad->GetCanvas();
@@ -37,5 +19,23 @@ void zone_x_y(const Int_t nx = 2, const Int_t ny = 2){
   }
   canvas->cd(1);
   canvas->Update();
+  return;
+}
+
+void zone_x_y(){
+  char retstr[256];
+  new TGInputDialog(gClient->GetRoot(),0,
+		    "Enter numer of colums and rows: nx ny",
+                    "2 2",retstr);
+  if(retstr[0] == 0 && retstr[1] == 0){
+    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
+    return;
+  }
+  TString str = retstr;
+  str.ReplaceAll(","," ");
+  std::istringstream iss(str.Data());
+  Int_t par0, par1;
+  iss >> par0 >> par1;
+  zone_x_y(par0, par1);
   return;
 }
