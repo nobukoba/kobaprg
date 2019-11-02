@@ -60,7 +60,8 @@ public:
   HistBrowser() :
     TBrowser("kobahb","HistBrowser",800,1000,0,"CI"),
     /* if option="FCI" is used, segv will occur for
-       typing ".q" command for this HistBrowser and also TBrowser.*/
+       typing ".q" command for this HistBrowser and also TBrowser.
+       Confirmed with root v5 & v6. */
     file_browser(0),
     macro_browser(0),
     hist_browser(0),
@@ -199,7 +200,7 @@ public:
   void HandleKey(Event_t* event){
     char   input[10];
     UInt_t keysym;
-    if ((event->fType == kGKeyPress)) {
+    if (event->fType == kGKeyPress) {
       gVirtualX->LookupString(event, input, sizeof(input), keysym);
       /*printf("(EKeySym)keysym %d\n", (EKeySym)keysym);*/
       if (event->fState & kKeyControlMask) {
@@ -270,7 +271,7 @@ public:
 	  return;
 	}
 
-	if ((keysym == kKey_Space)) {
+	if (keysym == kKey_Space) {
 	  TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetFirstItem();
 	  Bool_t status = false;
 	  Bool_t first_found = false;
@@ -412,7 +413,7 @@ public:
 	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
 	    if (event->fState & kKeyControlMask){
 	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
-	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp);
+	      TObjString *objstr_ptr = (TObjString *)(hist_fListTree_active_items.FindObject(&objstr_tmp));
 	      if (objstr_ptr) {
 		hist_fListTree_active_items.Remove(&objstr_tmp);
 		cur_item->SetActive(kFALSE);
@@ -422,7 +423,7 @@ public:
 	      }
 	    }else{
 	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
-	      TObjString *objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp); 
+	      TObjString *objstr_ptr = (TObjString *)(hist_fListTree_active_items.FindObject(&objstr_tmp)); 
 	      if (!objstr_ptr) {
 		hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)cur_item)));
 	      }
@@ -623,7 +624,7 @@ public:
     TFile *local = TFile::Open(file_in_str,"recreate");
     TIter next((TList*)c);
     TObject *obj;
-    while (obj=next()) {
+    while ((obj=next())) {
       obj->Write();
     }
     return;
@@ -646,7 +647,7 @@ public:
     TFile *local = TFile::Open(file_in_str,"recreate");
     TIter next(((TDirectoryFile*)c)->GetList());
     TObject *obj;
-    while (obj=next()) {
+    while ((obj=next())) {
       obj->Write();
     }
     /* delete local; */
@@ -677,7 +678,7 @@ public:
       TCollection *lst = gROOT->GetListOfFiles(); 
       TIter next(lst);
       TFile *file;
-      while(file=(TFile*)next()){
+      while((file=(TFile*)next())){
         filename = file->GetName();
         if(fullpath.BeginsWith(filename)){
           if(fullpath.Length()==filename.Length()){
@@ -717,7 +718,7 @@ public:
     }
     TIter nextobj(col);
     TObject *obj, *objw;
-    while (obj=nextobj()) {
+    while ((obj=nextobj())) {
       if (memo_file_flag==2) {
         objw = ((TKey*)obj)->ReadObj();
       }else{
@@ -872,7 +873,7 @@ public:
       TGListTreeItem *cur_ListTreeItem = 0;
       TIter next(&hist_fListTree_active_items);
       TObject * obj;
-      while(obj = next()){
+      while((obj = next())){
       	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
       	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
       }
@@ -883,7 +884,7 @@ public:
     if(mask & kKeyControlMask){
       TObjString objstr_tmp(Form("%lld",(unsigned long long)entry));
       TObjString *objstr_ptr;
-      if (objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+      if ((objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp))) {
 	hist_fListTree_active_items.Remove(&objstr_tmp);
 	entry->SetActive(kFALSE);
 	delete objstr_ptr;
@@ -893,7 +894,7 @@ public:
       
       TIter next(&hist_fListTree_active_items);
       TObject * obj;
-      while(obj = next()){
+      while((obj = next())){
       	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
       	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
       }
