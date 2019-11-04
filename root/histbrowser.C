@@ -140,9 +140,12 @@ public:
 			    "RemoveAndSetText(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
 
 
-    TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
+   TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
-    this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
+    //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
+
+    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","HistBrowser", this, "HBHandleKey(Event_t*)");
+
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
     hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); /* line 15 */
@@ -196,241 +199,383 @@ public:
      delete this;
      gClient->Delete();
      } */
-  
-  void HandleKey(Event_t* event){
+
+    void HBHandleKey(Event_t* event){
+    if (event->fType != kGKeyPress) {
+      return;
+    }
     char   input[10];
     UInt_t keysym;
-    if (event->fType == kGKeyPress) {
-      gVirtualX->LookupString(event, input, sizeof(input), keysym);
-      /*printf("(EKeySym)keysym %d\n", (EKeySym)keysym);*/
-      if (event->fState & kKeyControlMask) {
-	if (keysym == kKey_p) {
-	  PrintCanvas();
+    gVirtualX->LookupString(event, input, sizeof(input), keysym);
+    /*printf("(EKeySym)keysym %d\n", (EKeySym)keysym);*/
+    TString gTQSender_name = ((TObject*)gTQSender)->GetName();
+    if (gTQSender_name.BeginsWith("fCompositeFrame")){
+      return;
+    }
+    TGListTree *cur_ListTree = 0; 
+    TGFileBrowserMod *cur_FileBrowser = 0; 
+    TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
+    Int_t ntab = ptab->GetNumberOfTabs();
+    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
+      cur_ListTree    = macro_fListTree;
+      cur_FileBrowser = macro_browser;
+    }else if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+      cur_ListTree    = hist_fListTree;
+      cur_FileBrowser = hist_browser;
+    }else{
+      return;
+    }
+    if (!cur_ListTree->GetCurrent()) {
+      TGPosition pos = cur_ListTree->GetPagePosition();
+      Event_t event_tmp; 
+      event_tmp.fY = pos.fY + 2;
+      cur_ListTree->HandleMotion(&event_tmp);
+      event_tmp.fY = -1;
+      cur_ListTree->HandleMotion(&event_tmp);
+    }
+    TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
+    Bool_t inside_of_filebrowser = false;
+    if (gTQSender_name.BeginsWith("fListTree")){
+      inside_of_filebrowser = true;
+    }else{
+      cur_ListTree->HandleKey(event);
+    }
+    static UInt_t prev_keysym = 0;
+    static Int_t  prev_tab    = 1;
+    if (event->fState & kKeyControlMask) {
+      if (keysym == kKey_Tab) {
+	Int_t new_tab = ptab->GetCurrent();
+	if((prev_keysym == kKey_Tab)||
+	   (new_tab==prev_tab)){
+	  new_tab++;
+	  if (new_tab > (ntab-1)) {new_tab = 0;}
+	  ptab->SetTab(new_tab,0);
+	}else{
+	  ptab->SetTab(prev_tab,0);
+	  prev_tab = new_tab;
 	}
-      }     
-      if (keysym == kKey_g) {
-	gROOT->ProcessLine(".x fit_p1g.C");
+      }
+    }
+    /*if (keysym == kKey_g) {
+      gROOT->ProcessLine(".x fit_p1g.C");
       }
       if (keysym == kKey_f) {
-	gROOT->ProcessLine(".x fit_photo_peak.C");
+      gROOT->ProcessLine(".x fit_photo_peak.C");
       }
       if (keysym == kKey_c) {
-	gROOT->ProcessLine(".x fit_photo_peak_clear.C");
+      gROOT->ProcessLine(".x fit_photo_peak_clear.C");
       }
-
-      TString gTQSender_name = ((TObject*)gTQSender)->GetName();
-      if (gTQSender_name.BeginsWith("fCompositeFrame")){
-	return;
-      }
-
-      Bool_t inside_of_filebrowser = false;
-      if (gTQSender_name.BeginsWith("fListTree")){
-	inside_of_filebrowser = true;
-      }
-
-      /* std::cout << "event->fX" << event->fX<< std::endl;
-      std::cout << "event->fY" << event->fY<< std::endl;
-      std::cout << "((TObject*)gTQSender)->GetName()" << ((TObject*)gTQSender)->GetName()<< std::endl; */
-
-      TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
-      Int_t ntab = ptab->GetNumberOfTabs();
-      static UInt_t prev_keysym = 0;
-      static Int_t  prev_tab    = 1;
-      if (event->fState & kKeyControlMask) {
-	if (keysym == kKey_Tab) {
-	  Int_t new_tab = ptab->GetCurrent();
-	  if((prev_keysym == kKey_Tab)||
-	     (new_tab==prev_tab)){
-	    new_tab++;
-	    if (new_tab > (ntab-1)) {new_tab = 0;}
-	    ptab->SetTab(new_tab,0);
-	  }else{
-	    ptab->SetTab(prev_tab,0);
-	    prev_tab = new_tab;
-	  }
-	}
-      }
-      prev_keysym = keysym;
-      
-      if ((keysym == kKey_Up)||
-	  (keysym == kKey_Down)||
-	  (keysym == kKey_PageUp)||
-	  (keysym == kKey_PageDown)||
-	  (keysym == kKey_Return)||
-	  (keysym == kKey_Enter)||
-	  (keysym == kKey_Space)) {
-	TGListTree *cur_ListTree = 0; 
-	TGFileBrowser *cur_FileBrowser = 0; 
-	if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
-	  cur_ListTree    = macro_fListTree;
-	  cur_FileBrowser = macro_browser;
-	}else if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	  cur_ListTree    = hist_fListTree;
-	  cur_FileBrowser = hist_browser;
-	}else{
-	  return;
-	}
-
-	if (keysym == kKey_Space) {
-	  TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetFirstItem();
-	  Bool_t status = false;
-	  Bool_t first_found = false;
-	  while(cur_ListTreeItem){
-	    if(cur_ListTreeItem->IsActive()){
-	      if(!first_found){
-		first_found = true;
-		if (inside_of_filebrowser&&
-		    (cur_ListTree->GetCurrent() == cur_ListTreeItem)) {
-		  status = cur_ListTreeItem->IsChecked();
-		}else{
-		  status = !cur_ListTreeItem->IsChecked();
-		}
-	      }
-	      cur_ListTree->CheckItem(cur_ListTreeItem, status);
+    */    
+    if ((event->fState & kKeyControlMask) &&
+	(keysym == kKey_p)) {
+      PrintCanvas();
+    }
+    if (keysym == kKey_F5) {
+      cur_FileBrowser->GetRefreshButtonPointer()->Clicked();
+    }
+    if (keysym == kKey_Space) {
+      TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetFirstItem();
+      Bool_t status = false;
+      Bool_t first_found = false;
+      while(cur_ListTreeItem){
+	if(cur_ListTreeItem->IsActive()){
+	  if(!first_found){
+	    first_found = true;
+	    if (inside_of_filebrowser&&
+		(cur_ListTree->GetCurrent() == cur_ListTreeItem)) {
+	      status = cur_ListTreeItem->IsChecked();
+	    }else{
+	      status = !cur_ListTreeItem->IsChecked();
 	    }
-	    cur_ListTreeItem = NextItem(cur_ListTreeItem);
 	  }
-	  if((!first_found)&&
-	     (!inside_of_filebrowser)){
-	    TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
-	    cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
-	  }
-	  if((first_found)&&
-	     inside_of_filebrowser&&
-	     (!cur_ListTree->GetCurrent()->IsActive())){
-	    TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
-	    cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
-	  }
-	  cur_ListTree->ClearViewPort();
+	  cur_ListTree->CheckItem(cur_ListTreeItem, status);
 	}
-	/* std::cout << "cur_ListTree->GetBelowMouse(): " << cur_ListTree->GetBelowMouse() << std::endl; */
-	
-	if ((!(event->fState & kKeyShiftMask))&&
-	    (!(event->fState & kKeyControlMask))) {
-	  if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
-	    /* if((cur_ListTree->GetSelected())){
-               cur_ListTree->GetSelected()->SetActive(kFALSE);
-              } */
-	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      hist_fListTree_active_items.Delete();
-	    }
-	    cur_ListTree->UnselectAll(kTRUE);
-	    cur_ListTree->ClearViewPort();
-	  }
-	}
-        
-	if (inside_of_filebrowser) {
-	  if (event->fState & kKeyShiftMask) {
-	    if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
-	      TGListTreeItem * old_item = 0;
-	      if(keysym == kKey_Up){
-		old_item = NextItem(cur_ListTree->GetCurrent());
-	      }
-	      if(keysym == kKey_Down){
-		old_item = PrevItem(cur_ListTree->GetCurrent());
-	      }
-	      if(old_item){
-		cur_ListTree->HighlightItem(old_item,kTRUE,kTRUE);
-	      }
-	      TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
-	      cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	      cur_ListTree->ClearViewPort();
-
-	      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-		if(old_item){
-		  TObjString objstr_tmp1(Form("%lld",(unsigned long long)old_item));
-		  if (!hist_fListTree_active_items.FindObject(&objstr_tmp1)) {
-		    hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)old_item)));
-		  }
-		}
-		TObjString objstr_tmp2(Form("%lld",(unsigned long long)cur_item));
-		if (!hist_fListTree_active_items.FindObject(&objstr_tmp2)) {
-		  hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
-		}
-	      }
-	    }
-	  } 
-	  return;
-	}
-	
-	if (!cur_ListTree->GetCurrent()) {
-	  TGPosition pos = cur_ListTree->GetPagePosition();
-	  Event_t event_tmp; 
-	  event_tmp.fY = pos.fY + 2;
-	  cur_ListTree->HandleMotion(&event_tmp);
-	  event_tmp.fY = -1;
-	  cur_ListTree->HandleMotion(&event_tmp);
-	}
-	
-	if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
-	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
-	  if (event->fState & kKeyShiftMask) {
-	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
-	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
-	      }
+	cur_ListTreeItem = NextItem(cur_ListTreeItem);
+      }
+      if((!first_found)&&
+	 (!inside_of_filebrowser)){
+	TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
+	cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
+      }
+      if((first_found)&&
+	 inside_of_filebrowser&&
+	 (!cur_ListTree->GetCurrent()->IsActive())){
+	TGListTreeItem *cur_ListTreeItem = cur_ListTree->GetCurrent();
+	cur_ListTree->CheckItem(cur_ListTreeItem, !cur_ListTreeItem->IsChecked());
+      }
+      cur_ListTree->ClearViewPort();
+    }
+    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+      if(event->fState & kKeyShiftMask) {
+	TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
+	if(prev_keysym == kKey_Shift) {
+	  if (keysym == kKey_Up) {
+	    TObjString objstr_tmp(Form("%lld",(unsigned long long)NextItem(cur_item)));
+	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	      cur_ListTree->HighlightItem(NextItem(cur_item),kTRUE,kTRUE);
+	      
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)NextItem(cur_item))));
 	    }
 	  }
 	  if (keysym == kKey_Down) {
-	    cur_ListTree->LineDown(1);
-	  }
-	  if (keysym == kKey_Up) {
-	    cur_ListTree->LineUp(1);
-	  }
-	  if (event->fState & kKeyShiftMask) {
-	    cur_item = cur_ListTree->GetCurrent();
-	    cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	      TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
-	      if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
-	      }
+	    TObjString objstr_tmp(Form("%lld",(unsigned long long)PrevItem(cur_item)));
+	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	      cur_ListTree->HighlightItem(PrevItem(cur_item),kTRUE,kTRUE);
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)PrevItem(cur_item))));
 	    }
 	  }
-	  cur_ListTree->ClearViewPort();
 	}
-
-	if (keysym == kKey_PageDown) {
-	  cur_ListTree->PageDown(1);
-	}
-	if (keysym == kKey_PageUp) {
-	  cur_ListTree->PageUp(1);
-	}
-	
-	if ((keysym == kKey_Return)||
-	    (keysym == kKey_Enter)) {
-	  TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
-	  /* std::cout << "cur_item: " << cur_item->GetText() << std::endl; */
-	  if ((!(event->fState & kKeyShiftMask  ))&&
-	      (!(event->fState & kKeyControlMask))){
-	    cur_ListTree->DoubleClicked(cur_item, 1);
-	    cur_ListTree->Clicked(cur_item, 1);
-	    cur_item->SetOpen(!cur_item->IsOpen());
-	  }
+	if ((keysym == kKey_Up)||(keysym == kKey_Down)) {
 	  cur_ListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	  if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
-	    if (event->fState & kKeyControlMask){
-	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
-	      TObjString *objstr_ptr = (TObjString *)(hist_fListTree_active_items.FindObject(&objstr_tmp));
-	      if (objstr_ptr) {
-		hist_fListTree_active_items.Remove(&objstr_tmp);
-		cur_item->SetActive(kFALSE);
-		delete objstr_ptr;
-	      }else{
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)cur_item)));
-	      }
-	    }else{
-	      TObjString objstr_tmp(Form("%lld", (unsigned long long)cur_item));
-	      TObjString *objstr_ptr = (TObjString *)(hist_fListTree_active_items.FindObject(&objstr_tmp)); 
-	      if (!objstr_ptr) {
-		hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)cur_item)));
+	  TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
+	  if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	    hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
+	  }
+	}
+      }
+      static TGListTreeItem *prev_item_w_cs = 0;
+      if ((keysym == kKey_Return)||
+	  (keysym == kKey_Enter)) {
+	  if(strcmp(cur_item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
+	     strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+	     strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+	     strcmp(cur_item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+	     strcmp(cur_item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
+	  }else{
+	    if (prev_item_w_cs == cur_item){
+	      if ((event->fState & kKeyControlMask) ||
+		  (event->fState & kKeyShiftMask)){
+		/*cur_ListTree->Clicked(cur_item, 0, event->fState, 0, 0);*/
 	      }
 	    }
 	  }
-	  cur_ListTree->ClearViewPort();
+      }
+      prev_item_w_cs = cur_item;
+      cur_ListTree->ClearViewPort();
+    }
+    prev_keysym = keysym;
+  }
+
+  void MyDoubleClicked(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    TGListTree *lt = (TGListTree*)gTQSender;
+    if((!(mask & kKeyShiftMask))&&
+      (!(mask & kKeyControlMask))){
+      /* lt->DoubleClicked(item,1); */
+      lt->DoubleClicked(item,0);
+    }
+  }
+  
+  void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    /* printf("item pic name %s", item->GetPicture()->GetName()); */
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
+	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+         strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+         strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+         strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
+        item->SetOpen(!item->IsOpen());
+      }
+    }
+  }
+  
+  void MyClicked3(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      TObject *userdata = (TObject*)item->GetUserData();
+      Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
+      if (userdata->InheritsFrom("TGraphErrors")){
+	if (isel <= 14 || isel >=34) {
+	  hist_browser->GetDrawOptionPointer()->Select(31,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
 	}
+	TString opt = hist_browser->GetDrawOptionPointer()->GetTextEntry()->GetText();
+	userdata->Draw(opt.Data());
+
+      } else if (userdata->InheritsFrom("TF1")){
+	if (isel <= 32) {
+	  hist_browser->GetDrawOptionPointer()->Select(35,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+	}
+      } else if (userdata->InheritsFrom("TH1")){
+	if (isel >= 16) {
+	  hist_browser->GetDrawOptionPointer()->Select(3,1);
+	  hist_browser->GetDrawOptionPointer()->
+	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
+	}
+      }
+    }
+  }
+  
+  void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
+    TGListTree *lt = (TGListTree*)gTQSender;
+    TObject *userdata = (TObject*)item->GetUserData();
+    /* if (userdata->InheritsFrom("TKey")){
+      item->SetUserData(((TKey*)userdata)->ReadObj());
+      } */
+    if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
+       strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
+       strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
+       strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
+       strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 )
+      {return;}
+    TString opt = lt->GetParent()->GetParent()->GetParent()->GetDrawOption();
+    Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
+    if ((opt == "same")||
+	((isel<=16)&&(isel>=23))){
+      return;
+    }
+    TCanvas* canvas = gPad->GetCanvas();
+    if(canvas->GetClickSelectedPad()){
+      canvas->SetClickSelectedPad(0);
+      return;
+    }
+    if (canvas->GetPad(1)==0) {return;}
+    if (strcmp(canvas->GetPad(1)->GetName(),"Canvas_1_1")==0){
+      Int_t  cur_pad  = gPad->GetNumber();
+      TList* selpad_list = canvas->GetPad(cur_pad)->GetListOfPrimitives();
+      if(selpad_list->At(0)){
+	Int_t next_pad = cur_pad + 1;
+	if (canvas->GetPad(next_pad) == 0) {
+	  next_pad = 1;
+	}
+	canvas->cd(next_pad);
+      }
+    }
+  }
+  
+  void MyClickedForHistFileBrowser(TGListTreeItem *entry, Int_t btn, UInt_t mask, Int_t x, Int_t y){
+    if((!(mask & kKeyShiftMask))&&
+       (!(mask & kKeyControlMask))){
+      hist_fListTree_active_items.Delete();
+      hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
+    }
+    if(mask & kKeyShiftMask){
+      TGListTreeItem  *last_item;
+      if (hist_fListTree_active_items.Last()) {
+        last_item = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+      }else{
+	last_item = entry;
+      }
+      if (last_item) {
+	TGListTreeItem  *cur_item = last_item;
+	Bool_t go_up   = false;
+	Bool_t go_down = false;
+	while (cur_item){
+	  if(cur_item == entry){
+	    go_up = true;
+	    break;
+	  }
+	  cur_item = PrevItem(cur_item);
+	}
+	cur_item = last_item;
+	while (cur_item){
+	  if(cur_item == entry){
+	    go_down = true;
+	    break;
+	  }
+	  cur_item = NextItem(cur_item);
+	}
+	if(go_up || go_down){
+	  cur_item = last_item;
+	  while (cur_item){
+	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
+	    TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
+	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
+	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
+	    }
+	    if(cur_item == entry){
+	      break;
+	    }
+	    if(go_up){
+	      cur_item = PrevItem(cur_item);
+	    }else{
+	      cur_item = NextItem(cur_item);
+	    }
+	  }
+	}
+      }
+      TGListTreeItem *cur_ListTreeItem = 0;
+      TIter next(&hist_fListTree_active_items);
+      TObject * obj;
+      while((obj = next())){
+      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      }
+      hist_fListTree->SetSelected(entry);
+    }    
+    TGListTreeItem *cur_ListTreeItem = 0;
+    if(mask & kKeyControlMask){
+      TObjString objstr_tmp(Form("%lld",(unsigned long long)entry));
+      TObjString *objstr_ptr;
+      if ((objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp))) {
+	hist_fListTree_active_items.Remove(&objstr_tmp);
+	entry->SetActive(kFALSE);
+	delete objstr_ptr;
+      }else{
+	hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
+      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      }
+      TIter next(&hist_fListTree_active_items);
+      TObject * obj;
+      while((obj = next())){
+      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
+      }
+      hist_fListTree->SetSelected(entry);
+    }
+    hist_fListTree->ClearViewPort();
+    return;
+  }
+  
+  void HistBrowserRefresh() {
+    RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
+  }
+  
+  void RefreshDir(TGListTree* lt, TGListTreeItem* item){
+    TGListTreeItem* cur_item = item;
+    while (cur_item){
+      TClass *cl = TClass::GetClass(((TObject*)cur_item->GetUserData())->ClassName());
+      if (cl->InheritsFrom("TKey")) {
+        cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
+      }
+      if (cl->InheritsFrom("TFolder")||cl->InheritsFrom("TDirectory")||cl->InheritsFrom("TTree")) {
+        if (cur_item->IsOpen()) {
+          lt->DoubleClicked(cur_item,1);
+	  RemoveAndSetText(cur_item,0,0,0,0);
+	  lt->DoubleClicked(cur_item,1);
+        }
+      }
+      RefreshDir(lt, cur_item->GetFirstChild());
+      cur_item = cur_item->GetNextSibling();
+    }
+  }
+  
+  void SetCannotMove(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
+    if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
+    /* TCanvas* canvas = gPad->GetCanvas(); */
+    gPad->GetFrame()->SetBit(TBox::kCannotMove);
+    return;
+  }
+  
+  void change_canvas(Int_t event, Int_t x, Int_t y, TObject* selected) {
+    TCanvas *c = (TCanvas*)gTQSender;
+    /*    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
+          event, x, y, selected->IsA()->GetName()); */
+    if (event == kButton1Down) {
+      /* std::cout << "selected->ClassName()" << selected->ClassName() << std::endl; */
+      if (selected->InheritsFrom("TPad")||
+	  selected->InheritsFrom("TFrame")||
+	  selected->InheritsFrom("TH2")||
+	  selected->InheritsFrom("TPaveStats")||
+	  selected->InheritsFrom("TPaveText")||
+	  selected->InheritsFrom("TPaletteAxis")||
+	  selected->InheritsFrom("TAxis")){
+	TVirtualPad *cur_pad  = c->GetSelectedPad();
+	cur_pad->cd();
+	gPad->Update();
       }
     }
   }
@@ -480,7 +625,6 @@ public:
     Bool_t pname = kTRUE;
     if (sprinter == "")
       pname = kFALSE;
-    
     TString fn = "rootprint";
     FILE *f = gSystem->TempFileName(fn, gEnv->GetValue("Print.Directory", gSystem->TempDirectory()));
     if (f) fclose(f);
@@ -502,19 +646,6 @@ public:
     }
     gSystem->Exec(cmd);
     gSystem->Unlink(fn);
-  }
-
-  
-  void KeyPressed(Int_t key){
-    /* printf("%d\n",key); */
-  }
-
-  void KeyPressed(TGListTreeItem *entry, UInt_t keysym, UInt_t mask){
-    printf("keysym %d \n", keysym);
-  }
-
-  void KeyPressed(TGFrame*,UInt_t,UInt_t){
-    printf("TGFrame \n");
   }
   
   void SetDNDSourceRecursive(TGListTree* lt, TGListTreeItem* item, Bool_t bl){
@@ -729,229 +860,6 @@ public:
     return;
   }
   
-  void MyDoubleClicked(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
-    TGListTree *lt = (TGListTree*)gTQSender;
-    if((!(mask & kKeyShiftMask))&&
-       (!(mask & kKeyControlMask))){
-      /* lt->DoubleClicked(item,1); */
-      lt->DoubleClicked(item,0);
-    }
-  }
-  
-  void MyClicked2(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
-    /* printf("item pic name %s", item->GetPicture()->GetName()); */
-    if((!(mask & kKeyShiftMask))&&
-       (!(mask & kKeyControlMask))){
-      if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm") ==0 ||
-	 strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-         strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
-         strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
-         strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 ){
-        item->SetOpen(!item->IsOpen());
-      }
-    }
-  }
-  
-  void MyClicked3(TGListTreeItem *item, Int_t, UInt_t mask, Int_t, Int_t){
-    if((!(mask & kKeyShiftMask))&&
-       (!(mask & kKeyControlMask))){
-      TObject *userdata = (TObject*)item->GetUserData();
-      Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
-      if (userdata->InheritsFrom("TGraphErrors")){
-	if (isel <= 14 || isel >=34) {
-	  hist_browser->GetDrawOptionPointer()->Select(31,1);
-	  hist_browser->GetDrawOptionPointer()->
-	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
-	}
-	TString opt = hist_browser->GetDrawOptionPointer()->GetTextEntry()->GetText();
-	userdata->Draw(opt.Data());
-
-      } else if (userdata->InheritsFrom("TF1")){
-	if (isel <= 32) {
-	  hist_browser->GetDrawOptionPointer()->Select(35,1);
-	  hist_browser->GetDrawOptionPointer()->
-	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
-	}
-      } else if (userdata->InheritsFrom("TH1")){
-	if (isel >= 16) {
-	  hist_browser->GetDrawOptionPointer()->Select(3,1);
-	  hist_browser->GetDrawOptionPointer()->
-	    GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
-	}
-      }
-    }
-  }
-  
-  void MyClicked(TGListTreeItem *item, Int_t /*btn*/){
-    TGListTree *lt = (TGListTree*)gTQSender;
-    TObject *userdata = (TObject*)item->GetUserData();
-    /* if (userdata->InheritsFrom("TKey")){
-      item->SetUserData(((TKey*)userdata)->ReadObj());
-      } */
-    if(strcmp(item->GetPicture()->GetName(),"folder_t.xpm")==0 ||
-       strcmp(item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
-       strcmp(item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
-       strcmp(item->GetPicture()->GetName(),"tree_t.xpm__16x16")==0 ||
-       strcmp(item->GetPicture()->GetName(),"ntuple_t.xpm__16x16")==0 )
-      {return;}
-    TString opt = lt->GetParent()->GetParent()->GetParent()->GetDrawOption();
-    Int_t isel = hist_browser->GetDrawOptionPointer()->GetSelected();
-    if ((opt == "same")||
-	((isel<=16)&&(isel>=23))){
-      return;
-    }
-    TCanvas* canvas = gPad->GetCanvas();
-    if(canvas->GetClickSelectedPad()){
-      canvas->SetClickSelectedPad(0);
-      return;
-    }
-    if (canvas->GetPad(1)==0) {return;}
-    if (strcmp(canvas->GetPad(1)->GetName(),"Canvas_1_1")==0){
-      Int_t  cur_pad  = gPad->GetNumber();
-      TList* selpad_list = canvas->GetPad(cur_pad)->GetListOfPrimitives();
-      if(selpad_list->At(0)){
-	Int_t next_pad = cur_pad + 1;
-	if (canvas->GetPad(next_pad) == 0) {
-	  next_pad = 1;
-	}
-	canvas->cd(next_pad);
-      }
-    }
-  }
-  
-  void MyClickedForHistFileBrowser(TGListTreeItem *entry, Int_t btn, UInt_t mask, Int_t x, Int_t y){
-    if((!(mask & kKeyShiftMask))&&
-       (!(mask & kKeyControlMask))){
-      hist_fListTree_active_items.Delete();
-      hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
-    }
-    if(mask & kKeyShiftMask){
-      TGListTreeItem  *last_item;
-      if (hist_fListTree_active_items.Last()) {
-        last_item = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
-      }else{
-	last_item = entry;
-      }
-      if (last_item) {
-	TGListTreeItem  *cur_item = last_item;
-	Bool_t go_up   = false;
-	Bool_t go_down = false;
-	while (cur_item){
-	  if(cur_item == entry){
-	    go_up = true;
-	    break;
-	  }
-	  cur_item = PrevItem(cur_item);
-	}
-	cur_item = last_item;
-	while (cur_item){
-	  if(cur_item == entry){
-	    go_down = true;
-	    break;
-	  }
-	  cur_item = NextItem(cur_item);
-	}
-	if(go_up || go_down){
-	  cur_item = last_item;
-	  while (cur_item){
-	    hist_fListTree->HighlightItem(cur_item,kTRUE,kTRUE);
-	    TObjString objstr_tmp(Form("%lld",(unsigned long long)cur_item));
-	    if (!hist_fListTree_active_items.FindObject(&objstr_tmp)) {
-	      hist_fListTree_active_items.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
-	    }
-	    if(cur_item == entry){
-	      break;
-	    }
-	    if(go_up){
-	      cur_item = PrevItem(cur_item);
-	    }else{
-	      cur_item = NextItem(cur_item);
-	    }
-	  }
-	}
-      }
-      TGListTreeItem *cur_ListTreeItem = 0;
-      TIter next(&hist_fListTree_active_items);
-      TObject * obj;
-      while((obj = next())){
-      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
-      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
-      }
-      hist_fListTree->SetSelected(entry);
-    }
-    
-    TGListTreeItem *cur_ListTreeItem = 0;
-    if(mask & kKeyControlMask){
-      TObjString objstr_tmp(Form("%lld",(unsigned long long)entry));
-      TObjString *objstr_ptr;
-      if ((objstr_ptr = (TObjString *)hist_fListTree_active_items.FindObject(&objstr_tmp))) {
-	hist_fListTree_active_items.Remove(&objstr_tmp);
-	entry->SetActive(kFALSE);
-	delete objstr_ptr;
-      }else{
-	hist_fListTree_active_items.Add(new TObjString(Form("%lld", (unsigned long long)entry)));
-      }
-      
-      TIter next(&hist_fListTree_active_items);
-      TObject * obj;
-      while((obj = next())){
-      	cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
-      	hist_fListTree->HighlightItem(cur_ListTreeItem,kTRUE,kTRUE);
-      }
-    }
-    hist_fListTree->ClearViewPort();
-    return;
-  }
-  void HistBrowserRefresh() {
-    RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
-    
-  }
-  void RefreshDir(TGListTree* lt, TGListTreeItem* item){
-    TGListTreeItem* cur_item = item;
-    while (cur_item){
-      TClass *cl = TClass::GetClass(((TObject*)cur_item->GetUserData())->ClassName());
-      if (cl->InheritsFrom("TKey")) {
-        cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
-      }
-      if (cl->InheritsFrom("TFolder")||cl->InheritsFrom("TDirectory")||cl->InheritsFrom("TTree")) {
-        if (cur_item->IsOpen()) {
-          lt->DoubleClicked(cur_item,1);
-	  RemoveAndSetText(cur_item,0,0,0,0);
-	  lt->DoubleClicked(cur_item,1);
-        }
-      }
-      RefreshDir(lt, cur_item->GetFirstChild());
-      cur_item = cur_item->GetNextSibling();
-    }
-  }
-  
-  void SetCannotMove(TGListTreeItem *item, Int_t, UInt_t, Int_t, Int_t){
-    if (!gPad) {std::cout << "There is no gPad." << std::endl; return;}
-    /* TCanvas* canvas = gPad->GetCanvas(); */
-    gPad->GetFrame()->SetBit(TBox::kCannotMove);
-    return;
-  }
-  
-  void change_canvas(Int_t event, Int_t x, Int_t y, TObject* selected) {
-    TCanvas *c = (TCanvas*)gTQSender;
-    /*    printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
-          event, x, y, selected->IsA()->GetName()); */
-    if (event == kButton1Down) {
-      /* std::cout << "selected->ClassName()" << selected->ClassName() << std::endl; */
-      if (selected->InheritsFrom("TPad")||
-	  selected->InheritsFrom("TFrame")||
-	  selected->InheritsFrom("TH2")||
-	  selected->InheritsFrom("TPaveStats")||
-	  selected->InheritsFrom("TPaveText")||
-	  selected->InheritsFrom("TPaletteAxis")||
-	  selected->InheritsFrom("TAxis")){
-	TVirtualPad *cur_pad  = c->GetSelectedPad();
-	cur_pad->cd();
-	gPad->Update();
-      }
-    }
-  }
-
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
   TGFileBrowserMod *GetHistBrowser(){return hist_browser;}
   TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
