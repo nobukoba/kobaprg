@@ -9,24 +9,24 @@
 #include "TH1.h"
 
 
-TGListTreeItem *SearchNextItem_2(TGListTreeItem *cur_item){
+TGListTreeItem *SearchNextItem_3(TGListTreeItem *cur_item){
   if(cur_item->GetNextSibling()){
     return cur_item->GetNextSibling();
   } else if (cur_item->GetParent()){
-    return SearchNextItem_2(cur_item->GetParent());
+    return SearchNextItem_3(cur_item->GetParent());
   }else{
     return 0;
   }
 }
 
-TGListTreeItem *NextItem_2(TGListTreeItem *cur_item){
+TGListTreeItem *NextItem_3(TGListTreeItem *cur_item){
   if(cur_item->GetFirstChild()){
     return cur_item->GetFirstChild();
   }
-  return SearchNextItem_2(cur_item);
+  return SearchNextItem_3(cur_item);
 }
 
-void set_x_range_for_active(Double_t x0, Double_t x1){
+void count_in_range_for_active(){
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {return;}
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
@@ -38,28 +38,13 @@ void set_x_range_for_active(Double_t x0, Double_t x1){
 	cur_ListTreeItem->SetUserData(userdata);
       }
       if (userdata->InheritsFrom("TH1")){
-	((TH1*)userdata)->GetXaxis()->SetRangeUser(x0,x1);
+	TH1* hist = (TH1*)userdata;
+	std::cout << hist->GetName() << ": ";
+	std::cout << hist->Integral(hist->GetXaxis()->GetFirst(),
+				     hist->GetXaxis()->GetLast()) << std::endl;
       }
     }
-    cur_ListTreeItem = NextItem_2(cur_ListTreeItem);
+    cur_ListTreeItem = NextItem_3(cur_ListTreeItem);
   }
-  return;
-}
-
-void set_x_range_for_active(){
-  char retstr[256];
-  new TGInputDialog(gClient->GetRoot(),0,
-                    "Range: %f %f",
-                    "0.0 1.0",retstr);
-  if(retstr[0] == 0 && retstr[1] == 0){
-    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-    return;
-  }
-  TString str = retstr;
-  str.ReplaceAll(","," ");
-  std::istringstream iss(str.Data());
-  Double_t par0, par1;
-  iss >> par0 >> par1;
-  set_x_range_for_active(par0, par1);
   return;
 }
