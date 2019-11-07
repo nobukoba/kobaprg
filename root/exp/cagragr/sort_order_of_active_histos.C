@@ -1,19 +1,6 @@
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
 void GetHistActiveItemsWithoutDuplication(TList *items){
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
   if (!hist_fListTree) {
     std:: cout << std::endl << "pHistBrowser->GetHistListTree() is null." << std::endl;
@@ -30,7 +17,7 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
 	tmp_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
 	TString tmp_str = tmp_ListTreeItem->GetText();
 	if (tmp_str.EqualTo(cur_ListTreeItem->GetText())) {
-	  cur_ListTreeItem = NextItem(cur_ListTreeItem);
+	  cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
 	  continue;
 	}
       }
@@ -55,7 +42,7 @@ void GetHistActiveItemsWithoutDuplication(TList *items){
 	}
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }
