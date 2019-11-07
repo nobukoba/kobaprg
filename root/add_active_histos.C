@@ -7,28 +7,12 @@
 #include "TKey.h"
 #include "TH1.h"
 
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
 void add_active_histos(){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {return;}
-  TH1 *added = 0;
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+  TH1 *added = 0;
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
       TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
@@ -55,7 +39,7 @@ void add_active_histos(){
 	}
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }

@@ -29,23 +29,6 @@
 #include "TH2.h"
 #include "TTree.h"
 
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
 void CopyDir(TDirectory *source, TDirectory *target) {
   TKey *key;
   TIter nextkey(source->GetListOfKeys());
@@ -142,7 +125,7 @@ void add_active_dir(){
   	std::cout << "The active item: " << userdata->GetName()
   		  << " does not inherits from TFolder. This item is skipped."
   		  << std::endl;
-  	cur_ListTreeItem = NextItem(cur_ListTreeItem);
+  	cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   	continue;
       }
       TString fullpath = hist_browser->FullPathName(cur_ListTreeItem);
@@ -182,7 +165,7 @@ void add_active_dir(){
   	list_of_active_dir->Add((TObject*)cur_dir);
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   
   Int_t num_entries = list_of_active_dir->GetEntries();

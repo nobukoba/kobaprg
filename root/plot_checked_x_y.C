@@ -9,23 +9,6 @@
 #include "TTimer.h"
 #include "TSystem.h"
 
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
 void plot_panels(){
   TCanvas* canvas = gPad->GetCanvas();
   TList* list     = canvas->GetListOfPrimitives();
@@ -37,7 +20,9 @@ void plot_panels(){
 
   TList *current_checked_item  = (TList *)gROOT->Get("current_checked_item");
   if(current_checked_item->GetEntries()==0){return;}
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
   TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *)current_checked_item->At(1);
   Int_t i = 0;
   while(cur_ListTreeItem){
@@ -49,7 +34,7 @@ void plot_panels(){
 	break;
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   if(cur_ListTreeItem==0){
     current_checked_item->RemoveLast();
