@@ -1,6 +1,6 @@
 void test_histos(){
-  TH1D * h1 = new TH1D("h1","h1", 10, -4, 4);
-  TH1D * h2 = new TH1D("h2","h2", 20, -4, 4);
+  TH1D * h1 = new TH1D("h1","h1", 30, -4, 4);
+  TH1D * h2 = new TH1D("h2","h2", 30, -4, 4);
   TH1D * h3 = new TH1D("h3","h3", 30, -4, 4);
   TH2D * h4 = new TH2D("h4","h4", 40, -4, 4, 40, -4, 4);
   TDirectory * dir = gROOT->mkdir("histos_dir");
