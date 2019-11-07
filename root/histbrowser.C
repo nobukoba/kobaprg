@@ -617,6 +617,17 @@ public:
     }
   }
 
+  void GetHistActiveItems(TList *items){
+    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+    while(cur_ListTreeItem){
+      if(cur_ListTreeItem->IsActive()){
+        items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
+      }
+      cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    }
+    return;
+  }
+
   void PrintCanvas(){
     /* Print the canvas. */
     gStyle->SetPaperSize(20,26);
