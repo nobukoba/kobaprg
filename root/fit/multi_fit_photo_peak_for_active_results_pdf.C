@@ -4,29 +4,11 @@
 #include "TBox.h"
 #include "TList.h"
 #include "TGMsgBox.h"
-
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
 void multi_fit_photo_peak_for_active_results_pdf(){
   std::cout << std::endl << "Macro: multi_fit_photo_peak_for_active_results.C" << std::endl;
-  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser_tmp) {
-    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser) {
+    gSystem->cd((pHistBrowser->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   if (!gPad) {
@@ -41,7 +23,7 @@ void multi_fit_photo_peak_for_active_results_pdf(){
   canvas->Print("fit_results.pdf[","pdf");
   while(cur_ListTreeItem){
     if(!(cur_ListTreeItem->IsActive())){
-      cur_ListTreeItem = NextItem(cur_ListTreeItem);
+      cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
       continue;
     }
     TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
@@ -50,7 +32,7 @@ void multi_fit_photo_peak_for_active_results_pdf(){
       cur_ListTreeItem->SetUserData(userdata);
     }
     if (!userdata->InheritsFrom("TH1")){
-      cur_ListTreeItem = NextItem(cur_ListTreeItem);
+      cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
       continue;
     }
     TH1D* hist = (TH1D *)userdata;

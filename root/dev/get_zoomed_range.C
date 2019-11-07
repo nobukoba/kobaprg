@@ -1,27 +1,8 @@
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
 void get_zoomed_range(){
   std::cout << "Macro: get_zoomed_range.C" << std::endl;
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {
-    std::cout << std::endl << "hist_fListTree is null. Exit." << std::endl;
-    return;
-  }
   
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
@@ -33,7 +14,7 @@ void get_zoomed_range(){
       }
       if (userdata->InheritsFrom("TH2")){
 	std::cout << "TH2 histogram can not be handled." << std::endl;
-	cur_ListTreeItem = NextItem(cur_ListTreeItem);
+	cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
 	continue;
       }
       if (userdata->InheritsFrom("TH1")){
@@ -44,7 +25,7 @@ void get_zoomed_range(){
 	std::cout << "up: " << up << std::endl;
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }
