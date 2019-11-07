@@ -1,38 +1,7 @@
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-void GetHistActiveItems(TList *items){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {
-    std:: cout << std::endl << "pHistBrowser->GetHistListTree() is null." << std::endl;
-    return;
-  }
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
-    }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
-  }
-  return;
-}
-
 void print_active_on_root_pdf() {
-  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser_tmp) {
-    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (pHistBrowser) {
+    gSystem->cd((pHistBrowser->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   if (!gPad) {
@@ -65,7 +34,7 @@ void print_active_on_root_pdf() {
   if (ordered_items) {
     items = ordered_items;
   }else{
-    GetHistActiveItems(items);
+    pHistBrowser->GetHistActiveItems(items);
   }
   TH1 *subtracted = 0;
   TGListTreeItem *cur_ListTreeItem;

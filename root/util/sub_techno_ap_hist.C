@@ -6,43 +6,10 @@
 #include "TList.h"
 #include "TKey.h"
 #include "TH1.h"
-
-TGListTreeItem *SearchNextItem_4(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem_4(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem_4(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem_4(cur_item);
-}
-
-void GetHistActiveItems(TList *items){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {
-    std:: cout << std::endl << "pHistBrowser->GetHistListTree() is null." << std::endl;
-    return;
-  }
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
-    }
-    cur_ListTreeItem = NextItem_4(cur_ListTreeItem);
-  }
-  return;
-}
-
 void sub_techno_ap_hist(){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {return;}
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
   char retstr[256] = "1.0";
   TList *ordered_items = (TList *) gROOT->ProcessLine("pHistBrowser->GetHistListTreeActiveItems();");
   TList items_ins;
@@ -50,7 +17,7 @@ void sub_techno_ap_hist(){
   if (ordered_items) {
     items = ordered_items;
   }else{
-    GetHistActiveItems(items);
+    pHistBrowser->GetHistActiveItems(items);
   }
   TH1 *subtracted = 0;
   Int_t nhist = items->GetSize();
