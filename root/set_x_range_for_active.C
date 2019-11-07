@@ -8,27 +8,10 @@
 #include "TGInputDialog.h"
 #include "TH1.h"
 
-
-TGListTreeItem *SearchNextItem_2(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem_2(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem_2(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem_2(cur_item);
-}
-
 void set_x_range_for_active(Double_t x0, Double_t x1){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {return;}
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
@@ -41,7 +24,7 @@ void set_x_range_for_active(Double_t x0, Double_t x1){
 	((TH1*)userdata)->GetXaxis()->SetRangeUser(x0,x1);
       }
     }
-    cur_ListTreeItem = NextItem_2(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }
@@ -57,7 +40,7 @@ void set_x_range_for_active(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str.Data());
+  std::istringstream iss(str);
   Double_t par0, par1;
   iss >> par0 >> par1;
   set_x_range_for_active(par0, par1);

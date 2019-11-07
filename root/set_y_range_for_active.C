@@ -8,26 +8,10 @@
 #include "TGInputDialog.h"
 #include "TH1.h"
 
-TGListTreeItem *SearchNextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetNextSibling()){
-    return cur_item->GetNextSibling();
-  } else if (cur_item->GetParent()){
-    return SearchNextItem(cur_item->GetParent());
-  }else{
-    return 0;
-  }
-}
-
-TGListTreeItem *NextItem(TGListTreeItem *cur_item){
-  if(cur_item->GetFirstChild()){
-    return cur_item->GetFirstChild();
-  }
-  return SearchNextItem(cur_item);
-}
-
 void set_y_range_for_active(Double_t x0, Double_t x1){
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {return;}
+  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  if (!pHistBrowser) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
@@ -40,7 +24,7 @@ void set_y_range_for_active(Double_t x0, Double_t x1){
 	((TH1*)userdata)->GetYaxis()->SetRangeUser(x0,x1);
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }
