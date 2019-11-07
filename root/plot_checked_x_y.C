@@ -90,7 +90,7 @@ void plot_checked_x_y(const Int_t nx = 2, const Int_t ny = 2){
 	current_checked_item->Add((TObject*)cur_ListTreeItem);
       }
     }
-    cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   
   if (num_checked > (nx*ny)) {
