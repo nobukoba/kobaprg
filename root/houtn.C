@@ -28,7 +28,7 @@ void houtn(const Int_t n_hist) {
     }
     TIter next(listofpri);
     TObject *obj;
-    while (obj = next()){
+    while ((obj = next())){
       if (obj->InheritsFrom("TH2")) {
 	std::cout << "This script can not handle TH2 histograms." << std::endl;
 	return;

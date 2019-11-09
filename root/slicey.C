@@ -17,7 +17,7 @@ void slicey(){
   TIter next(listofpri);
   TObject *obj;
   TH2 *hist = 0;
-  while (obj = next()){
+  while ((obj = next())){
     if (obj->InheritsFrom("TH2")) {
       hist = (TH2*)obj;
       std::cout << "TH2 hist was found." << std::endl;
@@ -39,7 +39,7 @@ void slicey(){
     TIter next(groot_list);
     TObject *obj;
     Int_t found = 0;
-    while (obj = next()) {
+    while ((obj = next())) {
       if (!(obj->InheritsFrom("TH1"))) {
 	continue;
       } 

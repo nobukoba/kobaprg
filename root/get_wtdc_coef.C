@@ -19,7 +19,7 @@ void get_wtdc_coef(){
     TIter next(listofpri);
     TObject *obj;
     TH1 *hist = 0;
-    while (obj = next()){
+    while ((obj = next())){
       if (obj->InheritsFrom("TH2")) {
         std::cout << "This macro does not handle TH2 histo." << std::endl;
         break;

@@ -134,7 +134,7 @@ void plot_graphs(){
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
-  while (obj = next()){
+  while ((obj = next())){
     if (obj->InheritsFrom("TH1")) {
       hist = (TH1*)obj;
       std::cout << "hist was found." << std::endl;
