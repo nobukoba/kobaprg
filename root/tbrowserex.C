@@ -793,7 +793,7 @@ public:
   void writeTFolder(TObject* c){
     TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");  
     TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
-    TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetTBrowserEx();");
+    TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetHistBrowser();");
     TString fullpath = hist_browser->FullPathName(item);
     
     TDirectory *cur_dir = 0;
@@ -918,7 +918,7 @@ public:
   }
   
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
-  TGFileBrowserMod *GetTBrowserEx(){return hist_browser;}
+  TGFileBrowserMod *GetHistBrowser(){return hist_browser;}
   TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
   TGListTree *GetMacroListTree(){return macro_fListTree;}
   TGListTree *GetHistListTree(){return hist_fListTree;}

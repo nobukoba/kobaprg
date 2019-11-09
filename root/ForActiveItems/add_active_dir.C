@@ -106,7 +106,7 @@ void add_active_dir(){
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   
   TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");
-  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetTBrowserEx();");
+  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetHistBrowser();");
   if (!hist_fListTree) {
     std::cout << "hist_fListTree is NULL. histbrowser.C is not runing? This script is terminated." << std::endl;
     return;

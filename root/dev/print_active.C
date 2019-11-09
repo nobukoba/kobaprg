@@ -7,6 +7,7 @@
 void print_active(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
+  TGFileBrowser *hist_browser = gBrowserEx->GetHistBrowser();
   TIter next(gBrowserEx->GetHistListTreeActiveHistos());
   TObjString* objstr;
   while((objstr = (TObjString*)next())){
