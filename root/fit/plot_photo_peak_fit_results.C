@@ -15,7 +15,7 @@ void plot_photo_peak_fit_results(){
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
-  while (obj = next()){
+  while ((obj = next())){
     if (obj->InheritsFrom("TH2")) {
       std::cout << "This script can not handle TH2 histograms." << std::endl;
       return;
@@ -45,7 +45,7 @@ void plot_photo_peak_fit_results(){
   
   Int_t j = 0;
   TF1 *funcobj = 0;
-  while (funcobj = (TF1*)funclist->FindObject(Form("photo_peak_fit_%d",j))) {
+  while ((funcobj = (TF1*)funclist->FindObject(Form("photo_peak_fit_%d",j)))) {
     sel_pad = canvas->cd(j+2);
 
     Double_t xmin, xmax, xrange;

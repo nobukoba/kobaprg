@@ -3,7 +3,7 @@ void print_list_of_files(){
   TCollection *lst = gROOT->GetListOfFiles(); 
   TIter next(lst);
   TObject *obj;
-  while (obj=next()) {
+  while ((obj=next())) {
     std::cout<<  obj->GetName() << std::endl;
   }
   return;

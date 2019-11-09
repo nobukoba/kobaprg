@@ -56,7 +56,7 @@ void read_kromek_spe_files() {
   TObjString *ostr;
   Int_t ifile = 0;
   gROOT->cd();
-  while (ostr = (TObjString*)next()){
+  while ((ostr = (TObjString*)next())){
     TString str = ostr->GetString();
     str.ReplaceAll("\"","");
     str.ReplaceAll(" ","");

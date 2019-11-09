@@ -22,7 +22,7 @@ TH1 * GaussianFit(){
   TIter next(listofpri);
   TObject *obj;
   TH1 *hist = 0;
-  while (obj = next()){
+  while ((obj = next())){
     if (obj->InheritsFrom("TH2")) {
       std::cout << "This script can not handle TH2 histograms." << std::endl;
       return 0;

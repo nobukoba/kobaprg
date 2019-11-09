@@ -59,7 +59,7 @@ void files_to_graphs() {
   TIter next(listptr);
   TObjString *ostr;
   Int_t ifile = 0;
-  while (ostr = (TObjString*)next()){
+  while ((ostr = (TObjString*)next())){
     TString str = ostr->GetString();
     str.ReplaceAll("\"","");
     str.ReplaceAll(" ","");

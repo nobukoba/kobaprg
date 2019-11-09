@@ -147,7 +147,7 @@ void add_active_dir(){
 	TCollection *lst = gROOT->GetListOfFiles(); 
 	TIter next(lst);
 	TFile *file;
-	while(file=(TFile*)next()){
+	while((file=(TFile*)next())){
 	  filename = file->GetName();
 	  if(fullpath.BeginsWith(filename)){
 	    if(fullpath.Length()==filename.Length()){

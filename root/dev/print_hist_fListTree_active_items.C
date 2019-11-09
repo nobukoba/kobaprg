@@ -14,7 +14,7 @@ void print_hist_fListTree_active_items(){
   }
   TIter next(listitems);
   TObject * obj;
-  while(obj = next()){
+  while((obj = next())){
     cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
     std::cout << ""  << std::endl;
     std::cout << "GetText(): " << cur_ListTreeItem->GetText() << std::endl;

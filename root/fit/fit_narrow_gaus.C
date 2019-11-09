@@ -17,7 +17,7 @@ void fit_narrow_gaus(Double_t x0, Double_t x1) {
   TList* listofpri = gPad->GetListOfPrimitives();
   TH1* hist = 0;
   TIter next(listofpri); TObject *obj;
-  while (obj = next()){
+  while ((obj = next())){
     if (obj->InheritsFrom("TH2")) {
       std::cout << "This script can not handle TH2 histograms." << std::endl;
       return;

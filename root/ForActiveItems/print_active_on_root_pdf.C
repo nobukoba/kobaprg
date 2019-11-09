@@ -41,7 +41,7 @@ void print_active_on_root_pdf() {
   TIter next(items);
   TObject * obj;
   canvas->Print("root.pdf[","pdf");
-  while(obj = next()){
+  while((obj = next())){
     cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
     if(((npad == 0) && (cur_pad == 0))||
        ((npad > 0)  && (cur_pad == 1))) {
