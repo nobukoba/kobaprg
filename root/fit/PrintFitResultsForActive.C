@@ -7,41 +7,29 @@
 #include "TKey.h"
 #include "TH1.h"
 void PrintFitResultsForActive(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      //std::cout<< cur_ListTreeItem->GetText() << std::endl;
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (!userdata->InheritsFrom("TH1")){
-	continue;
-      }
-      TList *funclist = ((TH1*)userdata)->GetListOfFunctions();
-      if(funclist == 0){
-	//std::cout << "The GetListOfFunctions() is null. The script is terminated." << std::endl;
-	continue;
-      }
-      Int_t j = 0;
-      TF1 *funcobj = 0;
-      //while (funcobj = (TF1*)funclist->FindObject(Form("fit_p1g_%d",j))) {
-      while (funcobj = (TF1*)funclist->FindObject(Form("photo_peak_fit_%d",j))) {
-	if (j == 0) {
-	  std::cout << "HistName: " << ((TH1*)userdata)->GetName();
-	}
-	std::cout << ", " << funcobj->GetParameter(1);
-	j++;
-      }
-      if (j>0) {
-	std::cout << std::endl;
-      }
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
+  TH1 * hist;
+  while((hist = (TH1*)next())){
+    TList *funclist = hist->GetListOfFunctions();
+    if(funclist == 0){
+      //std::cout << "The GetListOfFunctions() is null. The script is terminated." << std::endl;
+      continue;
     }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    Int_t j = 0;
+    TF1 *funcobj = 0;
+    //while (funcobj = (TF1*)funclist->FindObject(Form("fit_p1g_%d",j))) {
+    while (funcobj = (TF1*)funclist->FindObject(Form("photo_peak_fit_%d",j))) {
+      if (j == 0) {
+        std::cout << "HistName: " << hist->GetName();
+      }
+      std::cout << ", " << funcobj->GetParameter(1);
+      j++;
+    }
+    if (j>0) {
+      std::cout << std::endl;
+    }
   }
   return;
 }

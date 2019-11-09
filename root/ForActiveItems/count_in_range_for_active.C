@@ -9,8 +9,7 @@
 void count_in_range_for_active(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TList *histos = gBrowserEx->GetListOfOrderedActiveHistos();
-  TIter next(histos);
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 *hist;
   while((hist = (TH1 *)next())){
     std::cout << hist->GetName() << ": ";

@@ -1,7 +1,7 @@
 void multi_fit_photo_peak_for_active_results_open() {
-  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser_tmp) {
-    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (gBrowserEx) {
+    gSystem->cd((gBrowserEx->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   //gSystem->Exec("acroread root.pdf &");

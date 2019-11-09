@@ -28,12 +28,12 @@ void print_active_on_root_pdf() {
   
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad = 0;}
-  TList *items = (TList *)gBrowserEx->GetHistListTreeActiveHistos();
   TH1 *subtracted = 0;
-  TIter next2(items);
   canvas->Print("root.pdf[","pdf");
-  while((obj = next2())){
-    TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+  TIter next2(gBrowserEx->GetHistListTreeActiveHistos());
+  TObjString* objstr;
+  while((objstr = (TObjString*)next2())){
+    TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) objstr->GetString().Atoll();
     if(((npad == 0) && (cur_pad == 0))||
        ((npad > 0)  && (cur_pad == 1))) {
       canvas->Clear("D");

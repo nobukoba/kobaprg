@@ -9,25 +9,16 @@
 #include "TH1.h"
 
 void multi_fit_photo_peak_for_active(Double_t x0, Double_t x1){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = gBrowserEx->GetHistListTree();
   gROOT->ProcessLine(".L fit_photo_peak.C");
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      //std::cout<< cur_ListTreeItem->GetText() << std::endl;
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (userdata->InheritsFrom("TH1")){
-	hist_fListTree->DoubleClicked(cur_ListTreeItem,-1);
-	gROOT->ProcessLine(Form("fit_photo_peak(%lf,%lf);",x0,x1));
-      }
-    }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+  TIter next(gBrowserEx->GetHistListTreeActiveHistos());
+  TObjString* objstr;
+  while((objstr = (TObjString*)next())){
+    TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) objstr->GetString().Atoll();
+    hist_fListTree->DoubleClicked(cur_ListTreeItem,-1);
+    gROOT->ProcessLine(Form("fit_photo_peak(%lf,%lf);",x0,x1));
   }
   return;
 }

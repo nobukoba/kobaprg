@@ -12,8 +12,7 @@ void scale_each_active_histo(){
   if (!gBrowserEx) {return;}
   TH1 *subtracted = 0;
   char retstr[256] = "1.0";
-  TList *histos = (TList *)gBrowserEx->GetListOfOrderedActiveHistos();
-  TIter next(histos);
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 * hist;
   while((hist = (TH1*)next())){
       gROOT->cd();

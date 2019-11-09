@@ -10,8 +10,7 @@
 void add_active_histos(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TList *histos = gBrowserEx->GetListOfOrderedActiveHistos();
-  TIter next(histos);
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 *hist;
   TH1 *added = 0;
   gROOT->cd();

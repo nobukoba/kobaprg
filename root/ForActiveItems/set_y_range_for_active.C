@@ -11,8 +11,7 @@
 void set_y_range_for_active(Double_t x0, Double_t x1){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TList *histos = (TList *)gBrowserEx->GetListOfOrderedActiveHistos();
-  TIter next(histos);
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 * hist;
   while((hist = (TH1*)next())){
     hist->GetYaxis()->SetRangeUser(x0,x1);

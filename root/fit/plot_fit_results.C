@@ -24,7 +24,6 @@ void plot_fit_results(const char * funcname){
   TList *listofpri = gPad->GetListOfPrimitives();
   TIter next(listofpri);
   TObject *obj;
-  TObject *obj;
   TH1 *hist = 0;
   while ((obj = next())){
     if (obj->InheritsFrom("TH2")) {

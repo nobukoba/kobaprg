@@ -7,9 +7,9 @@
 
 void mulfit_narrow_gaus_for_active_results(){
   std::cout << std::endl << "Macro: multi_fit_photo_peak_for_active_results.C" << std::endl;
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser) {
-    gSystem->cd((pHistBrowser->GetInitialWorkingDir()).Data());
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (gBrowserEx) {
+    gSystem->cd((gBrowserEx->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   if (!gPad) {
@@ -17,25 +17,9 @@ void mulfit_narrow_gaus_for_active_results(){
     return;
   }
   TCanvas *canvas = gPad->GetCanvas();
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  if (!hist_fListTree) {return;}
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  
-  while(cur_ListTreeItem){
-    if(!(cur_ListTreeItem->IsActive())){
-      cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
-      continue;
-    }
-    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      userdata = ((TKey*)userdata)->ReadObj();
-      cur_ListTreeItem->SetUserData(userdata);
-    }
-    if (!userdata->InheritsFrom("TH1")){
-      cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
-      continue;
-    }
-    TH1D* hist = (TH1D *)userdata;
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
+  TH1 *hist;
+  while((hist = (TH1 *)next())){
     if (hist==0) {
       std::cout << "hist is null." << std::endl;
       continue;
@@ -52,7 +36,7 @@ void mulfit_narrow_gaus_for_active_results(){
     
     Int_t j = 0;
     TF1 *funcobj = 0;
-    std::cout << userdata->GetName() << " center par: ";
+    std::cout << hist->GetName() << " center par: ";
     while (funcobj = (TF1*)funclist->FindObject(Form("fit_narrow_gaus_%d",j))) {
       std::cout << funcobj->GetParameter(1) << ", ";
     //  sel_pad = gPad->GetCanvas()->cd(j+2);
@@ -108,7 +92,6 @@ void mulfit_narrow_gaus_for_active_results(){
       j++;
     }
     std::cout << std::endl;
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
   }
   return;
 }

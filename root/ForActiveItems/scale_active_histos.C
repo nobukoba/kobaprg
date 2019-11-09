@@ -21,8 +21,7 @@ void scale_active_histos(){
   std::istringstream iss(retstr.Data());
   Double_t par;
   iss >> par;
-  TList *histos = gBrowserEx->GetListOfOrderedActiveHistos();
-  TIter next(histos);
+  TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 *hist;
   gROOT->cd();
   while((hist = (TH1 *)next())){
