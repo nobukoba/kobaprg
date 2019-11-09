@@ -1,7 +1,7 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-  gSystem->CompileMacro("./kobaprg/root/histbrowser.C","k");
-  histbrowser();
+  gSystem->CompileMacro("./kobaprg/root/tbrowserex.C","k");
+  tbrowserex();
 }
 #else
 
@@ -59,7 +59,7 @@ public:
 class TBrowserEx : public TBrowser {
 public:
   TBrowserEx() :
-    TBrowser("tbrowserex","ROOT Object Browser Extended",800,1000,0,"CI"),
+    TBrowser("kobabrowser","ROOT Object Browser Extended",800,1000,0,"CI"),
     /* if option="FCI" is used, segv will occur for
        typing ".q" command for this TBrowserEx and also TBrowser.
        Confirmed with root v5 & v6. */
@@ -892,9 +892,9 @@ protected:
   ClassDef(TBrowserEx,0)
 };
 
-void histbrowser(){
+void tbrowserex(){
 
-  if (gROOT->GetListOfBrowsers()->FindObject("tbrowserex")){
+  if (gROOT->GetListOfBrowsers()->FindObject("kobabrowser")){
     printf("Warning: alredy TBrowserEx is runing!\n");
     return;
   }
