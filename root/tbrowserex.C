@@ -617,18 +617,7 @@ public:
       return cur_item;
     }
   }
-
-  void GetHistActiveItems(TList *items){
-    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-    while(cur_ListTreeItem){
-      if(cur_ListTreeItem->IsActive()){
-        items->Add(new TObjString(Form("%lld", (unsigned long long)cur_ListTreeItem)));
-      }
-      cur_ListTreeItem = NextItem(cur_ListTreeItem);
-    }
-    return;
-  }
-
+  
   void PrintCanvas(){
     /* Print the canvas. */
     gStyle->SetPaperSize(20,26);
@@ -871,6 +860,25 @@ public:
     }
     return;
   }
+
+  TList *GetListOfActiveHistos(){
+    TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+    list_of_active_histos.Delete();
+    while(cur_ListTreeItem){
+      if(cur_ListTreeItem->IsActive()){
+        TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
+        if (userdata->InheritsFrom("TKey")){
+          userdata = ((TKey*)userdata)->ReadObj();
+        }
+        if (userdata->InheritsFrom("TH1")){
+          TH1 *hist = (TH1*)userdata;
+          list_of_active_histos.Add(hist);
+        }
+        cur_ListTreeItem = NextItem(cur_ListTreeItem);
+      }
+    }
+    return &list_of_active_histos;
+  }
   
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
   TGFileBrowserMod *GetTBrowserEx(){return hist_browser;}
@@ -888,6 +896,7 @@ protected:
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
+  TList            list_of_active_histos;
   TString          initial_working_dir;
   ClassDef(TBrowserEx,0)
 };

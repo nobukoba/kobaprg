@@ -7,17 +7,17 @@
 #include "TKey.h"
 #include "TH1.h"
 void sub_techno_ap_hist(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)gBrowserEx->GetHistListTree();
   char retstr[256] = "1.0";
-  TList *ordered_items = (TList *) gROOT->ProcessLine("pHistBrowser->GetHistListTreeActiveItems();");
+  TList *ordered_items = (TList *) gROOT->ProcessLine("gBrowserEx->GetHistListTreeActiveItems();");
   TList items_ins;
   TList *items = &items_ins;
   if (ordered_items) {
     items = ordered_items;
   }else{
-    pHistBrowser->GetHistActiveItems(items);
+    gBrowserEx->GetHistActiveItems(items);
   }
   TH1 *subtracted = 0;
   Int_t nhist = items->GetSize();
