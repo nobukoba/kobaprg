@@ -8,20 +8,13 @@
 #include "TH1.h"
 
 void scale_each_active_histo(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TList *ordered_items = (TList *)pHistBrowser->GetHistListTreeActiveItems();
-  TList items_ins;
-  TList *items = &items_ins;
-  if (ordered_items) {
-    items = ordered_items;
-  }else{
-    pHistBrowser->GetHistActiveItems(items);
-  }
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
   char retstr[256] = "1.0";
   TH1 *subtracted = 0;
   TGListTreeItem *cur_ListTreeItem;
-  TIter next(items);
+  TIter next(ordered_items);
   TObject * obj;
   while((obj = next())){
     cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());

@@ -8,24 +8,16 @@
 #include "TH1.h"
 
 void subtract_active_histos(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TList *ordered_items = (TList *)pHistBrowser->GetHistListTreeActiveItems();
-  TList items_ins;
-  TList *items = &items_ins;
-  if (ordered_items) {
-    items = ordered_items;
-  }else{
-    pHistBrowser->GetHistActiveItems(items);
-  }
-  if (items->GetEntries() <= 1) {
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
+  if (ordered_items->GetEntries() <= 1) {
     std::cout << "Entries is less than 2. Exit." << std::endl;
     return;
   }
-  
   TH1 *subtracted = 0;
   TGListTreeItem *cur_ListTreeItem;
-  TIter next(items);
+  TIter next(ordered_items);
   TObject * obj;
   while((obj = next())){
     cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());

@@ -18,28 +18,19 @@ void plot_active() {
     }
   }
   
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)gBrowserEx->GetHistListTree();
   if (!hist_fListTree) {
-    std::cout << "hist_fListTree is null. Maybe pHistBrowser is also null. This script is terminated." << std::endl;
+    std::cout << "hist_fListTree is null. Maybe gBrowserEx is also null. This script is terminated." << std::endl;
     return;
   }
 
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad == 0;}
-
-  TList *ordered_items = (TList *)pHistBrowser->GetHistListTreeActiveItems();
-  TList items_ins;
-  TList *items = &items_ins;
-  if (ordered_items) {
-    items = ordered_items;
-  }else{
-    pHistBrowser->GetHistActiveItems(items);
-  }
-
+  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
   TGListTreeItem *cur_ListTreeItem;
-  TIter next(items);
+  TIter next(ordered_items);
   TObject * obj;
   while((obj = next())){
     cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());

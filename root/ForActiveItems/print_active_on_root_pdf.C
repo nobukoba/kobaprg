@@ -1,7 +1,7 @@
 void print_active_on_root_pdf() {
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser) {
-    gSystem->cd((pHistBrowser->GetInitialWorkingDir()).Data());
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (gBrowserEx) {
+    gSystem->cd((gBrowserEx->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   if (!gPad) {
@@ -20,25 +20,18 @@ void print_active_on_root_pdf() {
   }
   std::cout << "npad: " << npad <<std::endl;
   
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");
   if (!hist_fListTree) {
-    std::cout << "hist_fListTree is null. Maybe pHistBrowser is also null. This script is terminated." << std::endl;
+    std::cout << "hist_fListTree is null. Maybe gBrowserEx is also null. This script is terminated." << std::endl;
     return;
   }
 
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad == 0;}
-  TList *ordered_items = (TList *) gROOT->ProcessLine("pHistBrowser->GetHistListTreeActiveItems();");
-  TList items_ins;
-  TList *items = &items_ins;
-  if (ordered_items) {
-    items = ordered_items;
-  }else{
-    pHistBrowser->GetHistActiveItems(items);
-  }
+  TList *ordered_items = (TList *) gROOT->ProcessLine("gBrowserEx->GetHistListTreeActiveItems();");
   TH1 *subtracted = 0;
   TGListTreeItem *cur_ListTreeItem;
-  TIter next(items);
+  TIter next(ordered_items);
   TObject * obj;
   canvas->Print("root.pdf[","pdf");
   while((obj = next())){
