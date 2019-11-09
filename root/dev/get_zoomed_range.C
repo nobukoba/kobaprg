@@ -1,8 +1,8 @@
 void get_zoomed_range(){
   std::cout << "Macro: get_zoomed_range.C" << std::endl;
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");
   
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
@@ -14,7 +14,7 @@ void get_zoomed_range(){
       }
       if (userdata->InheritsFrom("TH2")){
 	std::cout << "TH2 histogram can not be handled." << std::endl;
-	cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+	cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
 	continue;
       }
       if (userdata->InheritsFrom("TH1")){
@@ -25,7 +25,7 @@ void get_zoomed_range(){
 	std::cout << "up: " << up << std::endl;
       }
     }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   }
   return;
 }

@@ -5,9 +5,9 @@
 #include "TGListTree.h"
 
 void print_ListTreeItem_status(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   
   while(cur_ListTreeItem){
@@ -19,7 +19,7 @@ void print_ListTreeItem_status(){
     std::cout << "GetUserData()->GetName(): " << ((TObject*)cur_ListTreeItem->GetUserData())->GetName() << std::endl;
     std::cout << "GetUserData()->GetTitle(): " << ((TObject*)cur_ListTreeItem->GetUserData())->GetTitle() << std::endl;
     std::cout << "GetUserData()->ClassName(): " << ((TObject*)cur_ListTreeItem->GetUserData())->ClassName() << std::endl;
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   }
   
   return;

@@ -6,8 +6,8 @@
 
 void print_hist_fListTree_active_items(){
   std::cout << std::endl << "Macro: print_hist_fListTree_active_items.C" << std::endl;
-  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
-  TList *listitems = (TList *) gROOT->ProcessLine("pHistBrowser->GetHistListTreeActiveItems();");
+  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetTBrowserEx();");
+  TList *listitems = (TList *) gROOT->ProcessLine("gBrowserEx->GetHistListTreeActiveItems();");
   if (!listitems) {
     std::cout << "listitems: " << listitems << " is null." << std::endl;
     return;
