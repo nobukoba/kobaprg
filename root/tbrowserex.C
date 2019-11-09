@@ -55,12 +55,13 @@ public:
   ClassDef(TGFileBrowserMod,0)
 };
 
-class HistBrowser : public TBrowser {
+
+class TBrowserEx : public TBrowser {
 public:
-  HistBrowser() :
-    TBrowser("kobahb","HistBrowser",800,1000,0,"CI"),
+  TBrowserEx() :
+    TBrowser("tbrowserex","ROOT Object Browser Extended",800,1000,0,"CI"),
     /* if option="FCI" is used, segv will occur for
-       typing ".q" command for this HistBrowser and also TBrowser.
+       typing ".q" command for this TBrowserEx and also TBrowser.
        Confirmed with root v5 & v6. */
     file_browser(0),
     macro_browser(0),
@@ -70,7 +71,7 @@ public:
   {
       /* gROOT->GetListOfBrowsers()->Remove(this);
     delete this->GetContextMenu();
-    this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "HistBrowser", this, "CloseWindow()");
+    this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "TBrowserEx", this, "CloseWindow()");
     gROOT->GetListOfCleanups()->Remove(this);
     gROOT->GetListOfCleanups()->Remove(macro_browser);
     gROOT->GetListOfCleanups()->Remove(hist_browser);
@@ -107,44 +108,44 @@ public:
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     macro_fListTree->ClearViewPort();
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			     "HistBrowser", this,
+			     "TBrowserEx", this,
 			     "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			     "HistBrowser", this,
+			     "TBrowserEx", this,
 			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     
     /* hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory"))); */
-    hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "HistBrowser", this, "HistBrowserRefresh()");
+    hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "TBrowserEx", this, "TBrowserExRefresh()");
     hist_fListTree = hist_browser->GetListTree();
     /* hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)"); */
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "MyClicked(TGListTreeItem *, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "MyClicked3(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "MyDoubleClicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "MyClickedForHistFileBrowser(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "SetCannotMove(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
    hist_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
-			    "HistBrowser", this,
+			    "TBrowserEx", this,
 			    "RemoveAndSetText(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
 
 
    TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
-		      "HistBrowser", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
-    //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","HistBrowser", this, "HandleKey(Event_t*)");
+		      "TBrowserEx", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
+    //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKey(Event_t*)");
 
-    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","HistBrowser", this, "HBHandleKey(Event_t*)");
+    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HBHandleKey(Event_t*)");
 
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
@@ -185,8 +186,8 @@ public:
     hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
   }
   
-  ~HistBrowser(){
-    /* printf("~HistBrowser");
+  ~TBrowserEx(){
+    /* printf("~TBrowserEx");
        gROOT->GetListOfBrowsers()->Remove(this);
        delete hist_browser;
        delete macro_browser; */
@@ -530,7 +531,7 @@ public:
     return;
   }
   
-  void HistBrowserRefresh() {
+  void TBrowserExRefresh() {
     RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
   }
   
@@ -797,9 +798,9 @@ public:
   }
   
   void writeTFolder(TObject* c){
-    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");  
+    TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");  
     TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
-    TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
+    TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetTBrowserEx();");
     TString fullpath = hist_browser->FullPathName(item);
     
     TDirectory *cur_dir = 0;
@@ -872,7 +873,7 @@ public:
   }
   
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
-  TGFileBrowserMod *GetHistBrowser(){return hist_browser;}
+  TGFileBrowserMod *GetTBrowserEx(){return hist_browser;}
   TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
   TGListTree *GetMacroListTree(){return macro_fListTree;}
   TGListTree *GetHistListTree(){return hist_fListTree;}
@@ -888,14 +889,15 @@ protected:
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
   TString          initial_working_dir;
-  ClassDef(HistBrowser,0)
+  ClassDef(TBrowserEx,0)
 };
 
 void histbrowser(){
-  if (gROOT->GetListOfBrowsers()->FindObject("kobahb")){
-    printf("Warning: alredy HistBrowser is runing!\n");
+
+  if (gROOT->GetListOfBrowsers()->FindObject("tbrowserex")){
+    printf("Warning: alredy TBrowserEx is runing!\n");
     return;
   }
-  gROOT->ProcessLine("HistBrowser *pHistBrowser =  new HistBrowser();");  
+  gROOT->ProcessLine("TBrowserEx *gBrowserEx =  new TBrowserEx();");  
 }
 #endif
