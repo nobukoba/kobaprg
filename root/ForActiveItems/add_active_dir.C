@@ -1,9 +1,9 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
+  TBrowserEx *gBrowserEx_tmp = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   TString dir;
-  if (pHistBrowser_tmp) {
-    dir = pHistBrowser_tmp->GetInitialWorkingDir();
+  if (gBrowserEx_tmp) {
+    dir = gBrowserEx_tmp->GetInitialWorkingDir();
     gSystem->cd(dir.Data());
   }else{
     return;
@@ -99,14 +99,14 @@ void MergeDir(TDirectory *source, TDirectory *target) {
 
 void add_active_dir(){
   std::cout << std::endl << "Macro: add_active_files.C" << std::endl;
-  HistBrowser *pHistBrowser_tmp = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (pHistBrowser_tmp) {
-    gSystem->cd((pHistBrowser_tmp->GetInitialWorkingDir()).Data());
+  TBrowserEx *gBrowserEx_tmp = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (gBrowserEx_tmp) {
+    gSystem->cd((gBrowserEx_tmp->GetInitialWorkingDir()).Data());
   }else{return;}
   std::cout << "gSystem->pwd(): " << gSystem->pwd() << std::endl;
   
-  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("pHistBrowser->GetHistListTree();");
-  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("pHistBrowser->GetHistBrowser();");
+  TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");
+  TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetTBrowserEx();");
   if (!hist_fListTree) {
     std::cout << "hist_fListTree is NULL. histbrowser.C is not runing? This script is terminated." << std::endl;
     return;
@@ -125,7 +125,7 @@ void add_active_dir(){
   	std::cout << "The active item: " << userdata->GetName()
   		  << " does not inherits from TFolder. This item is skipped."
   		  << std::endl;
-  	cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+  	cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   	continue;
       }
       TString fullpath = hist_browser->FullPathName(cur_ListTreeItem);
@@ -165,7 +165,7 @@ void add_active_dir(){
   	list_of_active_dir->Add((TObject*)cur_dir);
       }
     }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   }
   
   Int_t num_entries = list_of_active_dir->GetEntries();

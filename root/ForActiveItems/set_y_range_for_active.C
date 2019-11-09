@@ -9,22 +9,13 @@
 #include "TH1.h"
 
 void set_y_range_for_active(Double_t x0, Double_t x1){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (userdata->InheritsFrom("TH1")){
-	((TH1*)userdata)->GetYaxis()->SetRangeUser(x0,x1);
-      }
-    }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TList *histos = (TList *)gBrowserEx->GetListOfOrderedActiveHistos();
+  TIter next(histos);
+  TH1 * hist;
+  while((hist = (TH1*)next())){
+    hist->GetYaxis()->SetRangeUser(x0,x1);
   }
   return;
 }

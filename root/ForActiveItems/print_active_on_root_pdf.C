@@ -25,30 +25,20 @@ void print_active_on_root_pdf() {
     std::cout << "hist_fListTree is null. Maybe gBrowserEx is also null. This script is terminated." << std::endl;
     return;
   }
-
+  
   Int_t cur_pad = 1;
-  if(npad == 0){cur_pad == 0;}
-  TList *ordered_items = (TList *) gROOT->ProcessLine("gBrowserEx->GetHistListTreeActiveItems();");
+  if(npad == 0){cur_pad = 0;}
+  TList *items = (TList *)gBrowserEx->GetHistListTreeActiveHistos();
   TH1 *subtracted = 0;
-  TGListTreeItem *cur_ListTreeItem;
-  TIter next(ordered_items);
-  TObject * obj;
+  TIter next2(items);
   canvas->Print("root.pdf[","pdf");
-  while((obj = next())){
-    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+  while((obj = next2())){
+    TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
     if(((npad == 0) && (cur_pad == 0))||
        ((npad > 0)  && (cur_pad == 1))) {
       canvas->Clear("D");
     }
     canvas->cd(cur_pad);
-    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      userdata = ((TKey*)userdata)->ReadObj();
-      cur_ListTreeItem->SetUserData(userdata);
-    }
-    if (!userdata->InheritsFrom("TH1")){
-      continue;
-    }
     hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
     cur_pad++;
     if (cur_pad > npad){

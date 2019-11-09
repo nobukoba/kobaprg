@@ -8,22 +8,13 @@
 #include "TH1.h"
 
 void unzoom_x_for_active(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (userdata->InheritsFrom("TH1")){
-	((TH1*)userdata)->GetYaxis()->UnZoom();
-      }
-    }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TList *histos = (TList *)gBrowserEx->GetListOfOrderedActiveHistos();
+  TIter next(histos);
+  TH1 * hist;
+  while((hist = (TH1*)next())){
+    hist->GetYaxis()->UnZoom();
   }
   return;
 }

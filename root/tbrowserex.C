@@ -184,6 +184,10 @@ public:
     hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     ltitem = hist_fListTree->FindChildByName(0,"ROOT_Files");
     hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
+    gROOT->GetListOfCleanups()->Add(&list_of_active_histos);
+    gROOT->GetListOfCleanups()->Add(&list_of_ordered_active_histos);
+    /* see https://sft.its.cern.ch/jira/browse/ROOT-9262
+       for gROOT->GetListOfCleanups()*/
   }
   
   ~TBrowserEx(){
@@ -863,7 +867,7 @@ public:
 
   TList *GetListOfActiveHistos(){
     TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
-    list_of_active_histos.Delete();
+    list_of_active_histos.Clear();
     while(cur_ListTreeItem){
       if(cur_ListTreeItem->IsActive()){
         TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
@@ -871,13 +875,46 @@ public:
           userdata = ((TKey*)userdata)->ReadObj();
         }
         if (userdata->InheritsFrom("TH1")){
-          TH1 *hist = (TH1*)userdata;
-          list_of_active_histos.Add(hist);
+          list_of_active_histos.Add(userdata);
         }
-        cur_ListTreeItem = NextItem(cur_ListTreeItem);
       }
+      cur_ListTreeItem = NextItem(cur_ListTreeItem);
     }
     return &list_of_active_histos;
+  }
+  
+  TList *GetListOfOrderedActiveHistos(){
+    list_of_ordered_active_histos.Clear();
+    TIter next(&hist_fListTree_active_items);
+    TObject * obj;
+    while((obj = next())){
+      TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
+      if (userdata->InheritsFrom("TKey")){
+        userdata = ((TKey*)userdata)->ReadObj();
+      }
+      if (userdata->InheritsFrom("TH1")){
+        list_of_ordered_active_histos.Add(userdata);
+      }
+    }
+    return &list_of_ordered_active_histos;
+  }
+
+  TList *GetHistListTreeActiveHistos(){
+    hist_fListTree_active_histos.Clear();
+    TIter next(&hist_fListTree_active_items);
+    TObject * obj;
+    while((obj = next())){
+      TGListTreeItem *cur_item = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+      TClass *cl = TClass::GetClass(((TObject*)(cur_item->GetUserData()))->ClassName());
+      if (cl->InheritsFrom("TKey")) {
+        cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
+      }
+      if (cl->InheritsFrom("TH1")){
+        hist_fListTree_active_histos.Add(new TObjString(Form("%lld",(unsigned long long)cur_item)));
+      }
+    }
+    return &hist_fListTree_active_histos;
   }
   
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
@@ -896,7 +933,9 @@ protected:
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
+  TList            hist_fListTree_active_histos;
   TList            list_of_active_histos;
+  TList            list_of_ordered_active_histos;
   TString          initial_working_dir;
   ClassDef(TBrowserEx,0)
 };

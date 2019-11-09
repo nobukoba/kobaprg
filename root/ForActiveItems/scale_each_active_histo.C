@@ -10,21 +10,12 @@
 void scale_each_active_histo(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
-  char retstr[256] = "1.0";
   TH1 *subtracted = 0;
-  TGListTreeItem *cur_ListTreeItem;
-  TIter next(ordered_items);
-  TObject * obj;
-  while((obj = next())){
-    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
-    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      userdata = ((TKey*)userdata)->ReadObj();
-      cur_ListTreeItem->SetUserData(userdata);
-    }
-    if (userdata->InheritsFrom("TH1")){
-      TH1 *hist = (TH1*)userdata;
+  char retstr[256] = "1.0";
+  TList *histos = (TList *)gBrowserEx->GetListOfOrderedActiveHistos();
+  TIter next(histos);
+  TH1 * hist;
+  while((hist = (TH1*)next())){
       gROOT->cd();
       TString str = hist->GetName();
       str += "_scl";

@@ -8,10 +8,8 @@
 #include "TH1.h"
 
 void scale_active_histos(){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
-  TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
   char retstr[256] = "1.0";
   TString disstr = "Please enter scale for the all histos";
   new TGInputDialog(gClient->GetRoot(),0,
@@ -23,29 +21,21 @@ void scale_active_histos(){
   std::istringstream iss(retstr.Data());
   Double_t par;
   iss >> par;
-  while(cur_ListTreeItem){
-    if(cur_ListTreeItem->IsActive()){
-      TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (userdata->InheritsFrom("TKey")){
-      	userdata = ((TKey*)userdata)->ReadObj();
-	cur_ListTreeItem->SetUserData(userdata);
-      }
-      if (userdata->InheritsFrom("TH1")){
-	TH1 *hist = (TH1*)userdata;
-	gROOT->cd();
-	TString str = hist->GetName();
-	str += "_scl";
-	TString str_n = str;
-	Int_t num = 1;
-	while (gROOT->Get(str_n.Data())) {
-	  str_n = Form("%s%d",str.Data(),num);
-	  num++;
-	}
-	TH1 *scl = (TH1*) hist->Clone(str_n);
-	scl->Scale(par);
-      }
+  TList *histos = gBrowserEx->GetListOfOrderedActiveHistos();
+  TIter next(histos);
+  TH1 *hist;
+  gROOT->cd();
+  while((hist = (TH1 *)next())){
+    TString str = hist->GetName();
+    str += "_scl";
+    TString str_n = str;
+    Int_t num = 1;
+    while (gROOT->Get(str_n.Data())) {
+      str_n = Form("%s%d",str.Data(),num);
+      num++;
     }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    TH1 *scl = (TH1*) hist->Clone(str_n);
+    scl->Scale(par);
   }
   return;
 }

@@ -10,39 +10,29 @@
 void subtract_active_histos(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
-  if (ordered_items->GetEntries() <= 1) {
+  TList *histos = gBrowserEx->GetListOfOrderedActiveHistos();
+  if (histos->GetEntries() <= 1) {
     std::cout << "Entries is less than 2. Exit." << std::endl;
     return;
   }
+  TIter next(histos);
+  TH1 *hist;
   TH1 *subtracted = 0;
-  TGListTreeItem *cur_ListTreeItem;
-  TIter next(ordered_items);
-  TObject * obj;
-  while((obj = next())){
-    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
-    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      userdata = ((TKey*)userdata)->ReadObj();
-      cur_ListTreeItem->SetUserData(userdata);
-    }
-    if (userdata->InheritsFrom("TH1")){
-      TH1 *hist = (TH1*)userdata;
-      gROOT->cd();
-      if (subtracted == 0) {
-	TString str = hist->GetName();
-	str += "_sub";
-	TString str_n = str;
-	Int_t num = 1;
-	while (gROOT->Get(str_n.Data())) {
-	  str_n = Form("%s%d",str.Data(),num);
-	  num++;
-	}
-	subtracted = (TH1*) hist->Clone(str_n);
-	subtracted->SetTitle(hist->GetTitle());
-      }else{
-	subtracted->Add(hist,-1);
+  gROOT->cd();
+  while((hist = (TH1 *)next())){
+    if (subtracted == 0) {
+      TString str = hist->GetName();
+      str += "_sub";
+      TString str_n = str;
+      Int_t num = 1;
+      while (gROOT->Get(str_n.Data())) {
+        str_n = Form("%s%d",str.Data(),num);
+        num++;
       }
+      subtracted = (TH1*) hist->Clone(str_n);
+      subtracted->SetTitle(hist->GetTitle());
+    }else{
+      subtracted->Add(hist,-1);
     }
   }
   return;

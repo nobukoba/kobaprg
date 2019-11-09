@@ -27,26 +27,16 @@ void plot_active() {
   }
 
   Int_t cur_pad = 1;
-  if(npad == 0){cur_pad == 0;}
-  TList *ordered_items = (TList *)gBrowserEx->GetHistListTreeActiveItems();
-  TGListTreeItem *cur_ListTreeItem;
-  TIter next(ordered_items);
-  TObject * obj;
-  while((obj = next())){
-    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+  if(npad == 0){cur_pad = 0;}
+  TList *items = (TList *)gBrowserEx->GetHistListTreeActiveHistos();
+  TIter next2(items);
+  while((obj = next2())){
+  TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
     if(((npad == 0) && (cur_pad == 0))||
        ((npad > 0)  && (cur_pad == 1))) {
       canvas->Clear("D");
     }
     canvas->cd(cur_pad);
-    TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-    if (userdata->InheritsFrom("TKey")){
-      userdata = ((TKey*)userdata)->ReadObj();
-      cur_ListTreeItem->SetUserData(userdata);
-    }
-    if (!userdata->InheritsFrom("TH1")){
-      continue;
-    }
     hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
     cur_pad++;
     if (cur_pad > npad){
