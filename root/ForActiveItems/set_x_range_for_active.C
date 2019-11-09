@@ -9,9 +9,9 @@
 #include "TH1.h"
 
 void set_x_range_for_active(Double_t x0, Double_t x1){
-  HistBrowser *pHistBrowser = (HistBrowser *)gROOT->ProcessLine("pHistBrowser;");
-  if (!pHistBrowser) {return;}
-  TGListTree *hist_fListTree = (TGListTree *)pHistBrowser->GetHistListTree();
+  TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+  if (!gBrowserEx) {return;}
+  TGListTree *hist_fListTree = (TGListTree *)gBrowserEx->GetHistListTree();
   TGListTreeItem *cur_ListTreeItem = hist_fListTree->GetFirstItem();
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
@@ -24,7 +24,7 @@ void set_x_range_for_active(Double_t x0, Double_t x1){
 	((TH1*)userdata)->GetXaxis()->SetRangeUser(x0,x1);
       }
     }
-    cur_ListTreeItem = pHistBrowser->NextItem(cur_ListTreeItem);
+    cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   }
   return;
 }
@@ -40,7 +40,7 @@ void set_x_range_for_active(){
   }
   TString str = retstr;
   str.ReplaceAll(","," ");
-  std::istringstream iss(str);
+  std::istringstream iss(str.Data());
   Double_t par0, par1;
   iss >> par0 >> par1;
   set_x_range_for_active(par0, par1);
