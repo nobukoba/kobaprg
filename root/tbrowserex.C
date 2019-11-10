@@ -230,12 +230,16 @@ public:
     }else{
       return;
     }
+
     if (!cur_ListTree->GetCurrent()) {
-      TGPosition pos = cur_ListTree->GetPagePosition();
       Event_t event_tmp; 
-      event_tmp.fY = pos.fY + 2;
-      cur_ListTree->HandleMotion(&event_tmp);
-      event_tmp.fY = -1;
+      if (hist_fListTree_active_items.Last()) {
+        TGListTreeItem * item_tmp = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+        event_tmp.fY = item_tmp->fY;
+      }else{
+        TGPosition pos = cur_ListTree->GetPagePosition();
+        event_tmp.fY = pos.fY + 2;
+      }
       cur_ListTree->HandleMotion(&event_tmp);
     }
     TGListTreeItem * cur_item = cur_ListTree->GetCurrent();
