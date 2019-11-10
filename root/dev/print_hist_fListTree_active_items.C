@@ -15,8 +15,9 @@ void print_hist_fListTree_active_items(){
   TIter next(listitems);
   TObject * obj;
   while((obj = next())){
-    cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
+    TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) (((TObjString*)obj)->GetString().Atoll());
     std::cout << ""  << std::endl;
+    std::cout << "fY: " << cur_ListTreeItem->fY << std::endl;
     std::cout << "GetText(): " << cur_ListTreeItem->GetText() << std::endl;
     std::cout << "IsChecked(): " << cur_ListTreeItem->IsChecked() << std::endl;
     std::cout << "IsActive(): " << cur_ListTreeItem->IsActive() << std::endl;
