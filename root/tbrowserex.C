@@ -232,7 +232,7 @@ public:
     }
 
     if (!cur_ListTree->GetCurrent()) {
-      Event_t event_tmp; 
+      Event_t event_tmp;
       if (hist_fListTree_active_items.Last()) {
         TGListTreeItem * item_tmp = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
         event_tmp.fY = item_tmp->fY;
@@ -920,7 +920,7 @@ public:
     }
     return &hist_fListTree_active_histos;
   }
-  
+
   TGFileBrowserMod *GetFileBrowser(){return file_browser;}
   TGFileBrowserMod *GetHistBrowser(){return hist_browser;}
   TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
@@ -945,7 +945,6 @@ protected:
 };
 
 void tbrowserex(){
-
   if (gROOT->GetListOfBrowsers()->FindObject("kobabrowser")){
     printf("Warning: alredy TBrowserEx is runing!\n");
     return;
