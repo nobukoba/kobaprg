@@ -30,6 +30,7 @@
 #include "TGTextEntry.h"
 #include "TGPicture.h"
 #include "TGDimension.h"
+#include "TGInputDialog.h"
 #include "TFile.h"
 #include "TList.h"
 #include "TClass.h"
@@ -122,6 +123,7 @@ public:
 			     "MyClicked2(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)");
     
     /* hist_browser->Add((TFolder *)(((TFolder *)gROOT->GetListOfBrowsables()->FindObject("root"))->FindObject("ROOT Memory"))); */
+    macro_browser->GetRefreshButtonPointer()->Connect("Clicked()", "TBrowserEx", this, "TBrowserExRefresh()");
     hist_browser->GetRefreshButtonPointer()->Connect("Clicked()", "TBrowserEx", this, "TBrowserExRefresh()");
     hist_fListTree = hist_browser->GetListTree();
     /* hist_fListTree->Disconnect("Clicked(TGListTreeItem *, Int_t)"); */
@@ -151,9 +153,8 @@ public:
    TQObject::Connect("TCanvas","ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
 		      "TBrowserEx", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
     //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKey(Event_t*)");
-
+    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleButtonsEx(Event_t*)");
     TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKeyEx(Event_t*)");
-
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
     hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); /* line 15 */
@@ -191,10 +192,11 @@ public:
     hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
     ltitem = hist_fListTree->FindChildByName(0,"ROOT_Files");
     hist_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
-    gROOT->GetListOfCleanups()->Add(&list_of_active_histos);
-    gROOT->GetListOfCleanups()->Add(&list_of_ordered_active_histos);
     /* see https://sft.its.cern.ch/jira/browse/ROOT-9262
        for gROOT->GetListOfCleanups()*/
+    gROOT->GetListOfCleanups()->Add(&list_of_active_histos);
+    gROOT->GetListOfCleanups()->Add(&list_of_ordered_active_histos);
+    TTimer::SingleShot(200,"TBrowserEx",this,"TBrowserExRefresh()");
   }
   
   ~TBrowserEx(){
@@ -214,10 +216,21 @@ public:
      gClient->Delete();
      } */
 
-  void HandleKeyEx(Event_t* event){
-    if (event->fType != kGKeyPress) {
-      return;
+  void HandleButtonsEx(Event_t* event){
+    if (event->fType != kButtonPress) {return;}
+    /*std::cout << "event->fType:" << event->fType << std::endl;*/
+    TString gTQSender_name = ((TObject*)gTQSender)->GetName();
+    /*std::cout << "gTQSender_name:" << gTQSender_name << std::endl;*/
+    if (!gTQSender_name.BeginsWith("fTab")) {return;}
+    TGTabElement * cur_tabel = (TGTabElement*)gTQSender;
+    if(cur_tabel->GetText()->EqualTo("Macros")){
+      macro_browser->GetRefreshButtonPointer()->Clicked();
+    }else if(cur_tabel->GetText()->EqualTo("Histos")){
+      hist_browser->GetRefreshButtonPointer()->Clicked();
     }
+  }
+  void HandleKeyEx(Event_t* event){
+    if (event->fType != kGKeyPress) {return;}
     char   input[10];
     UInt_t keysym;
     gVirtualX->LookupString(event, input, sizeof(input), keysym);
@@ -235,10 +248,10 @@ public:
     TGFileBrowserEx *cur_FileBrowser = 0; 
     TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
     Int_t ntab = ptab->GetNumberOfTabs();
-    if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
+    if(ptab->GetCurrentTab()->GetText()->EqualTo("Macros")){
       cur_ListTree    = macro_fListTree;
       cur_FileBrowser = macro_browser;
-    }else if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Histos")==0){
+    }else if(ptab->GetCurrentTab()->GetText()->EqualTo("Histos")){
       cur_ListTree    = hist_fListTree;
       cur_FileBrowser = hist_browser;
     }else{
@@ -247,7 +260,7 @@ public:
     if (!cur_ListTree->GetCurrent()) {
       Event_t event_tmp;
       TGListTreeItem * item_tmp = 0;
-      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
+      if(ptab->GetCurrentTab()->GetText()->EqualTo("Macros")){
         item_tmp = GetActiveMacro();
       }else{
         if (hist_fListTree_active_items.Last()) {
@@ -283,6 +296,7 @@ public:
 	  ptab->SetTab(prev_tab,0);
 	  prev_tab = new_tab;
 	}
+        cur_FileBrowser->GetRefreshButtonPointer()->Clicked();
       }
     }
     /*if (keysym == kKey_g) {
@@ -560,13 +574,28 @@ public:
   }
   
   void TBrowserExRefresh() {
-    RefreshDir(hist_fListTree, hist_fListTree->GetFirstItem());
+    TGListTree *cur_ListTree = 0; 
+    TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
+    if(ptab->GetCurrentTab()->GetText()->EqualTo("Macros")){
+      cur_ListTree = macro_fListTree;
+    }else if(ptab->GetCurrentTab()->GetText()->EqualTo("Histos")){
+      cur_ListTree = hist_fListTree;
+    }else{
+      return;
+    }
+    RefreshDir(cur_ListTree, cur_ListTree->GetFirstItem());
+    return;
   }
-  
   void RefreshDir(TGListTree* lt, TGListTreeItem* item){
     TGListTreeItem* cur_item = item;
     while (cur_item){
-      TClass *cl = TClass::GetClass(((TObject*)cur_item->GetUserData())->ClassName());
+      /*std::cout << "cur_item->GetText()" << cur_item->GetText() << std::endl;*/
+      TClass *cl;
+      if (cur_item->GetUserData()) {
+        cl = TClass::GetClass(((TObject*)cur_item->GetUserData())->ClassName());
+      }else{
+        cl = TClass::GetClass("TFolder");
+      }
       if (cl->InheritsFrom("TKey")) {
         cl = TClass::GetClass(((TKey*)(cur_item->GetUserData()))->GetClassName());
       }
@@ -721,14 +750,14 @@ public:
     while (cur_item){
       /* printf("cur_item %s\n",cur_item->GetText()); */
       TObject *userdata = (TObject*)cur_item->GetUserData();
-      if(userdata->InheritsFrom("TKey")){
+      if(userdata && userdata->InheritsFrom("TKey")){
         TString str = "KEY: ";
         str += userdata->GetName();
         str += "; ";
         str += userdata->GetTitle();
         cur_item->SetText(str);
       }
-      if(userdata->InheritsFrom("TH1")){
+      if(userdata && userdata->InheritsFrom("TH1")){
         TString str = userdata->GetName();
         str += "; ";
         str += userdata->GetTitle();
@@ -818,8 +847,7 @@ public:
     TGListTree *hist_fListTree = (TGListTree *) gROOT->ProcessLine("gBrowserEx->GetHistListTree();");  
     TGListTreeItem *item = hist_fListTree->FindItemByObj(hist_fListTree->GetFirstItem(),c);
     TGFileBrowser *hist_browser = (TGFileBrowser *) gROOT->ProcessLine("gBrowserEx->GetHistBrowser();");
-    TString fullpath = hist_browser->FullPathName(item);
-    
+    TString fullpath = hist_browser->FullPathName(item);    
     TDirectory *cur_dir = 0;
     Int_t memo_file_flag = 0;
     TString filename = "";
@@ -856,7 +884,6 @@ public:
     if (cur_dir==0) {
       return;
     }
-    
     TString file_in_str = filename;
     if(file_in_str.EndsWith(".hb")){
       file_in_str.Resize(file_in_str.Length()-3);
@@ -868,7 +895,6 @@ public:
       file_in_str.Resize(file_in_str.Length()-6);
     }
     file_in_str += ".root";
-    
     TFile *local = TFile::Open(file_in_str,"recreate");
     TCollection* col = 0;
     if (memo_file_flag==1) {
@@ -889,6 +915,28 @@ public:
     return;
   }
 
+  TString OpenTGInputDialog(const char *mes, const char *ini){
+    static char retstr[256] = "0.0 1.0";
+    std::cout << "here"<< std::endl;
+    if (ini[0] == 0) {
+    std::cout << "here2"<< std::endl;
+      new TGInputDialog(gClient->GetRoot(),0,mes,retstr,retstr);
+    }else{
+    std::cout << "here2"<< std::endl;
+      new TGInputDialog(gClient->GetRoot(),0,mes,ini,retstr);
+    }
+    if(retstr[0] == 0 && retstr[1] == 0){
+      std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
+      return TString("");
+    }
+    TString str = retstr;
+    str.ReplaceAll(","," ");
+    return str;
+  }
+  TString OpenTGInputDialog(const char *mes){
+    return OpenTGInputDialog(mes, 0);
+  }
+  
   TGListTreeItem *GetActiveMacro(){
     TGListTreeItem *cur_ListTreeItem = macro_fListTree->GetFirstItem();
     while(cur_ListTreeItem){
@@ -979,6 +1027,6 @@ protected:
 };
 
 void tbrowserex(){
-    gROOT->ProcessLine("TBrowserEx tbrowserex_obj;");
+  gROOT->ProcessLine("TBrowserEx *tbrowserex_obj = new TBrowserEx();");
 }
 #endif
