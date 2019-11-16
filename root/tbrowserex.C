@@ -214,7 +214,7 @@ public:
      gClient->Delete();
      } */
 
-    void HandleKeyEx(Event_t* event){
+  void HandleKeyEx(Event_t* event){
     if (event->fType != kGKeyPress) {
       return;
     }
