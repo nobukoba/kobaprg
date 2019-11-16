@@ -91,6 +91,7 @@ public:
        StopEmbedding("Histos"); */
     gROOT->ProcessLine(Form("TBrowserEx *gBrowserEx = (TBrowserEx *)0x%lx;",(ULong_t)this));
     initial_working_dir = gSystem->pwd();
+    str_input_dialog = "0.0 1.0";
     
     TString cmd;
     cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
@@ -284,6 +285,7 @@ public:
     }
     static UInt_t prev_keysym = 0;
     static Int_t  prev_tab    = 1;
+    /*std::cout << "prev_keysym " << prev_keysym<< std::endl;*/
     if (event->fState & kKeyControlMask) {
       if (keysym == kKey_Tab) {
 	Int_t new_tab = ptab->GetCurrent();
@@ -916,22 +918,19 @@ public:
   }
 
   TString OpenTGInputDialog(const char *mes, const char *ini){
-    static char retstr[256] = "0.0 1.0";
-    std::cout << "here"<< std::endl;
-    if (ini[0] == 0) {
-    std::cout << "here2"<< std::endl;
-      new TGInputDialog(gClient->GetRoot(),0,mes,retstr,retstr);
+    char retstr[256];
+    if (ini == 0) {
+      new TGInputDialog(gClient->GetRoot(),0,mes,str_input_dialog.Data(),retstr);
     }else{
-    std::cout << "here2"<< std::endl;
       new TGInputDialog(gClient->GetRoot(),0,mes,ini,retstr);
     }
     if(retstr[0] == 0 && retstr[1] == 0){
       std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
       return TString("");
     }
-    TString str = retstr;
-    str.ReplaceAll(","," ");
-    return str;
+    str_input_dialog = retstr;
+    str_input_dialog.ReplaceAll(","," ");
+    return str_input_dialog;
   }
   TString OpenTGInputDialog(const char *mes){
     return OpenTGInputDialog(mes, 0);
@@ -1023,6 +1022,7 @@ protected:
   TList            list_of_active_histos;
   TList            list_of_ordered_active_histos;
   TString          initial_working_dir;
+  TString          str_input_dialog;
   ClassDef(TBrowserEx,0)
 };
 
