@@ -89,9 +89,9 @@ public:
     hist_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
     StopEmbedding("Histos"); */
     initial_working_dir = gSystem->pwd();
-
+    
     TString cmd;
-
+    
     cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
     macro_browser = (TGFileBrowserEx*) this->ExecPlugin("Macros", 0, cmd.Data(), 0);
   
@@ -952,10 +952,11 @@ protected:
 };
 
 void tbrowserex(){
-  if (gROOT->GetListOfBrowsers()->FindObject("kobabrowser")){
+  /*if (gROOT->GetListOfBrowsers()->FindObject("kobabrowser")){
     printf("Warning: alredy TBrowserEx is runing!\n");
     return;
-  }
-  gROOT->ProcessLine("TBrowserEx *gBrowserEx =  new TBrowserEx();");  
+    }*/
+  /*gROOT->ProcessLine("TBrowserEx *gBrowserEx =  new TBrowserEx();");  */
+    gROOT->ProcessLine("TBrowserEx tb;");
 }
 #endif
