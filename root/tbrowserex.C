@@ -43,18 +43,25 @@
 #include "TGraphErrors.h"
 #include "KeySymbols.h"
 
-class TGFileBrowserMod : public TGFileBrowser {
+class TGFileBrowserEx : public TGFileBrowser {
 public:
-  TGFileBrowserMod(const TGWindow *p, TBrowser* b, UInt_t w, UInt_t h) : 
+  TGFileBrowserEx(const TGWindow *p, TBrowser* b, UInt_t w, UInt_t h) : 
     TGFileBrowser(p, b, w, h){}
   TGListTree* GetListTree(){return fListTree;}
   TGListTreeItem* GetListLevel(){return fListLevel;}
   void ResetListLevel(){fListLevel = 0;}
   TGComboBox* GetDrawOptionPointer(){return fDrawOption;}
   TGPictureButton* GetRefreshButtonPointer(){return fRefreshButton;}
-  ClassDef(TGFileBrowserMod,0)
+  ClassDef(TGFileBrowserEx,0)
 };
 
+class TGListTreeItemEx : public TGListTreeItem {
+public:
+  TGListTreeItemEx(TGClient *client) :
+    TGListTreeItem(client){}
+  Int_t GetY(){return this->fY;}
+  ClassDef(TGListTreeItemEx,0)
+};
 
 class TBrowserEx : public TBrowser {
 public:
@@ -76,20 +83,20 @@ public:
     gROOT->GetListOfCleanups()->Remove(macro_browser);
     gROOT->GetListOfCleanups()->Remove(hist_browser);
     StartEmbedding(TRootBrowser::kLeft,-1);
-    macro_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    macro_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
     StopEmbedding("Macros");
     StartEmbedding(TRootBrowser::kLeft,-1);
-    hist_browser = new TGFileBrowserMod(gClient->GetRoot(), this, 200, 500);
+    hist_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
     StopEmbedding("Histos"); */
     initial_working_dir = gSystem->pwd();
 
     TString cmd;
 
-    cmd.Form("new TGFileBrowserMod(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
-    macro_browser = (TGFileBrowserMod*) this->ExecPlugin("Macros", 0, cmd.Data(), 0);
+    cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
+    macro_browser = (TGFileBrowserEx*) this->ExecPlugin("Macros", 0, cmd.Data(), 0);
   
-    cmd.Form("new TGFileBrowserMod(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
-    hist_browser = (TGFileBrowserMod*)  this->ExecPlugin("Histos", 0, cmd.Data(), 0);
+    cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
+    hist_browser = (TGFileBrowserEx*)  this->ExecPlugin("Histos", 0, cmd.Data(), 0);
     
     TFolder *fld = new TFolder();
     fld->SetName("fld");
@@ -218,7 +225,7 @@ public:
       return;
     }
     TGListTree *cur_ListTree = 0; 
-    TGFileBrowserMod *cur_FileBrowser = 0; 
+    TGFileBrowserEx *cur_FileBrowser = 0; 
     TGTab * ptab = ((TRootBrowser*)this->GetBrowserImp())->GetTabLeft();
     Int_t ntab = ptab->GetNumberOfTabs();
     if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
@@ -235,7 +242,7 @@ public:
       Event_t event_tmp;
       if (hist_fListTree_active_items.Last()) {
         TGListTreeItem * item_tmp = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
-        event_tmp.fY = item_tmp->fY;
+        event_tmp.fY = ((TGListTreeItemEx*)item_tmp)->GetY();
       }else{
         TGPosition pos = cur_ListTree->GetPagePosition();
         event_tmp.fY = pos.fY + 2;
@@ -921,9 +928,9 @@ public:
     return &hist_fListTree_active_histos;
   }
 
-  TGFileBrowserMod *GetFileBrowser(){return file_browser;}
-  TGFileBrowserMod *GetHistBrowser(){return hist_browser;}
-  TGFileBrowserMod *GetMacroBrowser(){return macro_browser;}
+  TGFileBrowserEx *GetFileBrowser(){return file_browser;}
+  TGFileBrowserEx *GetHistBrowser(){return hist_browser;}
+  TGFileBrowserEx *GetMacroBrowser(){return macro_browser;}
   TGListTree *GetMacroListTree(){return macro_fListTree;}
   TGListTree *GetHistListTree(){return hist_fListTree;}
   TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
@@ -931,9 +938,9 @@ public:
   TString GetInitialWorkingDir(){return initial_working_dir;}
   
 protected:
-  TGFileBrowserMod *file_browser;
-  TGFileBrowserMod *macro_browser;
-  TGFileBrowserMod *hist_browser;
+  TGFileBrowserEx  *file_browser;
+  TGFileBrowserEx  *macro_browser;
+  TGFileBrowserEx  *hist_browser;
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
   TList            hist_fListTree_active_items;
