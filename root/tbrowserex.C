@@ -198,9 +198,7 @@ public:
   }
   
   ~TBrowserEx(){
-    if(this){
-      gROOT->GetListOfBrowsers()->Remove(this);
-    }
+    gROOT->GetListOfBrowsers()->Remove(this);
     /* printf("~TBrowserEx");
        gROOT->GetListOfBrowsers()->Remove(this);
        delete hist_browser;
@@ -240,11 +238,17 @@ public:
     }else{
       return;
     }
-
     if (!cur_ListTree->GetCurrent()) {
       Event_t event_tmp;
-      if (hist_fListTree_active_items.Last()) {
-        TGListTreeItem * item_tmp = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+      TGListTreeItem * item_tmp = 0;
+      if(strcmp(ptab->GetCurrentTab()->GetText()->Data(),"Macros")==0){
+        item_tmp = GetActiveMacro();
+      }else{
+        if (hist_fListTree_active_items.Last()) {
+          item_tmp = (TGListTreeItem *) (((TObjString*)hist_fListTree_active_items.Last())->GetString().Atoll());
+        }
+      }
+      if(item_tmp){
         event_tmp.fY = ((TGListTreeItemEx*)item_tmp)->GetY();
       }else{
         TGPosition pos = cur_ListTree->GetPagePosition();
@@ -877,6 +881,17 @@ public:
       objw->Write();
     }
     return;
+  }
+
+  TGListTreeItem *GetActiveMacro(){
+    TGListTreeItem *cur_ListTreeItem = macro_fListTree->GetFirstItem();
+    while(cur_ListTreeItem){
+      if(cur_ListTreeItem->IsActive()){
+        return cur_ListTreeItem;
+      }
+      cur_ListTreeItem = NextItem(cur_ListTreeItem);
+    }
+    return 0;
   }
 
   TList *GetListOfActiveHistos(){
