@@ -7,7 +7,7 @@ class TBrowserEx;
 void set_x_range_for_active(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
-  TString str = gBrowserEx->OpenTGInputDialog("Range: %f %f");
+  TString str = gBrowserEx->OpenTGInputDialog("Range: %f %f",2);
   if (str.EqualTo("")){return;}
   std::istringstream iss(str.Data());
   Double_t par0, par1;
