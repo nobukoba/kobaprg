@@ -76,22 +76,22 @@ public:
     macro_fListTree(0),
     hist_fListTree(0)
   {
-      /* gROOT->GetListOfBrowsers()->Remove(this);
-    delete this->GetContextMenu();
-    this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "TBrowserEx", this, "CloseWindow()");
-    gROOT->GetListOfCleanups()->Remove(this);
-    gROOT->GetListOfCleanups()->Remove(macro_browser);
-    gROOT->GetListOfCleanups()->Remove(hist_browser);
-    StartEmbedding(TRootBrowser::kLeft,-1);
-    macro_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
-    StopEmbedding("Macros");
-    StartEmbedding(TRootBrowser::kLeft,-1);
-    hist_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
-    StopEmbedding("Histos"); */
+    /* gROOT->GetListOfBrowsers()->Remove(this);
+       delete this->GetContextMenu();
+       this->GetBrowserImp()->GetMainFrame()->Connect("CloseWindow()", "TBrowserEx", this, "CloseWindow()");
+       gROOT->GetListOfCleanups()->Remove(this);
+       gROOT->GetListOfCleanups()->Remove(macro_browser);
+       gROOT->GetListOfCleanups()->Remove(hist_browser);
+       StartEmbedding(TRootBrowser::kLeft,-1);
+       macro_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
+       StopEmbedding("Macros");
+       StartEmbedding(TRootBrowser::kLeft,-1);
+       hist_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
+       StopEmbedding("Histos"); */
+    gROOT->ProcessLine(Form("TBrowserEx *gBrowserEx = (TBrowserEx *)0x%lx;",(ULong_t)this));
     initial_working_dir = gSystem->pwd();
     
     TString cmd;
-    
     cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
     macro_browser = (TGFileBrowserEx*) this->ExecPlugin("Macros", 0, cmd.Data(), 0);
   
@@ -152,7 +152,7 @@ public:
 		      "TBrowserEx", this, "change_canvas(Int_t,Int_t,Int_t,TObject*)");
     //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKey(Event_t*)");
 
-    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HBHandleKey(Event_t*)");
+    TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKeyEx(Event_t*)");
 
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
@@ -198,6 +198,9 @@ public:
   }
   
   ~TBrowserEx(){
+    if(this){
+      gROOT->GetListOfBrowsers()->Remove(this);
+    }
     /* printf("~TBrowserEx");
        gROOT->GetListOfBrowsers()->Remove(this);
        delete hist_browser;
@@ -212,7 +215,7 @@ public:
      gClient->Delete();
      } */
 
-    void HBHandleKey(Event_t* event){
+    void HandleKeyEx(Event_t* event){
     if (event->fType != kGKeyPress) {
       return;
     }
@@ -943,6 +946,9 @@ protected:
   TGFileBrowserEx  *hist_browser;
   TGListTree       *macro_fListTree;
   TGListTree       *hist_fListTree;
+  /* This causes sedv when .q was input!
+     TGListTreeItem   *hist_fListTreeItem;
+  */
   TList            hist_fListTree_active_items;
   TList            hist_fListTree_active_histos;
   TList            list_of_active_histos;
@@ -952,11 +958,6 @@ protected:
 };
 
 void tbrowserex(){
-  /*if (gROOT->GetListOfBrowsers()->FindObject("kobabrowser")){
-    printf("Warning: alredy TBrowserEx is runing!\n");
-    return;
-    }*/
-  /*gROOT->ProcessLine("TBrowserEx *gBrowserEx =  new TBrowserEx();");  */
-    gROOT->ProcessLine("TBrowserEx tb;");
+    gROOT->ProcessLine("TBrowserEx tbrowserex_obj;");
 }
 #endif
