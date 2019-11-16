@@ -34,7 +34,10 @@ void plot_active() {
     TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) objstr->GetString().Atoll();
     if(((npad == 0) && (cur_pad == 0))||
        ((npad > 0)  && (cur_pad == 1))) {
-      canvas->Clear("D");
+      for (Int_t i = cur_pad; i<=npad;i++) {
+        TVirtualPad * pad = canvas->cd(i);
+        pad->Clear("");
+      }
     }
     canvas->cd(cur_pad);
     hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
