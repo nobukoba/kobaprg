@@ -210,6 +210,7 @@ public:
      
      this->Delete();
      delete this;
+
      gClient->Delete();
      } */
 
@@ -220,9 +221,14 @@ public:
     char   input[10];
     UInt_t keysym;
     gVirtualX->LookupString(event, input, sizeof(input), keysym);
-    /*printf("(EKeySym)keysym %d\n", (EKeySym)keysym);*/
+    /*std::cout << "(EKeySym)keysym:" << (EKeySym)keysym << std::endl;*/
     TString gTQSender_name = ((TObject*)gTQSender)->GetName();
-    if (gTQSender_name.BeginsWith("fCompositeFrame")){
+    /* std::cout << "gTQSender_name:" << gTQSender_name << std::endl;*/
+    /* "fCompositeFrame" for motion in the canvas
+       "fTextEntry" for pressing Enter Key in TGInputDialog
+    */
+    if (gTQSender_name.BeginsWith("fCompositeFrame")||
+        gTQSender_name.BeginsWith("fTextEntry")){
       return;
     }
     TGListTree *cur_ListTree = 0; 
