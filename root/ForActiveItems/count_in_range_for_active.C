@@ -11,10 +11,9 @@ void count_in_range_for_active(){
   if (!gBrowserEx) {return;}
   TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
   TH1 *hist;
+  gROOT->ProcessLine(".L ../cui/count_in_range.C");
   while((hist = (TH1 *)next())){
-    std::cout << hist->GetName() << ": ";
-    std::cout << hist->Integral(hist->GetXaxis()->GetFirst(),
-                                hist->GetXaxis()->GetLast()) << std::endl;
+    gROOT->ProcessLine(Form("count_in_range((TH1*)%p)",hist));
   }
   return;
 }
