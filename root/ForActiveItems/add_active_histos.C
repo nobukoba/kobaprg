@@ -11,26 +11,17 @@ void add_active_histos(){
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (!gBrowserEx) {return;}
   TIter next(gBrowserEx->GetListOfOrderedActiveHistos());
+  Int_t k = 0;
+  gROOT->ProcessLine(".L ../cui/add.C");
+  TH1 *hadded = 0;
   TH1 *hist;
-  TH1 *added = 0;
-  gROOT->cd();
   while((hist = (TH1 *)next())){
-	if (added == 0) {
-	  TString str = hist->GetName();
-	  str += "_add";
-	  TString str_n = str;
-	  Int_t num = 1;
-	  while (gROOT->Get(str_n.Data())) {
-	    str_n = Form("%s%d",str.Data(),num);
-	    num++;
-	  }
-	  added = (TH1*) hist->Clone(str_n);
-	  added->SetTitle(hist->GetTitle());
-	}else{
-	  added->Add(hist);
-	}
-      }
+    if (k==0) {
+      hadded = (TH1*)gROOT->ProcessLine(Form("add((TH1*)%p,(TH1*)%p,1.0,0.0);",hist,hist));
+    }else{
+      hadded->Add(hist);
     }
+    k++;
   }
   return;
 }

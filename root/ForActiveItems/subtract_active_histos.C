@@ -16,24 +16,17 @@ void subtract_active_histos(){
     return;
   }
   TIter next(histos);
+  Int_t k = 0;
   TH1 *hist;
   TH1 *subtracted = 0;
-  gROOT->cd();
+  gROOT->ProcessLine(".L ../cui/sub.C");
   while((hist = (TH1 *)next())){
-    if (subtracted == 0) {
-      TString str = hist->GetName();
-      str += "_sub";
-      TString str_n = str;
-      Int_t num = 1;
-      while (gROOT->Get(str_n.Data())) {
-        str_n = Form("%s%d",str.Data(),num);
-        num++;
-      }
-      subtracted = (TH1*) hist->Clone(str_n);
-      subtracted->SetTitle(hist->GetTitle());
+    if (k==0) {
+      subtracted = (TH1*)gROOT->ProcessLine(Form("sub((TH1*)%p,(TH1*)%p,1.0,0.0);",hist,hist));
     }else{
-      subtracted->Add(hist,-1);
+      subtracted->Add(hist,-1.0);
     }
+    k++;
   }
   return;
 }
