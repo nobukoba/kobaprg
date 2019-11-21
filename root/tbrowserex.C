@@ -114,8 +114,8 @@ public:
     TGListTreeItem *ltitem;
     ltitem = macro_fListTree->GetFirstItem();
     macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
-    ltitem = macro_fListTree->FindChildByName(ltitem,"fit");
-    macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);
+    /*ltitem = macro_fListTree->FindChildByName(ltitem,"fit");
+      macro_fListTree->DoubleClicked(ltitem,1); ltitem->SetOpen(1);*/
     macro_fListTree->ClearViewPort();
     macro_fListTree->Connect("Clicked(TGListTreeItem *, Int_t, UInt_t, Int_t, Int_t)",
 			     "TBrowserEx", this,
