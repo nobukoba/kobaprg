@@ -51,7 +51,7 @@ void houtn(const Int_t n_hist) {
       return;
     }
   }
-  TString dir("../../"); 
+  TString dir("../../../"); 
   //const TString dir("."); 
   TString fname("temp.hst");
   TGFileInfo fileinfo;
