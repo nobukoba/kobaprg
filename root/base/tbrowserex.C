@@ -214,7 +214,6 @@ public:
      
      this->Delete();
      delete this;
-
      gClient->Delete();
      } */
 
