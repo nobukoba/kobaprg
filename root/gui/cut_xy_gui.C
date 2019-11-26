@@ -29,6 +29,7 @@ void cut_xy_gui(){
   }
   if (!hist) {
     std::cout << "TH2 histogram was not found in this pad." << std::endl;
+    gPad->SetCrosshair(0);
     return;
   }
   TLine line;
