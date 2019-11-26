@@ -1,4 +1,5 @@
 void test_histos(){
+  TDirectory *save = gDirectory;
   gROOT->cd();
   TH1D * h1 = new TH1D("h1","h1", 30, -4, 4);
   TH1D * h2 = new TH1D("h2","h2", 30, -4, 4);
@@ -9,6 +10,7 @@ void test_histos(){
   TH1D * h5 = new TH1D("h5","h5", 50, -4, 4);
   TH1D * h6 = new TH1D("h6","h6", 60, -4, 4);
   TH2D * h7 = new TH2D("h7","h7", 70, -4, 4, 70, -4, 4);
+  save->cd();
   Double_t x1, x2, x3, x4, x5, x6;
   for (Int_t i=0; i < 1000; i++) {
       gRandom->Rannor(x1,x2);
@@ -22,6 +24,6 @@ void test_histos(){
       h6->Fill(x6);
       h7->Fill(x5,x6);
   }
-  gROOT->cd();
+  
   return;
 }
