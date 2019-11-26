@@ -1,6 +1,6 @@
 #if defined(__CINT__) && !defined(__MAKECINT__)
 {
-  gSystem->CompileMacro("./kobaprg/root/tbrowserex.C","k");
+  gSystem->CompileMacro("./kobaprg/root/base/tbrowserex.C","k");
   tbrowserex();
 }
 #else
