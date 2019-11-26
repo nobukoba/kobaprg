@@ -34,15 +34,17 @@ void cut_xy_gui(){
   TLine line;
   Double_t xrange_min = hist->GetXaxis()->GetBinLowEdge(hist->GetXaxis()->GetFirst());
   Double_t xrange_max = hist->GetXaxis()->GetBinUpEdge(hist->GetXaxis()->GetLast());
+  Double_t yrange_min = hist->GetYaxis()->GetBinLowEdge(hist->GetYaxis()->GetFirst());
+  Double_t yrange_max = hist->GetYaxis()->GetBinUpEdge(hist->GetYaxis()->GetLast());
   line.DrawLine(xrange_min,y0,xrange_max,y0);
-  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
+  line.DrawLine(x0,yrange_min,x0,yrange_max);
   mk = (TMarker*)canvas->WaitPrimitive("TMarker","Marker");
   gPad->SetCrosshair(0);
   Double_t x1 = mk->GetX();
   Double_t y1 = mk->GetY();
   delete mk;
   line.DrawLine(xrange_min,y1,xrange_max,y1);
-  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
+  line.DrawLine(x1,yrange_min,x1,yrange_max);
 
   std::cout << std::endl << "Clicked Position" << std::endl;
   std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
