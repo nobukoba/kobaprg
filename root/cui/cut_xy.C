@@ -1,34 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include "TROOT.h"
-#include "TGInputDialog.h"
-#include "TCanvas.h"
-#include "TVirtualPad.h"
-#include "TList.h"
-#include "TH2.h"
-
-void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
-  if (!gPad) {
-    std::cout << "There is no gPad." << std::endl;
-    return;
-  }
-  TList *listofpri = gPad->GetListOfPrimitives();
-  TIter next(listofpri);
-  TObject *obj;
-  TH2 *hist = 0;
-  while ((obj = next())){
-    if (obj->InheritsFrom("TH2")) {
-      hist = (TH2*)obj;
-      std::cout << "TH2 hist was found." << std::endl;
-      break;
-    }
-  }
-  if(hist == 0){
-    std::cout << "TH2 histogram was not found in this pad. This script is terminated." << std::endl;
-    return;
-  }
-  
-  gROOT->cd();
+void cut_xy(TH1* hist, Double_t x1, Double_t x2, Double_t y1, Double_t y2){
   TString str = hist->GetName();
   str += "_cut";
   TString str_n = str;
@@ -38,7 +8,10 @@ void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
     num++;
   }
 
+  TDirectory *save = gDirectory;
+  gROOT->cd();
   TH2D *hout = hist->Clone(str_n);
+  save->cd();
   hout->Reset();
   hout->SetTitle(hist->GetTitle());
   Int_t i1 = hist->GetXaxis()->FindBin(x1);
@@ -68,23 +41,5 @@ void cut_xy(Double_t x1, Double_t x2, Double_t y1, Double_t y2){
   hout->Draw("colz");
   gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  return;
-}
-
-void cut_xy(){
-  char retstr[256];
-  new TGInputDialog(gClient->GetRoot(),0,
-                    "Range x1 x2 y1 y2: %f %f %f %f",
-                    "0.0 1.0 0.0 1.0",retstr);
-  if(retstr[0] == 0 && retstr[1] == 0){
-    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-    return;
-  }
-  TString str = retstr;
-  str.ReplaceAll(","," ");
-  std::istringstream iss(str.Data());
-  Double_t x1, x2, y1, y2;
-  iss >> x1 >> x2 >> y1 >> y2;
-  cut_xy(x1, x2, y1, y2);
   return;
 }

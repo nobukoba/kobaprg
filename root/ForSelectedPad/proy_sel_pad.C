@@ -1,13 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include "TROOT.h"
-#include "TGInputDialog.h"
-#include "TCanvas.h"
-#include "TVirtualPad.h"
-#include "TList.h"
-#include "TH2.h"
-
-void prox(){
+void proy_sel_pad(){
   TCanvas* canvas = gPad->GetCanvas();
   if (canvas == 0) {
     std::cout << "There is no canvas. This script is terminated." << std::endl;
@@ -37,28 +28,9 @@ void prox(){
     std::cout << "TH2 histogram was not found in this pad. This script is terminated." << std::endl;
     return;
   }
-  
-  gROOT->cd();
-  TString str = hist->GetName();
-  str += "_prx";
-  TString str_n = str;
-  Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
-    num++;
-  }
-  
-  TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsX(),
-			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  for (Int_t i = 0; i <= hist->GetNbinsX()+1; i++) {
-    for (Int_t j = 1; j <= hist->GetNbinsY(); j++) {
-      hout->Fill(hist->GetXaxis()->GetBinCenter(i),
-		 hist->GetBinContent(i,j));
-    }
-  }
-  hout->SetEntries(hist->GetEntries());
-  hout->Draw();
-  gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  sel_pad->Update();
+
+  gROOT->ProcessLine(".L ../cui/proy.C");
+  gROOT->ProcessLine(Form("proy((TH1*)%p)",hist));
+
   return;
 }

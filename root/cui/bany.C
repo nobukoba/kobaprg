@@ -1,35 +1,4 @@
-#include <iostream>
-#include <sstream>
-#include "TROOT.h"
-#include "TFrame.h"
-#include "TBox.h"
-#include "TGInputDialog.h"
-#include "TVirtualPad.h"
-#include "TList.h"
-#include "TH2.h"
-
-void bany(Double_t par0, Double_t par1){
-  if (!gPad) {
-    std::cout << "There is no gPad." << std::endl;
-    return 0;
-  }
-  TList *listofpri = gPad->GetListOfPrimitives();
-  TIter next(listofpri);
-  TObject *obj;
-  TH2 *hist = 0;
-  while ((obj = next())){
-    if (obj->InheritsFrom("TH2")) {
-      hist = (TH2*)obj;
-      std::cout << "TH2 hist was found." << std::endl;
-      break;
-    }
-  }
-  if(hist == 0){
-    std::cout << "TH2 histogram was not found in this pad. This script is terminated." << std::endl;
-    return;
-  }
-  
-  gROOT->cd();
+void bany(TH1* hist, Double_t par0, Double_t par1){
   TString str = hist->GetName();
   str += "_bny";
   TString str_n = str;
@@ -50,7 +19,10 @@ void bany(Double_t par0, Double_t par1){
   
   TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsY(),
 			hist->GetYaxis()->GetXmin(), hist->GetYaxis()->GetXmax());
+  TDirectory *save = gDirectory;
+  gROOT->cd();
   TH2 *hout2 = (TH2*)hist->Clone(str2_n);
+  save->cd();
   hout2->Reset();
   hout2->SetTitle(hist->GetTitle());
 
@@ -75,23 +47,5 @@ void bany(Double_t par0, Double_t par1){
   hout->Draw();
   gPad->Update();
   gPad->GetFrame()->SetBit(TBox::kCannotMove);
-  return;
-}
-
-void bany(){
-  char retstr[256];
-  new TGInputDialog(gClient->GetRoot(),0,
-                    "Range: %f %f",
-                    "0.0 1.0",retstr);
-  if(retstr[0] == 0 && retstr[1] == 0){
-    std::cout << "Cancel button was pushed. This script is terminated." << std::endl;
-    return;
-  }
-  TString str = retstr;
-  str.ReplaceAll(","," ");
-  std::istringstream iss(str.Data());
-  Double_t par0, par1;
-  iss >> par0 >> par1;
-  bany(par0,par1);
   return;
 }
