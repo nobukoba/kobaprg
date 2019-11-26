@@ -13,7 +13,7 @@ void bany(TH1* hist, Double_t par0, Double_t par1){
   TString str2_n = str2;
   Int_t num2 = 1;
   while (gROOT->Get(str2_n.Data())) {
-    str2_n = Form("%s%d",str2.Data(),num);
+    str2_n = Form("%s%d",str2.Data(),num2);
     num2++;
   }
   
