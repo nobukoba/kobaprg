@@ -17,10 +17,10 @@ void banx(TH1* hist, Double_t par0, Double_t par1){
     num2++;
   }
   
-  TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsX(),
-			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   TDirectory *save = gDirectory;
   gROOT->cd();
+  TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsX(),
+			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   TH2 *hout2 = (TH2*)hist->Clone(str2_n);
   save->cd();
   hout2->Reset();
