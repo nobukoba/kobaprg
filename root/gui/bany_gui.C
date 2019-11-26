@@ -107,10 +107,12 @@ void bany_gui(){
     return;
   }
   TLine line;
-  line.DrawLine(x0,hist->GetMinimum(),x0,hist->GetMaximum());
+  Double_t yrange_min = hist->GetYaxis()->GetBinLowEdge(hist->GetYaxis()->GetFirst());
+  Double_t yrange_max = hist->GetYaxis()->GetBinUpEdge(hist->GetYaxis()->GetLast());
+  line.DrawLine(x0,yrange_min,x0,yrange_max);
   Double_t x1, y1;
   primi = new WaitOneClickX(&x1, &y1); delete primi;
-  line.DrawLine(x1,hist->GetMinimum(),x1,hist->GetMaximum());
+  line.DrawLine(x1,yrange_min,x1,yrange_max);
 
   std::cout << std::endl << "Clicked Positions" << std::endl;
   std::cout << "1st (x, y) = (" << x0 << ", " << y0 << ")"<< std::endl;
