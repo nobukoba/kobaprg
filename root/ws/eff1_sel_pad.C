@@ -18,7 +18,7 @@ void eff1_sel_pad(){
     std::cout << "TH1 histogram was not found in this pad." << std::endl;
     return;
   }
-  gROOT->ProcessLine(".L ./eff1.C+");
+  gROOT->ProcessLine(".L ./eff1.C");
   gROOT->ProcessLine(Form("eff1((TH1*)%p)",hist));
   return;
 }
