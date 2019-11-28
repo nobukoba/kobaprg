@@ -1,26 +1,7 @@
 void transform_1d(){
-  if (!gPad) {
-    std::cout << "There is no gPad. This script is terminated." << std::endl;
-    return;
-  }
-  TList *listofpri = gPad->GetListOfPrimitives();
-  TIter next(listofpri);
-  TObject *obj;
-  TH2 *hist = 0;
-  while ((obj = next())){
-    if (obj->InheritsFrom("TH2")) {
-      std::cout << "This script can not handle TH2 histograms. This script is terminated." << std::endl;
-      return;
-    }
-    if (obj->InheritsFrom("TH1")) {
-      hist = (TH1*)obj;
-      break;
-    }
-  }
-  if(hist == 0){
-    std::cout << "TH1 histogram was not found in this pad. This script is terminated." << std::endl;
-    return;
-  }
+  gROOT->ProcessLine(".L ./get_th1_in_sel_pad.C");
+  TH1* hist = (TH1*)gROOT->ProcessLine("get_th1_in_sel_pad();");
+  if(hist == 0){return;}
   
   char retstr[256];
   new TGInputDialog(gClient->GetRoot(),0,
