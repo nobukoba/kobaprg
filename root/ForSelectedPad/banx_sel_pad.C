@@ -1,13 +1,3 @@
-#include <iostream>
-#include <sstream>
-#include "TROOT.h"
-#include "TFrame.h"
-#include "TBox.h"
-#include "TGInputDialog.h"
-#include "TVirtualPad.h"
-#include "TList.h"
-#include "TH2.h"
-
 void banx_sel_pad(){
   gROOT->ProcessLine(".L ./get_th2_in_sel_pad.C");
   TH2* hist = (TH2*)gROOT->ProcessLine("get_th2_in_sel_pad();");
