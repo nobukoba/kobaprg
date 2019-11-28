@@ -119,7 +119,7 @@ void plot_graphs(){
     return;
   }
   TGraph *gr_prev;
-  while(gr_prev = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
+  while((gr_prev = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph"))){
     gr_prev->Delete();
   }
   gPad->SetCrosshair();

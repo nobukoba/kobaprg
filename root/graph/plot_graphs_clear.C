@@ -6,7 +6,7 @@ void plot_graphs_clear(){
   TList *listofpri = gPad->GetListOfPrimitives();
   Int_t ngraphs = 0;
   TGraph *gr;
-  while(gr = (TGraph*)listofpri->FindObject(Form("Graph_%d",ngraphs))){
+  while((gr = (TGraph*)listofpri->FindObject(Form("Graph_%d",ngraphs)))){
     ngraphs++;
     gr->Delete();
   }

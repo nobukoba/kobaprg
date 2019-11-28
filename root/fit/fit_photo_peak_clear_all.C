@@ -48,7 +48,7 @@ void fit_photo_peak_clear_all(){
 
   TIter nextfunc(funclist);
   TF1 *funcobj = 0;
-  while (funcobj = (TF1*)nextfunc()){
+  while ((funcobj = (TF1*)nextfunc())){
     TString funcname = funcobj->GetName();
     if(funcname.BeginsWith("fit_photo_peak")){
       funclist->Remove(funcobj);

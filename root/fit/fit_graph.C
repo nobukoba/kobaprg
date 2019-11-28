@@ -6,7 +6,7 @@ void fit_graph(){
   TList *listofpri = gPad->GetListOfPrimitives();
   Int_t ngraphs = 0;
   TGraph *gr_pnt;
-  while(gr_pnt = (TGraph*)listofpri->FindObject(Form("Graph_%d",ngraphs))){
+  while((gr_pnt = (TGraph*)listofpri->FindObject(Form("Graph_%d",ngraphs)))){
     std::cout << "Graph_" << ngraphs << " was found." << std::endl;
     ngraphs++;
   }

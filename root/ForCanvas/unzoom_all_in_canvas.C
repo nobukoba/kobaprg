@@ -12,7 +12,7 @@ void unzoom_all_in_canvas(){
   }
   TVirtualPad *pad = 0;
   Int_t i = 0;
-  while (pad = canvas->GetPad(i)) {
+  while ((pad = canvas->GetPad(i))) {
     TList *listofpri = pad->GetListOfPrimitives();
     if (listofpri == 0) {
       std::cout << "The pad includes nothing." << std::endl;

@@ -79,7 +79,7 @@ void fit_emg() { // I could not add const modifier because of h->Fit(f[i],"R")!
     return 0;
   }
   TGraph *grtmp;
-  while(grtmp = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph")){
+  while((grtmp = (TGraph*)gPad->GetListOfPrimitives()->FindObject("Graph"))){
     grtmp->Delete();
   }
   gPad->SetCrosshair();
