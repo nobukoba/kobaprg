@@ -10,7 +10,7 @@ void cut_xy(TH1* hist, Double_t x1, Double_t x2, Double_t y1, Double_t y2){
 
   TDirectory *save = gDirectory;
   gROOT->cd();
-  TH2D *hout = hist->Clone(str_n);
+  TH2D *hout = (TH2D*)hist->Clone(str_n);
   save->cd();
   hout->Reset();
   hout->SetTitle(hist->GetTitle());
