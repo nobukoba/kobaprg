@@ -31,6 +31,7 @@
 #include "TGPicture.h"
 #include "TGDimension.h"
 #include "TGInputDialog.h"
+#include "TMarker.h"
 #include "TFile.h"
 #include "TList.h"
 #include "TClass.h"
