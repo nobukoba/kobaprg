@@ -10,7 +10,7 @@ void get_wtdc_coef(){
   std::cout << "" << std::endl;
   std::cout << "wtdc range" << std::endl;
   std::cout << "{xlow, xup}" << std::endl;
-  while (pad = canvas->GetPad(j)) {
+  while ((pad = canvas->GetPad(j))) {
     TList *listofpri = pad->GetListOfPrimitives();
     if (listofpri == 0) {
       std::cout << "The pad includes nothing." << std::endl;
