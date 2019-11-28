@@ -75,7 +75,10 @@ public:
     macro_browser(0),
     hist_browser(0),
     macro_fListTree(0),
-    hist_fListTree(0)
+    hist_fListTree(0),
+    str_input_dialog_1("1.0"),
+    str_input_dialog_2("0.0 1.0"),
+    str_input_dialog_4("0.0 1.0 0.0 1.0")
   {
     /* gROOT->GetListOfBrowsers()->Remove(this);
        delete this->GetContextMenu();
@@ -91,8 +94,6 @@ public:
        StopEmbedding("Histos"); */
     gROOT->ProcessLine(Form("TBrowserEx *gBrowserEx = (TBrowserEx *)0x%lx;",(ULong_t)this));
     initial_working_dir = gSystem->pwd();
-    str_input_dialog_1 = "1.0";
-    str_input_dialog_2 = "0.0 1.0";
     
     TString cmd;
     cmd.Form("new TGFileBrowserEx(gClient->GetRoot(), (TBrowser *)0x%lx, 200, 500);", (ULong_t)this);
@@ -929,15 +930,26 @@ public:
     return str;
   }
   TString OpenTGInputDialog(const char *mes, Int_t no){
+    TString tmp = "";
     if (no == 0) {
       return OpenTGInputDialog(mes, "", no);
     }else if(no==1){
-      str_input_dialog_1 = OpenTGInputDialog(mes, str_input_dialog_1.Data(), no);
-      return str_input_dialog_1;
-    }else{
-      str_input_dialog_2 = OpenTGInputDialog(mes, str_input_dialog_2.Data(), no);
-      return str_input_dialog_2;
+      tmp = OpenTGInputDialog(mes, str_input_dialog_1.Data(), no);
+      if (!tmp.EqualTo("")){
+	str_input_dialog_1 = tmp;
+      }
+    }else if(no==2){
+      tmp = OpenTGInputDialog(mes, str_input_dialog_2.Data(), no);
+      if (!tmp.EqualTo("")){
+	str_input_dialog_2 = tmp;
+      }
+    }else if(no==4){
+      tmp = OpenTGInputDialog(mes, str_input_dialog_4.Data(), no);
+      if (!tmp.EqualTo("")){
+	str_input_dialog_4 = tmp;
+      }
     }
+    return tmp;
   }
   TString OpenTGInputDialog(const char *mes){
     return OpenTGInputDialog(mes, 0);
@@ -1031,6 +1043,7 @@ protected:
   TString          initial_working_dir;
   TString          str_input_dialog_1;
   TString          str_input_dialog_2;
+  TString          str_input_dialog_4;
   ClassDef(TBrowserEx,0)
 };
 
