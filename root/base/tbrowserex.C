@@ -205,6 +205,10 @@ public:
        StartEmbedding(TRootBrowser::kLeft,-1);
        hist_browser = new TGFileBrowserEx(gClient->GetRoot(), this, 200, 500);
        StopEmbedding("Histos"); */
+    /* Change language to English! TRootCanvas::PrintCanvas() call "lpstat -v".
+       This line returns words with wrong ordering in Japanese environment.
+    */
+    gSystem->Setenv("LANG","C");
     gROOT->ProcessLine(Form("TBrowserEx *gBrowserEx = (TBrowserEx *)0x%lx;",(ULong_t)this));
     initial_working_dir = gSystem->pwd();
     
@@ -333,9 +337,11 @@ public:
 
   void HandleButtonsEx(Event_t* event){
     if (event->fType != kButtonPress) {return;}
-    /*std::cout << "event->fType:" << event->fType << std::endl;*/
+    /* std::cout << "event->fType:" << event->fType << std::endl; */
     TString gTQSender_name = ((TObject*)gTQSender)->GetName();
-    /*std::cout << "gTQSender_name:" << gTQSender_name << std::endl;*/
+    
+    /* std::cout << "gTQSender_name:" << gTQSender_name << std::endl; */
+    /* std::cout << "gTQSender address:" << gTQSender << std::endl; */
     if (!gTQSender_name.BeginsWith("fTab")) {return;}
     TGTabElement * cur_tabel = (TGTabElement*)gTQSender;
     if(cur_tabel->GetText()->EqualTo("Macros")){
