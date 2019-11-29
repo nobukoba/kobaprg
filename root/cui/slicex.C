@@ -1,8 +1,6 @@
 void slicex(TH1* hist){
-  TString str = hist->GetName();
-  str += "_slx_";
-  TString str_n = str;
   Int_t num = 1;
+  TString str = Form("%s_slx%d_",hist->GetName(),num);
   TList *groot_list = gROOT->GetList();
   while (1) {
     TIter next(groot_list);
@@ -13,13 +11,13 @@ void slicex(TH1* hist){
 	continue;
       } 
       TString name = obj->GetName();
-      if (name.BeginsWith(str_n)){
+      if (name.BeginsWith(str)){
 	found = 1;
 	break;
       }
     }
     if (found == 1) {
-      str_n = Form("%s_slx%d_",hist->GetName(),num);
+      str = Form("%s_slx%d_",hist->GetName(),num);
       num++;
     }else{
       break;
@@ -30,7 +28,7 @@ void slicex(TH1* hist){
   while (nbins > (TMath::Power(10, ndig)-1)) {
     ndig++;
   }
-  TString formatstr = Form("%s%%0%dd",str_n.Data(),ndig);
+  TString formatstr = Form("%s%%0%dd",str.Data(),ndig);
   /* std::cout << formatstr << std::endl;*/
   TDirectory *save = gDirectory;
   gROOT->cd();

@@ -1,16 +1,15 @@
 void prox(TH1* hist){
-  TString str = hist->GetName();
-  str += "_prx";
-  TString str_n = str;
+  char suffix[] = "_prx";
   Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
+  TString str;
+  while (1) {
+    str = Form("%s%s%d",hist->GetName(),suffix,num);
+    if (gROOT->Get(str.Data())==0) {break;}
     num++;
   }
-  
   TDirectory *save = gDirectory;
   gROOT->cd();
-  TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsX(),
+  TH1D *hout = new TH1D(str, hist->GetTitle(), hist->GetNbinsX(),
 			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   save->cd();
   for (Int_t i = 0; i <= hist->GetNbinsX()+1; i++) {

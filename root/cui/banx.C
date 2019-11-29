@@ -1,15 +1,15 @@
 void banx(TH1* hist, Double_t par0, Double_t par1){
-  TString str = hist->GetName();
-  str += "_bnx";
-  TString str_n = str;
+  char suffix[] = "_bnx";
   Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
+  TString str;
+  while (1) {
+    str = Form("%s%s%d",hist->GetName(),suffix,num);
+    if (gROOT->Get(str.Data())==0) {break;}
     num++;
   }
   TDirectory *save = gDirectory;
   gROOT->cd();
-  TH1D *hout = new TH1D(str_n, hist->GetTitle(), hist->GetNbinsX(),
+  TH1D *hout = new TH1D(str, hist->GetTitle(), hist->GetNbinsX(),
 			hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   save->cd();
   gROOT->ProcessLine(".L ../cui/clone_with_suffix.C");

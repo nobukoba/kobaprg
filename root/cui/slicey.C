@@ -1,8 +1,6 @@
 void slicey(TH1* hist){
-  TString str = hist->GetName();
-  str += "_sly_";
-  TString str_n = str;
   Int_t num = 1;
+  TString str = Form("%s_sly%d_",hist->GetName(),num);
   TList *groot_list = gROOT->GetList();
   while (1) {
     TIter next(groot_list);
@@ -13,13 +11,13 @@ void slicey(TH1* hist){
 	continue;
       } 
       TString name = obj->GetName();
-      if (name.BeginsWith(str_n)){
+      if (name.BeginsWith(str)){
 	found = 1;
 	break;
       }
     }
     if (found == 1) {
-      str_n = Form("%s_sly%d_",hist->GetName(),num);
+      str = Form("%s_sly%d_",hist->GetName(),num);
       num++;
     }else{
       break;
@@ -33,7 +31,7 @@ void slicey(TH1* hist){
   TDirectory *save = gDirectory;
   gROOT->cd();
   for (Int_t i = 1; i <= hist->GetNbinsX(); i++) {
-    TString formatstr = Form("%s%%0%dd",str_n.Data(),ndig);
+    TString formatstr = Form("%s%%0%dd",str.Data(),ndig);
     TString hname = Form(formatstr.Data(),i);
     TH1D *hout = new TH1D(hname, hist->GetTitle(), hist->GetNbinsY(),
 			  hist->GetYaxis()->GetXmin(), hist->GetYaxis()->GetXmax());

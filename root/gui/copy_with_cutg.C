@@ -156,19 +156,8 @@ void copy_with_cutg(){
   cutg = new TCutG("CUTG",graphical_cut->GetN(),
 		   graphical_cut->GetX(),
 		   graphical_cut->GetY());
-  
-  gROOT->cd();
-  TString str = hist->GetName();
-  str += "_cut";
-  TString str_n = str;
-  Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
-    num++;
-  }
-  TH2 *hout = (TH2*)hist->Clone(str_n);
-  hout->SetTitle(hist->GetTitle());
-  //hout->Reset();
+  gROOT->ProcessLine(".L ../cui/clone_with_suffix.C");
+  TH2 *hout = (TH2*)gROOT->ProcessLine(Form("clone_with_suffix((TH1*)%p,\"%s\");",hist,"_cut"));
   Double_t xx, yy;
   for (Int_t i = 0; i <= hist->GetNbinsX()+1; i++) {
     for (Int_t j = 0; j <= hist->GetNbinsY()+1; j++) {
