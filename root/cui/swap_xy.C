@@ -1,16 +1,6 @@
 void swap_xy(TH1* hist){
-  TString str = hist->GetName();
-  str += "_swp";
-  TString str_n = str;
-  Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
-    num++;
-  }
-  TDirectory *save = gDirectory;
-  gROOT->cd();
-  TH2 *hout = (TH2*)hist->Clone(str_n);
-  save->cd();
+  gROOT->ProcessLine(".L ../cui/clone_with_suffix.C");
+  TH2 *hout = (TH2*)gROOT->ProcessLine(Form("clone_with_suffix((TH1*)%p,\"%s\");",hist,"_swp"));
   hout->SetTitle(hist->GetTitle());
   hout->Reset();
   hout->SetBins(hist->GetNbinsY(),hist->GetYaxis()->GetXmin(),hist->GetYaxis()->GetXmax(),

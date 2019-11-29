@@ -1,15 +1,6 @@
 void scale(TH1* hist, Double_t par){
-  TDirectory *save = gDirectory;
-  gROOT->cd();
-  TString str = hist->GetName();
-  str += "_scl";
-  TString str_n = str;
-  Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
-    num++;
-  }
-  TH1 *scl = (TH1*) hist->Clone(str_n);
+  gROOT->ProcessLine(".L ./clone_with_suffix.C");
+  TH1 *scl = (TH1*)gROOT->ProcessLine(Form("clone_with_suffix((TH1*)%p,\"%s\");",hist,"_scl"));
   scl->Scale(par);
   save->cd();
   return;

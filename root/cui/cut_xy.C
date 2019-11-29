@@ -1,17 +1,6 @@
 void cut_xy(TH1* hist, Double_t x1, Double_t x2, Double_t y1, Double_t y2){
-  TString str = hist->GetName();
-  str += "_cut";
-  TString str_n = str;
-  Int_t num = 1;
-  while (gROOT->Get(str_n.Data())) {
-    str_n = Form("%s%d",str.Data(),num);
-    num++;
-  }
-
-  TDirectory *save = gDirectory;
-  gROOT->cd();
-  TH2D *hout = (TH2D*)hist->Clone(str_n);
-  save->cd();
+  gROOT->ProcessLine(".L ../cui/clone_with_suffix.C");
+  TH2 *hout = (TH2*)gROOT->ProcessLine(Form("clone_with_suffix((TH1*)%p,\"%s\");",hist,"_cut"));
   hout->Reset();
   hout->SetTitle(hist->GetTitle());
   Int_t i1 = hist->GetXaxis()->FindBin(x1);
