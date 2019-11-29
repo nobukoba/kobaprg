@@ -866,18 +866,31 @@ public:
     while (cur_item){
       /* printf("cur_item %s\n",cur_item->GetText()); */
       TObject *userdata = (TObject*)cur_item->GetUserData();
-      if(userdata && userdata->InheritsFrom("TKey")){
-        TString str = "KEY: ";
-        str += userdata->GetName();
-        str += "; ";
-        str += userdata->GetTitle();
-        cur_item->SetText(str);
-      }
-      if(userdata && userdata->InheritsFrom("TH1")){
-        TString str = userdata->GetName();
-        str += "; ";
-        str += userdata->GetTitle();
-        cur_item->SetText(str);
+      if (userdata) {
+	if(userdata->InheritsFrom("TKey")){
+	  TString str = "KEY: ";
+	  str += userdata->GetName();
+	  str += "; ";
+	  str += userdata->GetTitle();
+	  cur_item->SetText(str);
+	}
+	if(userdata->InheritsFrom("TH1")){
+	  TString str = userdata->GetName();
+	  str += "; ";
+	  str += userdata->GetTitle();
+	  cur_item->SetText(str);
+	}
+	const TGPicture *pic=0;
+	if (userdata->InheritsFrom(TH2::Class())) {
+	  pic = gClient->GetPicture("h2_t.xpm");
+	}else if (userdata->InheritsFrom(TH1::Class())){
+	  pic = gClient->GetPicture("h1_t.xpm");
+	}else if (userdata->InheritsFrom(TGraphErrors::Class())){
+	  pic = gClient->GetPicture("profile_t.xpm");
+	}
+	if (pic) {
+	  cur_item->SetPictures(pic,pic);
+	}
       }
       if(strcmp(cur_item->GetPicture()->GetName(),"ofolder_t.xpm")==0 ||
          strcmp(cur_item->GetPicture()->GetName(),"rootdb_t.xpm__16x16")==0 ||
