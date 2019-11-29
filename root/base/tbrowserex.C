@@ -867,7 +867,9 @@ public:
       /* printf("cur_item %s\n",cur_item->GetText()); */
       TObject *userdata = (TObject*)cur_item->GetUserData();
       if (userdata) {
+	TClass *cl = TClass::GetClass(userdata->ClassName());
 	if(userdata->InheritsFrom("TKey")){
+	  cl = TClass::GetClass(((TKey*)userdata)->GetClassName());
 	  TString str = "KEY: ";
 	  str += userdata->GetName();
 	  str += "; ";
@@ -881,11 +883,11 @@ public:
 	  cur_item->SetText(str);
 	}
 	const TGPicture *pic=0;
-	if (userdata->InheritsFrom(TH2::Class())) {
+	if (cl->InheritsFrom(TH2::Class())) {
 	  pic = gClient->GetPicture("h2_t.xpm");
-	}else if (userdata->InheritsFrom(TH1::Class())){
+	}else if (cl->InheritsFrom(TH1::Class())){
 	  pic = gClient->GetPicture("h1_t.xpm");
-	}else if (userdata->InheritsFrom(TGraphErrors::Class())){
+	}else if (cl->InheritsFrom(TGraphErrors::Class())){
 	  pic = gClient->GetPicture("profile_t.xpm");
 	}
 	if (pic) {
