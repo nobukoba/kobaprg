@@ -375,7 +375,7 @@ public:
     */
     if ((event->fState & kKeyControlMask) &&
 	(keysym == kKey_p)) {
-      PrintCanvasOptionWithSavedPrinter();
+      PrintCanvasWithSavedPrinter();
     }
     if (gTQSender_name.BeginsWith("fCompositeFrame")||
         gTQSender_name.BeginsWith("fTextEntry")){
