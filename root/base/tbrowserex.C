@@ -342,7 +342,9 @@ public:
   
   void ProcessActivated(Int_t id){
     TString gTQSender_name = ((TObject*)gTQSender)->GetName();
-    if (id==98 /* id for Print in portrait */){
+    if (id==97 /* id for Print */){
+      PrintCanvasWithOption("");
+    }else if (id == 98 /* id for Print in landscape */) {
       PrintCanvasWithOption("Portrait");
     }else if (id == 99 /* id for Print in landscape */) {
       PrintCanvasWithOption("Landscape");
@@ -978,7 +980,8 @@ public:
     TGMenuEntry * entry_pri_por = popupmenu->GetEntry("Print in portrait...");
     Int_t id = entry_pri->GetEntryId();
     popupmenu->DeleteEntry(entry_pri);
-    popupmenu->AddEntry("Print...", id, 0, 0, entry_pri_por);
+    /*popupmenu->AddEntry("Print...", id, 0, 0, entry_pri_por);*/
+    popupmenu->AddEntry("Print...", 97, 0, 0, entry_pri_por);
     return;
   }
 
