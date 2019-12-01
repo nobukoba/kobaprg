@@ -22,6 +22,7 @@
 #include "GuiTypes.h"
 #include "TGClient.h"
 #include "TGObject.h"
+#include "TGMenu.h"
 #include "TGFileBrowser.h"
 #include "TGListTree.h"
 #include "TGTab.h"
@@ -31,6 +32,7 @@
 #include "TGPicture.h"
 #include "TGDimension.h"
 #include "TGInputDialog.h"
+#include "TGTextEditDialogs.h"
 #include "TMarker.h"
 #include "TFile.h"
 #include "TList.h"
@@ -191,7 +193,8 @@ public:
     hist_fListTree(0),
     str_input_dialog_1("1.0"),
     str_input_dialog_2("0.0 1.0"),
-    str_input_dialog_4("0.0 1.0 0.0 1.0")
+    str_input_dialog_4("0.0 1.0 0.0 1.0"),
+    sprinter(""), sprintCmd(""), sprintOpt("")
   {
     /* gROOT->GetListOfBrowsers()->Remove(this);
        delete this->GetContextMenu();
@@ -275,6 +278,7 @@ public:
     //this->GetBrowserImp()->GetMainFrame()->Connect("ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKey(Event_t*)");
     TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleButtonsEx(Event_t*)");
     TQObject::Connect("TGFrame","ProcessedEvent(Event_t*)","TBrowserEx", this, "HandleKeyEx(Event_t*)");
+    TQObject::Connect("TGPopupMenu","Activated(Int_t)","TBrowserEx", this, "ProcessActivated(Int_t)");
     
     Int_t nentry = hist_browser->GetDrawOptionPointer()->GetNumberOfEntries() + 1;
     hist_browser->GetDrawOptionPointer()->AddEntry("",    nentry++); /* line 15 */
@@ -304,6 +308,7 @@ public:
     hist_browser->GetDrawOptionPointer()->
       GetTextEntry()->SetText(hist_browser->GetDrawOptionPointer()->GetSelectedEntry()->GetTitle());
     
+    add_TGMenuPopup();
     customTListMenu();
     customTDirectoryFileMenu();
     customTFolderMenu();
@@ -334,14 +339,21 @@ public:
      delete this;
      gClient->Delete();
      } */
-
+  
+  void ProcessActivated(Int_t id){
+    TString gTQSender_name = ((TObject*)gTQSender)->GetName();
+    if (id==98 /* id for Print in portrait */){
+      PrintCanvasWithOption("Portrait");
+    }else if (id == 99 /* id for Print in landscape */) {
+      PrintCanvasWithOption("Landscape");
+    }
+  }
   void HandleButtonsEx(Event_t* event){
     if (event->fType != kButtonPress) {return;}
-    /* std::cout << "event->fType:" << event->fType << std::endl; */
     TString gTQSender_name = ((TObject*)gTQSender)->GetName();
-    
-    /* std::cout << "gTQSender_name:" << gTQSender_name << std::endl; */
-    /* std::cout << "gTQSender address:" << gTQSender << std::endl; */
+    /*std::cout << "event->fType:" << event->fType << std::endl;
+      std::cout << "gTQSender_name:" << gTQSender_name << std::endl;
+      std::cout << "gTQSender address:" << gTQSender << std::endl;*/
     if (!gTQSender_name.BeginsWith("fTab")) {return;}
     TGTabElement * cur_tabel = (TGTabElement*)gTQSender;
     if(cur_tabel->GetText()->EqualTo("Macros")){
@@ -361,6 +373,10 @@ public:
     /* "fCompositeFrame" for motion in the canvas
        "fTextEntry" for pressing Enter Key in TGInputDialog
     */
+    if ((event->fState & kKeyControlMask) &&
+	(keysym == kKey_p)) {
+      PrintCanvasOptionWithSavedPrinter();
+    }
     if (gTQSender_name.BeginsWith("fCompositeFrame")||
         gTQSender_name.BeginsWith("fTextEntry")){
       return;
@@ -430,11 +446,7 @@ public:
       if (keysym == kKey_c) {
       gROOT->ProcessLine(".x fit_photo_peak_clear.C");
       }
-    */    
-    if ((event->fState & kKeyControlMask) &&
-	(keysym == kKey_p)) {
-      PrintCanvas();
-    }
+    */
     if (keysym == kKey_F5) {
       cur_FileBrowser->GetRefreshButtonPointer()->Clicked();
     }
@@ -796,29 +808,25 @@ public:
       return cur_item;
     }
   }
-  
-  void PrintCanvas(){
-    /* Print the canvas. */
-    gStyle->SetPaperSize(20,26);
-    TString sprinter  = gEnv->GetValue("Print.Printer", "");
-    TString sprintCmd = gEnv->GetValue("Print.Command", "lpr");
-    Bool_t pname = kTRUE;
-    if (sprinter == "")
-      pname = kFALSE;
+
+  void PrintCanvasWithSavedPrinter(){
+    if (sprintCmd == "") {
+      sprintOpt = "Portrait";
+      PrintCanvasWithOption(sprintOpt.Data());
+      return;
+    }
     TString fn = "rootprint";
     FILE *f = gSystem->TempFileName(fn, gEnv->GetValue("Print.Directory", gSystem->TempDirectory()));
     if (f) fclose(f);
-    fn += TString::Format(".%s",gEnv->GetValue("Print.FileType", "ps"));
-    TCanvas* canvas = gPad->GetCanvas();
-    canvas->Print(fn);
-    
+    TString filetype = gEnv->GetValue("Print.FileType", "pdf");
+    fn += TString::Format(".%s",filetype.Data());
+    gPad->GetCanvas()->Print(fn.Data(), sprintOpt.Data());
     TString cmd = sprintCmd;
     if (cmd.Contains("%p"))
       cmd.ReplaceAll("%p", sprinter);
-    else if (pname) {
+    else if (sprinter != "") {
       cmd += " "; cmd += sprinter; cmd += " ";
     }
-    
     if (cmd.Contains("%f"))
       cmd.ReplaceAll("%f", fn);
     else {
@@ -826,6 +834,56 @@ public:
     }
     gSystem->Exec(cmd);
     gSystem->Unlink(fn);
+  }
+  
+  void PrintCanvasWithOption(Option_t *option){
+    Int_t ret = 0;
+    Bool_t pname = kTRUE;
+    char *printer, *printCmd;
+    
+    if (sprinter == "")
+      printer = StrDup(gEnv->GetValue("Print.Printer", ""));
+    else
+      printer = StrDup(sprinter);
+    if (sprintCmd == "")
+      printCmd = StrDup(gEnv->GetValue("Print.Command", ""));
+    else
+      printCmd = StrDup(sprintCmd);
+    sprintOpt = option;
+    
+    new TGPrintDialog((TRootBrowser*)gClient->GetDefaultRoot(),
+		      (TRootCanvas*)gPad->GetCanvas()->GetCanvasImp(),
+		      400, 150,
+                      &printer, &printCmd, &ret);
+    if (ret) {
+      sprinter  = printer;
+      sprintCmd = printCmd;
+      
+      if (sprinter == "")
+	pname = kFALSE;
+      
+      TString fn = "rootprint";
+      FILE *f = gSystem->TempFileName(fn, gEnv->GetValue("Print.Directory", gSystem->TempDirectory()));
+      if (f) fclose(f);
+      TString filetype = gEnv->GetValue("Print.FileType", "pdf");
+      fn += TString::Format(".%s",filetype.Data());
+      gPad->GetCanvas()->Print(fn.Data(), option);
+      TString cmd = sprintCmd;
+      if (cmd.Contains("%p"))
+	cmd.ReplaceAll("%p", sprinter);
+      else if (pname) {
+	cmd += " "; cmd += sprinter; cmd += " ";
+      }
+      if (cmd.Contains("%f"))
+	cmd.ReplaceAll("%f", fn);
+      else {
+	cmd += " "; cmd += fn; cmd += " ";
+      }
+      gSystem->Exec(cmd);
+      gSystem->Unlink(fn);
+    }
+    delete [] printer;
+    delete [] printCmd;
   }
   
   void SetDNDSourceRecursive(TGListTree* lt, TGListTreeItem* item, Bool_t bl){
@@ -909,7 +967,21 @@ public:
       cur_item = cur_item->GetNextSibling();
     }
   }
-  
+
+  void add_TGMenuPopup(){
+    TCanvas * canvas = gPad->GetCanvas();
+    if(canvas==0){return;}
+    TGPopupMenu * popupmenu = ((TRootCanvas*)canvas->GetCanvasImp())->GetMenuBar()->GetPopup("File");
+    TGMenuEntry * entry_pri     = popupmenu->GetEntry("Print...");
+    popupmenu->AddEntry("Print in portrait...", 98, 0, 0, entry_pri);
+    popupmenu->AddEntry("Print in landscape...", 99, 0, 0, entry_pri);
+    TGMenuEntry * entry_pri_por = popupmenu->GetEntry("Print in portrait...");
+    Int_t id = entry_pri->GetEntryId();
+    popupmenu->DeleteEntry(entry_pri);
+    popupmenu->AddEntry("Print...", id, 0, 0, entry_pri_por);
+    return;
+  }
+
   void customTListMenu(){
     TClass *cl = gROOT->GetClass("TList");
     TList  *ml = cl->GetMenuList();
@@ -1178,6 +1250,7 @@ protected:
   TString          str_input_dialog_1;
   TString          str_input_dialog_2;
   TString          str_input_dialog_4;
+  TString          sprinter, sprintCmd, sprintOpt;
   ClassDef(TBrowserEx,0)
 };
 
