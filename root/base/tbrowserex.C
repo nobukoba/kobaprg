@@ -1232,6 +1232,12 @@ public:
   TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
   void  ResetListLevel(){hist_browser->ResetListLevel();}
   TString GetInitialWorkingDir(){return initial_working_dir;}
+  TString GetPrinter(){return sprinter;}
+  TString GetPrintCmd(){return sprintCmd;}
+  TString GetPrintOpt(){return sprintOpt;}
+  void    SetPrinter(const char* spr){sprinter = spr;}
+  void    SetPrintCmd(const char* spc){sprintCmd = spc;}
+  void    SetPrintOpt(const char* spo){sprintOpt = spo;}
   
 protected:
   TGFileBrowserEx  *file_browser;

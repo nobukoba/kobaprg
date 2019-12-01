@@ -1,4 +1,4 @@
-void print_active_on_root_pdf() {
+void print_active_on_root_pdf(Option_t* option) {
   TBrowserEx *gBrowserEx = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
   if (gBrowserEx) {
     gSystem->cd((gBrowserEx->GetInitialWorkingDir()).Data());
@@ -29,7 +29,7 @@ void print_active_on_root_pdf() {
   Int_t cur_pad = 1;
   if(npad == 0){cur_pad = 0;}
   TH1 *subtracted = 0;
-  canvas->Print("root.pdf[","pdf");
+  canvas->Print("root.pdf[", option);
   TIter next2(gBrowserEx->GetHistListTreeActiveHistos());
   TObjString* objstr;
   while((objstr = (TObjString*)next2())){
@@ -45,7 +45,7 @@ void print_active_on_root_pdf() {
     hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
     cur_pad++;
     if (cur_pad > npad){
-      canvas->Print("root.pdf","pdf");
+      canvas->Print("root.pdf", option);
       if(npad == 0) {
 	cur_pad = 0;
       }else{
@@ -55,8 +55,12 @@ void print_active_on_root_pdf() {
   }
   if(((npad == 0) && (cur_pad != 0))||
      ((npad > 0)  && (cur_pad != 1))) {
-    canvas->Print("root.pdf","pdf");
+    canvas->Print("root.pdf", option);
   }
-  canvas->Print("root.pdf]","pdf");
+  canvas->Print("root.pdf]", option);
   return;
+}
+
+void print_active_on_root_pdf() {
+  print_active_on_root_pdf("");
 }
