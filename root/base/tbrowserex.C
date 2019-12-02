@@ -33,6 +33,7 @@
 #include "TGDimension.h"
 #include "TGInputDialog.h"
 #include "TGTextEditDialogs.h"
+#include "TRootCanvas.h"
 #include "TMarker.h"
 #include "TFile.h"
 #include "TList.h"
