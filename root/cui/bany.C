@@ -12,7 +12,7 @@ void bany(TH1* hist, Double_t par0, Double_t par1){
   TH1D *hout = new TH1D(str, hist->GetTitle(), hist->GetNbinsY(),
 			hist->GetYaxis()->GetXmin(), hist->GetYaxis()->GetXmax());
   save->cd();
-  gROOT->ProcessLine(".L ./clone_with_suffix.C");
+  gROOT->ProcessLine(".L ../cui/clone_with_suffix.C");
   TH2 *hout2 = (TH2*)gROOT->ProcessLine(Form("clone_with_suffix((TH1*)%p,\"%s\");",hist,"_cut"));
   hout2->Reset();
   hout2->SetTitle(hist->GetTitle());
