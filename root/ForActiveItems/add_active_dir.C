@@ -8,7 +8,7 @@
   }else{
     return;
   }
-  gSystem->CompileMacro("./kobaprg/root/add_active_dir.C","k");
+  gSystem->CompileMacro("./kobaprg/root/ForActiveItems/add_active_dir.C","k");
   add_active_dir();
 }
 #else
