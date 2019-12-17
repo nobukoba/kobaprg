@@ -61,7 +61,7 @@ public:
 		    "WaitOneClickY", this, "DrawFunction(Int_t,Int_t,Int_t,TObject*)");
     canvas->WaitPrimitive("TMarker");
   }
-  void DrawFunction(Int_t event, Int_t x_in, Int_t y_in, TObject*){
+ void DrawFunction(Int_t event, Int_t x_in, Int_t y_in, TObject*){
     if (event == kButton1Down) {
       pxlast = gPad->GetEventX();
       pylast = gPad->GetEventY();
@@ -181,7 +181,43 @@ public:
 };
 
 class TBrowserEx : public TBrowser {
+protected:
+  TGFileBrowserEx  *file_browser;
+  TGFileBrowserEx  *macro_browser;
+  TGFileBrowserEx  *hist_browser;
+  TGListTree       *macro_fListTree;
+  TGListTree       *hist_fListTree;
+  /* This causes sedv when .q was input!
+     TGListTreeItem   *hist_fListTreeItem;
+  */
+  TList            hist_fListTree_active_items;
+  TList            hist_fListTree_active_histos;
+  TList            list_of_active_histos;
+  TList            list_of_ordered_active_histos;
+  TTimer*          timer;
+  TString          initial_working_dir;
+  TString          str_input_dialog_1;
+  TString          str_input_dialog_2;
+  TString          str_input_dialog_4;
+  TString          sprinter, sprintCmd, sprintOpt;
 public:
+  TGFileBrowserEx *GetFileBrowser(){return file_browser;}
+  TGFileBrowserEx *GetHistBrowser(){return hist_browser;}
+  TGFileBrowserEx *GetMacroBrowser(){return macro_browser;}
+  TGListTree *GetMacroListTree(){return macro_fListTree;}
+  TGListTree *GetHistListTree(){return hist_fListTree;}
+  TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
+  void    ResetListLevel(){hist_browser->ResetListLevel();}
+  TString GetInitialWorkingDir(){return initial_working_dir;}
+  TString GetPrinter (){return sprinter;}
+  TString GetPrintCmd(){return sprintCmd;}
+  TString GetPrintOpt(){return sprintOpt;}
+  void    SetPrinter (const char* spr){sprinter  = spr;}
+  void    SetPrintCmd(const char* spc){sprintCmd = spc;}
+  void    SetPrintOpt(const char* spo){sprintOpt = spo;}
+  TTimer* GetTimer(){return timer;}
+  void    SetTimer(TTimer *t){timer = t;}
+
   TBrowserEx() :
     TBrowser("kobabrowser","ROOT Object Browser Extended",800,1000,0,"CI"),
     /* if option="FCI" is used, segv will occur for
@@ -192,6 +228,7 @@ public:
     hist_browser(0),
     macro_fListTree(0),
     hist_fListTree(0),
+    timer(0),
     str_input_dialog_1("1.0"),
     str_input_dialog_2("0.0 1.0"),
     str_input_dialog_4("0.0 1.0 0.0 1.0"),
@@ -1227,40 +1264,6 @@ public:
     }
     return &hist_fListTree_active_histos;
   }
-
-  TGFileBrowserEx *GetFileBrowser(){return file_browser;}
-  TGFileBrowserEx *GetHistBrowser(){return hist_browser;}
-  TGFileBrowserEx *GetMacroBrowser(){return macro_browser;}
-  TGListTree *GetMacroListTree(){return macro_fListTree;}
-  TGListTree *GetHistListTree(){return hist_fListTree;}
-  TList  *GetHistListTreeActiveItems(){return &hist_fListTree_active_items;}
-  void  ResetListLevel(){hist_browser->ResetListLevel();}
-  TString GetInitialWorkingDir(){return initial_working_dir;}
-  TString GetPrinter(){return sprinter;}
-  TString GetPrintCmd(){return sprintCmd;}
-  TString GetPrintOpt(){return sprintOpt;}
-  void    SetPrinter(const char* spr){sprinter = spr;}
-  void    SetPrintCmd(const char* spc){sprintCmd = spc;}
-  void    SetPrintOpt(const char* spo){sprintOpt = spo;}
-  
-protected:
-  TGFileBrowserEx  *file_browser;
-  TGFileBrowserEx  *macro_browser;
-  TGFileBrowserEx  *hist_browser;
-  TGListTree       *macro_fListTree;
-  TGListTree       *hist_fListTree;
-  /* This causes sedv when .q was input!
-     TGListTreeItem   *hist_fListTreeItem;
-  */
-  TList            hist_fListTree_active_items;
-  TList            hist_fListTree_active_histos;
-  TList            list_of_active_histos;
-  TList            list_of_ordered_active_histos;
-  TString          initial_working_dir;
-  TString          str_input_dialog_1;
-  TString          str_input_dialog_2;
-  TString          str_input_dialog_4;
-  TString          sprinter, sprintCmd, sprintOpt;
   ClassDef(TBrowserEx,0)
 };
 
