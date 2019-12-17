@@ -15,7 +15,7 @@
       call hcopy(1,3,'test3')
       call hbook2(4,'test4',30,-3.,3.,30,-3.,3.,0.)
 *
-      do 10 i=1,100000000
+      do 10 i=1,1000000000
          call rannor(a,b)
          call hf1(1,a,1.)
          call hf1(2,b,1.)
