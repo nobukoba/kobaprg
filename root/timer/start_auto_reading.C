@@ -1,6 +1,9 @@
-#include "TROOT.h"
-
 void start_auto_reading(){
-  gROOT->ProcessLine("MyTFile::StartConversion();");
+  TClass *cl = gROOT->ProcessLine("TClass::GetClass(\"MyTFile\");");
+  if (cl){
+    gROOT->ProcessLine("MyTFile::StartConversion();");
+  }else{
+    std::cout <<  "MyTFile class is not defined."<< std::endl;
+  }
   return;
 }
