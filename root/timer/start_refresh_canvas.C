@@ -1,6 +1,9 @@
 void start_refresh_canvas_func() {
   std::cout << "here timer func." << std::endl;
   TCanvas *canvas = gPad->GetCanvas();
+  canvas->Modified();
+  canvas->Update();
+  gPad->Update();
   TList *listofpri = canvas->GetListOfPrimitives();
   TObject *obj;
   TIter next(listofpri);
@@ -11,9 +14,6 @@ void start_refresh_canvas_func() {
       ((TPad*)obj)->Modified();
     }
   }
-  canvas->Modified();
-  canvas->Update();
-  canvas->Modified();
   return;
 }
 
