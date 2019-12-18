@@ -1,5 +1,5 @@
 void start_plot_active_func() {
-  std::cout << "start_plot_active_func." << std::endl;
+  /*std::cout << "start_plot_active_func." << std::endl;*/
 
   TCanvas *canvas = gPad->GetCanvas();
   if (!canvas) {
@@ -39,26 +39,23 @@ void start_plot_active_func() {
   Int_t num_hist = loa->GetEntries();
   Int_t cur_hist = gBrowserEx->GetCurrentHistNumber();
   TIter next2(loa);
-  Int_t j;
-  for (j = cur_hist; j < cur_hist + npad; j++){
-    if (j >= num_hist) {
-      break;
-    }
-    TObjString* objstr = (TObjString*)loa->At(j);
+  Int_t k = 0;
+  for (Int_t i = cur_pad; i <=npad; i++){
+    TObjString* objstr = (TObjString*)loa->At(cur_hist + k);
     TGListTreeItem *cur_ListTreeItem = (TGListTreeItem *) objstr->GetString().Atoll();
-    canvas->cd(cur_pad);
+    canvas->cd(i);
     hist_fListTree->DoubleClicked(cur_ListTreeItem,1);
-    cur_pad++;
-    if(cur_pad > npad) {
+    k++;
+    if ((cur_hist+k) == num_hist){
       break;
     }
   }
-  cur_hist = j+1;
-  if(cur_hist >= num_hist){
+  cur_hist += k;
+  if(cur_hist == num_hist){
     cur_hist = 0;
   }
   gBrowserEx->SetCurrentHistNumber(cur_hist);
-
+  
   canvas->Modified();
   canvas->Update();
   gPad->Update();
