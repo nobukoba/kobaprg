@@ -93,13 +93,16 @@ Int_t MyTFile::extension_checker (const char *name){
 }
 
 void MyTFile::StartConversion(){
-  if(shm_flag){
-    printf("Already running.\n");
-  }else if (shm_timer == 0){
+  if(shm_flag==0){
+    printf("shm_flag == 0.\n");
+    return;
+  }
+  if (shm_timer == 0){
     printf("shm_timer is null.\n");
   }else{
     shm_timer->Start(1000, kFALSE);
   }
+  return;
 }
 
 void MyTFile::StopConversion(){
