@@ -81,6 +81,6 @@ void start_plot_active(){
   gBrowserEx->SetTimer(timer);
   timer->Connect("Timeout()", 0, 0, "start_plot_active_func()");
   timer->Timeout();
-  timer->Start(1000,kFALSE);
+  timer->Start(5000,kFALSE);
   return;
 }
