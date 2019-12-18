@@ -11,6 +11,9 @@ void start_refresh_canvas_func() {
       ((TPad*)obj)->Modified();
     }
   }
+  canvas->Modified();
+  canvas->Update();
+  canvas->Modified();
   return;
 }
 
