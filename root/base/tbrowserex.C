@@ -195,6 +195,7 @@ protected:
   TList            list_of_active_histos;
   TList            list_of_ordered_active_histos;
   TTimer*          timer;
+  Int_t            current_hist_number;
   TString          initial_working_dir;
   TString          str_input_dialog_1;
   TString          str_input_dialog_2;
@@ -217,7 +218,9 @@ public:
   void    SetPrintOpt(const char* spo){sprintOpt = spo;}
   TTimer* GetTimer(){return timer;}
   void    SetTimer(TTimer *t){timer = t;}
-
+  Int_t   GetCurrentHistNumber(){return current_hist_number;}
+  void    SetCurrentHistNumber(Int_t num){current_hist_number = num;}
+  
   TBrowserEx() :
     TBrowser("kobabrowser","ROOT Object Browser Extended",800,1000,0,"CI"),
     /* if option="FCI" is used, segv will occur for
@@ -229,6 +232,7 @@ public:
     macro_fListTree(0),
     hist_fListTree(0),
     timer(0),
+    current_hist_number(0),
     str_input_dialog_1("1.0"),
     str_input_dialog_2("0.0 1.0"),
     str_input_dialog_4("0.0 1.0 0.0 1.0"),
@@ -1247,7 +1251,7 @@ public:
     }
     return &list_of_ordered_active_histos;
   }
-
+  
   TList *GetHistListTreeActiveHistos(){
     hist_fListTree_active_histos.Clear();
     TIter next(&hist_fListTree_active_items);
