@@ -1,5 +1,5 @@
 void start_refresh_canvas_func() {
-  std::cout << "here timer func." << std::endl;
+  /*std::cout << "here timer func." << std::endl;*/
   TCanvas *canvas = gPad->GetCanvas();
   canvas->Modified();
   canvas->Update();
