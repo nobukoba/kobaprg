@@ -1,5 +1,5 @@
 void start_auto_reading(){
-  TClass *cl = gROOT->ProcessLine("TClass::GetClass(\"MyTFile\");");
+  TClass *cl = (TClass*)gROOT->ProcessLine("TClass::GetClass(\"MyTFile\");");
   if (cl){
     gROOT->ProcessLine("MyTFile::StartConversion();");
   }else{
