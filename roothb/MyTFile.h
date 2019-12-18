@@ -9,9 +9,12 @@ class MyTFile : public TFile {
 public:
   MyTFile(const char *, Option_t *, const char *, Int_t);  
   ~MyTFile(); 
+  static void ConvertDirectoryShm();
   static Option_t * foption(const char *, Option_t *);
   static Int_t extension_checker(const char *);
   static TTimer *shm_timer;
+  static Int_t  hb_init_flag;
+  static Int_t  shm_flag;
   static TTimer *GetShmTimer(){return shm_timer;}
   ClassDef(MyTFile,1)
 };
