@@ -21,7 +21,7 @@ void start_refresh_canvas(){
   if (timer) {
     std::cout << "Already timer is used." << std::endl; return;
   }
-  TTimer *timer = new TTimer();
+  timer = new TTimer();
   gBrowserEx->SetTimer(timer);
   timer->Connect("Timeout()", 0, 0, "start_refresh_canvas_func()");
   timer->Timeout();
