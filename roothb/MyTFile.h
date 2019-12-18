@@ -16,6 +16,8 @@ public:
   static Int_t  hb_init_flag;
   static Int_t  shm_flag;
   static TTimer *GetShmTimer(){return shm_timer;}
+  static void StartConversion();
+  static void StopConversion();
   ClassDef(MyTFile,1)
 };
 
