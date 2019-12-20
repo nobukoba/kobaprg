@@ -50,10 +50,12 @@ int main(int argc, char* argv[]){
   UShort_t  input_BaseSample;		   
   UInt_t    input_SampledBaseline;	   
   UShort_t  input_PrevPostRiseBeginSample;
+  UShort_t  input_PostRiseEndSample;	   
+  UShort_t  input_PostRiseBeginSample;
   UShort_t  input_PreRiseEndSample;	   
   UShort_t  input_PreRiseBeginSample;
   UShort_t  input_nWaveData;
-  Short_t   input_WaveData[MaxNumOfWaveData];
+  UShort_t  input_WaveData[MaxNumOfWaveData];
   UShort_t  input_nTimingMarks;
   UShort_t  input_TimingMarks[MaxNumOfTimingMarks];
   input_tree->SetBranchAddress("RawDataOffset",           &input_RawDataOffset);
@@ -69,6 +71,8 @@ int main(int argc, char* argv[]){
   input_tree->SetBranchAddress("BaseSample",              &input_BaseSample);		   
   input_tree->SetBranchAddress("SampledBaseline",         &input_SampledBaseline);	   
   input_tree->SetBranchAddress("PrevPostRiseBeginSample", &input_PrevPostRiseBeginSample);
+  input_tree->SetBranchAddress("PostRiseEndSample",       &input_PostRiseEndSample);	   
+  input_tree->SetBranchAddress("PostRiseBeginSample",     &input_PostRiseBeginSample);
   input_tree->SetBranchAddress("PreRiseEndSample",        &input_PreRiseEndSample);	   
   input_tree->SetBranchAddress("PreRiseBeginSample",      &input_PreRiseBeginSample);
   input_tree->SetBranchAddress("nWaveData",               &input_nWaveData);
@@ -76,48 +80,7 @@ int main(int argc, char* argv[]){
   input_tree->SetBranchAddress("nTimingMarks",            &input_nTimingMarks);
   input_tree->SetBranchAddress("TimingMarks",             input_TimingMarks);
   
-  //ULong64_t RawDataOffset;
-  //UShort_t  BoardID;		   
-  //UShort_t  Channel;		   
-  //UShort_t  HeaderType;		   
-  //ULong64_t Timestamp;		   
-  //Double_t  DiscTime;		   
-  //ULong64_t PrevDiscTime;	   
-  //UInt_t    PreRiseE;		   
-  //UInt_t    PostRiseE;		   
-  //ULong64_t Flags;		   
-  //UShort_t  BaseSample;		   
-  //UInt_t    SampledBaseline;	   
-  //UShort_t  PrevPostRiseBeginSample;
-  //UShort_t  PreRiseEndSample;	   
-  //UShort_t  PreRiseBeginSample;     
-  //UShort_t  nWaveData;
-  //UShort_t  WaveData[MaxNumOfWaveData];
-  //UShort_t  nTimingMarks;
-  //UShort_t  TimingMarks[MaxNumOfTimingMarks];
-  //output_tree->Branch("RawDataOffset",           &RawDataOffset);
-  //output_tree->Branch("BoardID",                 &BoardID);
-  //output_tree->Branch("Channel",                 &Channel);
-  //output_tree->Branch("HeaderType",              &HeaderType);
-  //output_tree->Branch("Timestamp",               &Timestamp);
-  //output_tree->Branch("DiscTime",                &DiscTime);
-  //output_tree->Branch("PrevDiscTime",            &PrevDiscTime);
-  //output_tree->Branch("PreRiseE",                &PreRiseE);
-  //output_tree->Branch("PostRiseE",               &PostRiseE);
-  //output_tree->Branch("Flags",                   &Flags);
-  //output_tree->Branch("BaseSample",              &BaseSample);
-  //output_tree->Branch("SampledBaseline",         &SampledBaseline);
-  //output_tree->Branch("PrevPostRiseBeginSample", &PrevPostRiseBeginSample);
-  //output_tree->Branch("PreRiseEndSample",        &PreRiseEndSample);
-  //output_tree->Branch("PreRiseBeginSample",      &PreRiseBeginSample);
-  //output_tree->Branch("nWaveData",               &nWaveData);
-  //output_tree->Branch("WaveData",                WaveData, "WaveData[nWaveData]/S");
-  //output_tree->Branch("nTimingMarks",            &nTimingMarks);
-  //output_tree->Branch("TimingMarks",             TimingMarks, "TimingMarks[nTimingMarks]/s");
-  
   TFile *output_file = new TFile(output_file_name.Data(), "new");
-  
-
   //TList *grlist = (TList *)output_file->GetList()->FindObject("grlist");
   //if (!grlist) {
   //  // I need a directory for graphs. See http://root.cern.ch/root/roottalk/roottalk02/0672.html
@@ -129,12 +92,37 @@ int main(int argc, char* argv[]){
   ULong64_t NumOfEntries = input_tree->GetEntries();
   std::cout << "input_tree->GetEntries(): " << NumOfEntries << std::endl;
 
-  TGraph *gr = new TGraph();
-  gr->SetName("traces");
-  gr->SetTitle("traces");
-  gr->SetMarkerStyle(20);
-  gr->SetMarkerSize(0.3);
+  const Int_t ngr = 6;
+  TGraph *gr[ngr];
 
+  for (Int_t i = 0; i < ngr; i++) {
+    gr[i] = new TGraph();
+    gr[i]->SetMarkerStyle(20);
+    gr[i]->SetMarkerSize(1.0);
+  }
+
+  gr[0]->SetName("traces");
+  gr[0]->SetMarkerSize(0.3);
+  gr[1]->SetName("PrevDisc");
+  gr[1]->SetMarkerColor(2);
+  gr[2]->SetName("PreRiseBegin");
+  gr[2]->SetMarkerColor(3);
+  gr[3]->SetName("PreRiseEnd");
+  gr[3]->SetMarkerColor(4);
+  gr[4]->SetName("PostRiseBegin");
+  gr[4]->SetMarkerColor(5);
+  gr[5]->SetName("PostRiseEnd");
+  gr[5]->SetMarkerColor(6);
+  
+  Int_t d_window           =   6; // 6 sample * 10 ns/sample = 60 ns
+  Int_t k_window           =  20; //  200 ns
+  Int_t m_window           = 350; // 3500 ns
+  Int_t k0_window          =  80; //  800 ns
+  Int_t d2_window          =  19; //  190 ns
+  Int_t d3_window          =  20; //  200 ns
+  Int_t delay_for_wave_win =  26; //  260 ns
+  Int_t d_add              =   1; //   10 ns
+  
   //for (Int_t i = 0; i < NumOfEntries; i++) {
   for (Int_t i = 0; i < 10000; i++) {
     input_tree->GetEntry(i);
@@ -146,15 +134,35 @@ int main(int argc, char* argv[]){
       std::cout << "Timestamp: " << input_Timestamp << std::endl;
       std::cout << "nWaveData: " << input_nWaveData << std::endl;
     }
+    //std::cout << "input_PreRiseEndSample: " << input_PreRiseEndSample << std::endl;
     for (Int_t j = 0; j < input_nWaveData; j++) {
-      if (input_WaveData[j]>0) {
-	gr->SetPoint(gr->GetN(),input_Timestamp+j,input_WaveData[j]);
-      }else{
-	gr->SetPoint(gr->GetN(),input_Timestamp+j,-input_WaveData[j]);
+      ULong64_t jtime = j+input_Timestamp-d_window-d2_window-d3_window-delay_for_wave_win-d_add-k0_window-k_window; // offset = 172 samples
+      gr[0]->SetPoint(gr[0]->GetN(), jtime, input_WaveData[j]);
+      //if (input_PreRiseEndSample==input_WaveData[j]) {
+      //  std::cout << "j: " << j << " jtime: " << jtime << " input_WaveData[j]: " << input_WaveData[j] << std::endl;
+      //}
+      if(jtime == input_Timestamp-d_window-d2_window-d3_window-d_add) {
+        if (input_PreRiseEndSample!=input_WaveData[j]) {
+          std::cout << "input_PreRiseEndSample: " << input_PreRiseEndSample << std::endl;
+          std::cout << "jtime: " << jtime << " input_WaveData[j]: " << input_WaveData[j] << std::endl;
+        }
+      }
+      if(jtime == input_Timestamp+k0_window+k_window) {
+        if (input_PostRiseEndSample!=input_WaveData[j]) {
+          std::cout << "input_PostRiseEndSample: " << input_PostRiseEndSample << std::endl;
+          std::cout << "jtime: " << jtime << " input_WaveData[j]: " << input_WaveData[j] << std::endl;
+        }
       }
     }
+    gr[1]->SetPoint(gr[1]->GetN(),input_PrevDiscTime+k0_window+k_window,input_PrevPostRiseBeginSample);
+    gr[2]->SetPoint(gr[2]->GetN(),input_Timestamp-d_window-d2_window-d3_window-d_add-m_window,input_PreRiseBeginSample);
+    gr[3]->SetPoint(gr[3]->GetN(),input_Timestamp-d_window-d2_window-d3_window-d_add,input_PreRiseEndSample);
+    gr[4]->SetPoint(gr[4]->GetN(),input_Timestamp+k0_window+k_window,input_PostRiseEndSample);
+    gr[5]->SetPoint(gr[5]->GetN(),input_Timestamp+k0_window+k_window+m_window,input_PostRiseBeginSample);
   }
-  output_file->Add(gr);
+  for (Int_t i = 0; i < ngr; i++) {
+    output_file->Add(gr[i]);
+  }
 
   
   /* Ending transactions */
