@@ -995,7 +995,7 @@ public:
 	  pic = gClient->GetPicture("h2_t.xpm");
 	}else if (cl->InheritsFrom(TH1::Class())){
 	  pic = gClient->GetPicture("h1_t.xpm");
-	}else if (cl->InheritsFrom(TGraphErrors::Class())){
+	}else if (cl->InheritsFrom(TGraph::Class())){
 	  pic = gClient->GetPicture("profile_t.xpm");
 	}
 	if (pic) {
