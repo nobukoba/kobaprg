@@ -99,6 +99,8 @@ int main(int argc, char* argv[]){
   UShort_t  BaseSample;		   
   UInt_t    SampledBaseline;	   
   UShort_t  PrevPostRiseBeginSample;
+  UShort_t  PostRiseEndSample;	   
+  UShort_t  PostRiseBeginSample;
   UShort_t  PreRiseEndSample;	   
   UShort_t  PreRiseBeginSample;
   UShort_t  nWaveData;
@@ -121,10 +123,12 @@ int main(int argc, char* argv[]){
   tree->Branch("BaseSample",              &BaseSample               );
   tree->Branch("SampledBaseline",         &SampledBaseline          );
   tree->Branch("PrevPostRiseBeginSample", &PrevPostRiseBeginSample  );
+  tree->Branch("PostRiseEndSample",       &PostRiseEndSample        );
+  tree->Branch("PostRiseBeginSample",     &PostRiseBeginSample      );
   tree->Branch("PreRiseEndSample",        &PreRiseEndSample         );
   tree->Branch("PreRiseBeginSample",      &PreRiseBeginSample       );
   tree->Branch("nWaveData",               &nWaveData);
-  tree->Branch("WaveData",                WaveData, "WaveData[nWaveData]/S");
+  tree->Branch("WaveData",                WaveData, "WaveData[nWaveData]/s");
   tree->Branch("nTimingMarks",            &nTimingMarks);
   tree->Branch("TimingMarks",             TimingMarks, "TimingMarks[nTimingMarks]/s");
   
@@ -172,6 +176,8 @@ int main(int argc, char* argv[]){
     event.postrise_sum_low_prerise_sum	= SwapInt  (event.postrise_sum_low_prerise_sum);	
     event.postrise_sum_high             = SwapShort(event.postrise_sum_high);		
     event.last_postrise_enter_sample	= SwapShort(event.last_postrise_enter_sample);	
+    event.postrise_end_sample		= SwapShort(event.postrise_end_sample);		
+    event.postrise_begin_sample	        = SwapShort(event.postrise_begin_sample);	
     event.prerise_end_sample		= SwapShort(event.prerise_end_sample);		
     event.prerise_begin_sample		= SwapShort(event.prerise_begin_sample);		
     event.base_sample			= SwapShort(event.base_sample);			
@@ -185,17 +191,19 @@ int main(int argc, char* argv[]){
     unsigned int   fGetPreRiseE                = (event.postrise_sum_low_prerise_sum & 0xffffff);
     unsigned int   fGetPostRiseE               = ((event.postrise_sum_low_prerise_sum & 0xff000000)>>24) + (((unsigned int)event.postrise_sum_high) << 8);
     unsigned short fGetLastPostRiseEnterSample = event.last_postrise_enter_sample & 0x3fff;
+    unsigned short fGetPostRiseSampleBegin     = event.postrise_begin_sample & 0x3fff;
+    unsigned short fGetPostRiseSampleEnd       = event.postrise_end_sample & 0x3fff;
     unsigned short fGetPreRiseSampleBegin      = event.prerise_begin_sample & 0x3fff;
     unsigned short fGetPreRiseSampleEnd        = event.prerise_end_sample & 0x3fff;
     unsigned short fGetBaseSample              = event.base_sample & 0x3fff;
     unsigned short fTSMatchFlag                = (event.flags & 0x80)>>7;
     
-    if (fTSMatchFlag == 1) {
+    //if (fTSMatchFlag == 1) {
       unsigned long current_cfd= fDisc;
       fGetPrevCFD = ((current_cfd & 0x00ffffc0000000) + (((unsigned long)(event.cfd_mid_prev & 0x3fff)) << 16) + (unsigned long)event.cfd_low_prev);
-    } else {
-      fGetPrevCFD = 0xffffffffffffffff;
-    }
+      //} else {
+      //fGetPrevCFD = 0xffffffffffffffff;
+      //}
 
     //unsigned int wave_bytes = fLength*4 - sizeof(header) - sizeof(event);
     unsigned int wave_bytes = preheader.size - sizeof(header) - sizeof(event);
@@ -209,7 +217,8 @@ int main(int argc, char* argv[]){
       if (mark) {
 	timing_marks.push_back(i);
       }
-      short tracept = GetSigned14BitFromUShort(swapped);
+      //short tracept = GetSigned14BitFromUShort(swapped);
+      unsigned short tracept = swapped & 0x3fff;
       wave_data.push_back(tracept);
     }
     
@@ -226,6 +235,8 @@ int main(int argc, char* argv[]){
     BaseSample              = fGetBaseSample;
     SampledBaseline         = fGetBaseline;
     PrevPostRiseBeginSample = fGetLastPostRiseEnterSample;
+    PostRiseEndSample       = fGetPostRiseSampleEnd;
+    PostRiseBeginSample     = fGetPostRiseSampleBegin;
     PreRiseEndSample        = fGetPreRiseSampleEnd;
     PreRiseBeginSample      = fGetPreRiseSampleBegin;
     nWaveData               = wave_data.size();
