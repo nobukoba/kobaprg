@@ -1,8 +1,9 @@
-#include "TROOT.h"
-
 void stop_auto_reading(){
-  if (gROOT->FindObjectAny("shm_flag")){
+  TClass *cl = (TClass*)gROOT->ProcessLine("TClass::GetClass(\"MyTFile\");");
+  if (cl){
     gROOT->ProcessLine("MyTFile::GetShmTimer()->Stop();");
+  }else{
+    std::cout <<  "MyTFile class is not defined."<< std::endl;
   }
   return;
 }

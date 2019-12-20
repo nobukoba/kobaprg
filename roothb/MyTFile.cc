@@ -6,8 +6,9 @@
 #include "TTimer.h"
 #include "h2root_func.h"
 
-
 TTimer * MyTFile::shm_timer = 0;
+Int_t MyTFile::hb_init_flag = 0;
+Int_t MyTFile::shm_flag     = 0;
 
 ClassImp(MyTFile);
 MyTFile::~MyTFile(){
@@ -21,9 +22,9 @@ MyTFile::MyTFile(const char *name, Option_t *option,
   TFile(name,foption(name, option),ftitle,compress){
   Int_t ext_flag = extension_checker(name);
   if((ext_flag==1)||(ext_flag==2)){
-    if (gROOT->FindObjectAny("hb_init_flag")==0){
+    if (hb_init_flag==0){
       if(init_h2root() < 0) {
-	gROOT->Add(new TNamed("hb_init_flag","hb_init_flag"));
+	hb_init_flag = 1;
       }else{
 	printf("MyTFile: maybe init_h2root() is not defined.\n");
 	printf("Please use roothb instead of root.\n");
@@ -39,21 +40,26 @@ MyTFile::MyTFile(const char *name, Option_t *option,
   }
   if (ext_flag==2) {
     remove(name);
-    if (gROOT->FindObjectAny("shm_flag")){
+    if (shm_flag){
       printf("Warning: shared memory has been already read!\n");
       return;
     }
-    gROOT->Add(new TNamed("shm_flag","shm_flag"));
+    shm_flag=1;
     if (open_file(name)) {
       printf("Warning: shared memory could not be opened!\n");
       return;
     }
     shm_timer = new TTimer();
-    shm_timer->Connect("Timeout()", 0, 0, "convert_directory_shm()");
+    shm_timer->Connect("Timeout()", "MyTFile", this, "ConvertDirectoryShm()");
     shm_timer->Start(1000, kFALSE);   // 1 seconds, kFALSE-->loop
   }
   return;
 }
+
+void MyTFile::ConvertDirectoryShm(){
+  convert_directory_shm();  
+}
+
 
 Option_t* MyTFile::foption(const char *name, Option_t *option){
   if(extension_checker(name)==0){
@@ -85,3 +91,25 @@ Int_t MyTFile::extension_checker (const char *name){
     return 0;
   }
 }
+
+void MyTFile::StartConversion(){
+  if(shm_flag==0){
+    printf("shm_flag == 0.\n");
+    return;
+  }
+  if (shm_timer == 0){
+    printf("shm_timer is null.\n");
+  }else{
+    shm_timer->Start(1000, kFALSE);
+  }
+  return;
+}
+
+void MyTFile::StopConversion(){
+  if(shm_flag && shm_timer){
+    shm_timer->Stop();
+  }else{
+    printf("Already stopped.\n");
+  }
+}
+
