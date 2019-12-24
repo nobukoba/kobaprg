@@ -16,12 +16,18 @@ void shaping_digitizer_traces(){
   //  std::cout << "gr->GetY(): "<< gr->GetY()[i] <<std::endl;
   //}
 
+  TList * grlist = new TList();
+  grlist->SetName("grlist");
+  gROOT->Add(grlist);
+  
   TGraph *V_in = new TGraph();
+  V_in->SetName("V_in");
+  grlist->Add(V_in);
   Int_t k = 0;
   //for (Int_t i = 1; i <= h->GetNbinsX(); i++) {
-  for (Int_t i = 600000; i <= h->GetNbinsX(); i++) {
-  //for (Int_t i = 657000; i <= 659000; i++) {
-    V_in->SetPoint(k-1,k,h->GetBinContent(i));
+  //for (Int_t i = 600000; i <= h->GetNbinsX(); i++) {
+  for (Int_t i = 657000; i <= 658000; i++) {
+    V_in->SetPoint(k,i,h->GetBinContent(i));
     k++;
   }
 
@@ -60,7 +66,7 @@ void shaping_digitizer_traces(){
   Double_t R_D  = 2.0;
   Double_t R_I  = 1.0;
   Double_t C_I  = 3.0;
-  Double_t R_pz = 20.0;
+  Double_t R_pz = 23.0;
   Double_t dt = 1.; /* in us*/
 
   Double_t C_prime  = C_D*(R_pz/(R_pz+R_D));
@@ -77,6 +83,8 @@ void shaping_digitizer_traces(){
   TGraph *i_t    = new TGraph();
   TGraph *i_pz_t = new TGraph();
   TGraph *V_mid  = new TGraph();
+  V_mid->SetName("V_mid");
+  grlist->Add(V_mid);
   Double_t i_t_prev = 0.;
   Double_t i_pz_t_prev = 0.;
   for (Int_t i = 0; i < dV_in_dt->GetN(); i ++) {
@@ -135,6 +143,8 @@ void shaping_digitizer_traces(){
   
   TGraph *i_I_t = new TGraph();
   TGraph *V_out = new TGraph();
+  V_out->SetName("V_out");
+  grlist->Add(V_out);
   Double_t i_I_t_prev = 0.;
   x_prev = -2.;
   for (Int_t i = 0; i < dV_mid_dt->GetN(); i ++) {
@@ -162,9 +172,12 @@ void shaping_digitizer_traces(){
   //return;
   
   TGraph *V_out_ave = new TGraph();
+  V_out_ave->SetName("V_out_ave");
+  grlist->Add(V_out_ave);
   const Int_t n_arr = 5;
   Double_t y_arr[n_arr];
   for (Int_t i = 0; i < V_out->GetN(); i++) {
+    Double_t x = V_out->GetX()[i];
     if(i==0){
       y_arr[0] = V_out->GetY()[i];
       y_arr[1] = V_out->GetY()[i];
@@ -182,7 +195,7 @@ void shaping_digitizer_traces(){
     for (Int_t j = 0; j < n_arr; j++){
       V_out_ave_cur += y_arr[j];
     }
-    V_out_ave->SetPoint(i,i,V_out_ave_cur/n_arr);
+    V_out_ave->SetPoint(i,x,V_out_ave_cur/n_arr);
     for (Int_t j = 0; j < n_arr-1; j++){
       y_arr[j] = y_arr[j+1];
     }

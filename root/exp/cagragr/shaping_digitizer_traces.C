@@ -14,17 +14,23 @@ void shaping_digitizer_traces(){
     std::cout << "gr->GetX(): "<< gr->GetX()[i] <<std::endl;
     std::cout << "gr->GetY(): "<< gr->GetY()[i] <<std::endl;
   }
+
+  TList * grlist = new TList();
+  grlist->SetName("grlist");
+  gROOT->Add(grlist);
   
   Double_t first_x = gr->GetX()[0];
   TGraph *V_in = new TGraph();
+  V_in->SetName("V_in");
+  grlist->Add(V_in);
   Int_t k = 0;
-  Int_t neve = 13;
+  Int_t neve = 0;
   Int_t samples = 424;
   //for (Int_t i = 0; i < gr->GetN(); i++) {
   for (Int_t i = neve*samples; i < (neve+1)*samples; i++) {
     Double_t x = gr->GetX()[i];
     Double_t y = gr->GetY()[i];
-    V_in->SetPoint(k,x-first_x,y);
+    V_in->SetPoint(k,x,y);
     k++;
   }
 
@@ -56,14 +62,14 @@ void shaping_digitizer_traces(){
   }
   dV_in_dt->SetMarkerStyle(20);
   dV_in_dt->Draw("ap");
-  //V_in->Draw("ap");
+  V_in->Draw("ap");
   gPad->Update();
   //return;
-  Double_t C_D  = 5.0;
+  Double_t C_D  = 2.;
   Double_t R_D  = 5.0;
-  Double_t R_I  = 5.0;
+  Double_t R_I  = 3.0;
   Double_t C_I  = 10.0;
-  Double_t R_pz = 1000.2;
+  Double_t R_pz = 2000.2;
   Double_t dt = 1.; /* in us*/
 
   Double_t C_prime  = C_D*(R_pz/(R_pz+R_D));
@@ -80,6 +86,8 @@ void shaping_digitizer_traces(){
   TGraph *i_t    = new TGraph();
   TGraph *i_pz_t = new TGraph();
   TGraph *V_mid  = new TGraph();
+  V_mid->SetName("V_mid");
+  grlist->Add(V_mid);
   Double_t i_t_prev = 0.;
   Double_t i_pz_t_prev = 0.;
   for (Int_t i = 0; i < dV_in_dt->GetN(); i ++) {
@@ -138,6 +146,8 @@ void shaping_digitizer_traces(){
   
   TGraph *i_I_t = new TGraph();
   TGraph *V_out = new TGraph();
+  V_out->SetName("V_out");
+  grlist->Add(V_out);
   Double_t i_I_t_prev = 0.;
   x_prev = -2.;
   for (Int_t i = 0; i < dV_mid_dt->GetN(); i ++) {
