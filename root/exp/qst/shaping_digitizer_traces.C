@@ -19,14 +19,26 @@ void shaping_digitizer_traces(){
   //  std::cout << "gr->GetX(): "<< gr->GetX()[i] <<std::endl;
   //  std::cout << "gr->GetY(): "<< gr->GetY()[i] <<std::endl;
   //}
+<<<<<<< HEAD
+=======
+
+  TList * grlist = new TList();
+  grlist->SetName("grlist");
+  gROOT->Add(grlist);
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
   
   TGraph *V_in = new TGraph();
   V_in->SetName("V_in");
   grlist->Add(V_in);
   Int_t k = 0;
   //for (Int_t i = 1; i <= h->GetNbinsX(); i++) {
+<<<<<<< HEAD
   //for (Int_t i = 400000; i <= 700000; i++) {
     for (Int_t i = 657000; i <= 658000; i++) {
+=======
+  //for (Int_t i = 600000; i <= h->GetNbinsX(); i++) {
+  for (Int_t i = 657000; i <= 658000; i++) {
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
     V_in->SetPoint(k,i,h->GetBinContent(i));
     k++;
   }
@@ -68,7 +80,11 @@ void shaping_digitizer_traces(){
   Double_t C_D  = 1.0;
   Double_t R_D  = 2.0;
   Double_t R_I  = 1.0;
+<<<<<<< HEAD
   Double_t C_I  = 2.5;
+=======
+  Double_t C_I  = 3.0;
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
   Double_t R_pz = 23.0;
   Double_t dt = 1.; /* in us*/
 
