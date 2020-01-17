@@ -175,7 +175,7 @@ void FandG(const double eta, const double krval, const int lmax,
 	line_number = 700; continue;
       }
       u=t-h;
-      if ((u*h)>=0.) {//608,608,609
+      if ((u*h)<=0.) {/* 608,608,609 */ /* bug fixed on 20200118*/
 	h=t;
 	last=1;
       }
