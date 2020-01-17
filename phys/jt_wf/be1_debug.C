@@ -1,151 +1,6 @@
-/*#include "Math/SpecFunc.h"*/
 #include "TROOT.h"
-#include "TStyle.h"
 #include "TH2.h"
 #include <iostream>
-
-/*     ---------------------------------------------------------        */
-void sim(double fa[6603], double &res,
-	 const int m, const int n, const double h) {
-      /* implicit real*8(a-h,o-z) */
-  double dq[6603];
-  for (int i=m; i<=n; i++) {
-    dq[i]=fa[i];
-  }
-  double rq1=dq[m+1];
-  double rq2=dq[m+2];
-  int i=m+3;
-  while (true) {
-    if(i>=n) break;
-    rq1=rq1+dq[i];
-    rq2=rq2+dq[i+1];
-    i=i+2;
-  }
-  res=0.33333333333*h*(dq[m]+4.*rq1+2.*rq2-dq[n]);
-  return;
-}
-
-/*     **************************************************************** */
-double faclog(const int n){
-  double faclog_val=0.;
-  double fn =1.;
-  for (int i=3; i<=n; i++) {
-    fn=fn+1.;
-    faclog_val=faclog_val+log(fn);
-  }
-  return faclog_val;
-}
-
-/*     **************************************************************** */
-double cleb(const double ria, const double rid, const double rib,
-	    const double rie, const double ric, const double rif){
-  /* Function of Clebsch-Gordan coefficients
-     <j1,m1,j2,m2|JM> = <ria,rid,rib,rie|ric,rif> */
-  /* implicit real*8(a-h,o-z)
-     common/clebma/faclog(500) */
-  int ia=2.*(ria+.0001);
-  int ib=2.*(rib+.0001);
-  int ic=2.*(ric+.0001);
-  int id=2.*(fabs(rid)+.0001);
-  int ie=2.*(fabs(rie)+.0001);
-  int iF=2.*(fabs(rif)+.0001);
-  if (rid<0) {id = -id;}
-  if (rie<0) {ie = -ie;}
-  if (rif<0) {iF = -iF;}
-  double wwww=-1.0;
-  double cleb_ret=0.0;
-  if((id+ie-iF)!=0) {return cleb_ret;}
-  int k1=ia+ib+ic;
-  if(pow(-1,k1)<0) {return cleb_ret;}
-  if((id==0)&&(ie==0)) {
-    k1=k1/2;
-    if(pow(-1,k1)<0) {return cleb_ret;}
-  }
-  k1=ia+ib-ic;
-  int k2=ic-abs(ia-ib);
-  /*k3=min0(k1,k2);*/
-  int k3;
-  if (k1<k2) {k3=k1;}
-  else       {k3=k2;}
-  if(k3<0) {return cleb_ret;}
-  if(pow(-1,(ib+ie))<=0) {return cleb_ret;}
-  if(pow(-1,(ic+iF))<=0) {return cleb_ret;}
-  if((ia-abs (id))<0) {return cleb_ret;}
-  if((ib-abs (ie))<0) {return cleb_ret;}
-  if((ic-abs (iF))<0) {return cleb_ret;}
-  if(ia<0) {//7000,175,165
-    return cleb_ret;
-  } else if (ia>0) {
-    if(ib<0) { //7000,175,170
-      return cleb_ret;
-    } else if (ib>0){
-      if(ic<0) { //7000,180,250
-	return cleb_ret;
-      } else if (ic==0) {
-	double fb=(double)(ib+1);
-	cleb_ret=(pow(wwww,(ia-id)/2))/sqrt(fb);
-	return cleb_ret;
-      }
-    }else{
-      cleb_ret=1.0;
-      return cleb_ret;
-    }
-  }else{
-    cleb_ret=1.0;
-    return cleb_ret;
-  }
-  double fc2=ic+1;
-  int iabcp=(ia+ib+ic)/2+1;
-  int iabc=iabcp-ic;
-  int icab=iabcp-ib;
-  int ibca=iabcp-ia;
-  int iapd=(ia+id)/2+1;
-  int iamd=iapd-id;
-  int ibpe=(ib+ie)/2+1;
-  int ibme=ibpe-ie;
-  int icpf=(ic+iF)/2+1;
-  int icmf=icpf-iF;
-  double vvv=0.5;
-  double sqfclg=vvv*(log(fc2)-faclog(iabcp+1)
-		     +faclog(iabc)+faclog(icab)+faclog(ibca)
-		     +faclog(iapd)+faclog(iamd)+faclog(ibpe)
-		     +faclog(ibme)+faclog(icpf)+faclog(icmf));
-  int nzmic2=(ib-ic-id)/2;
-  int nzmic3=(ia-ic+ie)/2;
-  /* nzmi= max0(0,nzmic2,nzmic3)+1;
-     nzmx= min0(iabc,iamd,ibpe);   */
-  int nzmi, nzmx;
-  if (0>nzmic2) {
-    if (0>nzmic3)      { nzmi=0+1;      }
-    else               { nzmi=nzmic3+1; }
-  }else{
-    if (nzmic2>nzmic3) { nzmi=nzmic2+1; }
-    else               { nzmi=nzmic3+1; }
-  }
-  if (iabc<iamd) {
-    if (iabc<ibpe) { nzmx=iabc; }
-    else           { nzmx=ibpe; }
-  }else{
-    if (iamd<ibpe) { nzmx=iamd; }
-    else           { nzmx=ibpe; }
-  }
-  if(nzmx<nzmi) {return cleb_ret;}
-  double s1=pow(wwww,nzmi-1);
-  for (int nz=nzmi; nz<=nzmx; nz++) {
-    int nzm1=nz-1;
-    int nzt1=iabc-nzm1;
-    int nzt2=iamd-nzm1;
-    int nzt3=ibpe-nzm1;
-    int nzt4=nz-nzmic2;
-    int nzt5=nz-nzmic3;
-    double termlg=sqfclg-faclog(nz)-faclog(nzt1)-faclog(nzt2)
-      -faclog(nzt3)-faclog(nzt4)-faclog(nzt5);
-    double ssterm=s1*exp (termlg);
-    cleb_ret=cleb_ret+ssterm;
-    s1=-s1;
-  }
-  return cleb_ret;
-}
 
 /*     ---------------------------------------------------------      */
 void FandG(const double eta, const double krval, const int lmax,
@@ -467,7 +322,7 @@ double V(const int j, const int l, const double r,
 }
 
 /*     ---------------------------------------------------------         */
-void wf(double u[6603], const double h,
+void wf1(double u[6603], const double h,
 	const int nsteps, const double erel,
 	const int j, const int l, 
 	double &A, double &B,
@@ -588,6 +443,7 @@ void wf(double u[6603], const double h,
          Smod=abs(S)
          print*,' S(l) = ',S,' with modulus ',Smod
          ---------------------------------------------------------      */
+  return;
 }
 
 void bound(const int ia, const int ib, const int ic,
@@ -1019,237 +875,36 @@ void bound(const int ia, const int ib, const int ic,
   if(ic!=1) chis[jhw]=chis[jhw]*ffr[1][3];
   return;
 }
-/* c     ---------------------------------------------------------         */
-/*
-double WhittakerFunctionW (double k, double m, double z) {
-  return exp(-z/2.0)*pow(z,m+1./2.)*ROOT::Math::conf_hypergU(1./2.+m-k, 1+2*m, z);
-}
-*/
-void be1_7be_p_g_8b() {
-  int    ia     = 0;      /* search well depth for ia=0, search energy for ia=1   */
-  int    ic     = 1;      /* option for residual				  */
-  int    ib     = 0;      /* potential type					  */
-  double wr0    = 1.25;   /* potential radius					  */
-  double wal    = 0.65;   /* potential diffuseness				  */
-  int    nramax = 1600;   /* steps						  */
-  double drx    = 0.05;   /* step						  */
+
+void be1_debug() {
   double wls    = 0.0;    /* spin orbit strength in MeV				  */
-  int    isof   = 1;      /* fixed for isof = 1, hamamoto for isof = 0		  */
-  double cmass  = 7.0;    /* cmass						  */
-  double vmass  = 1.0;    /* vmass						  */
-  double zc     = 4.;     /* core charge                                          */
   double vdepth = 46.56;  /* for PRL73(1994)2029 				  */
   double bengy  = 0.1364; /* bengy						  */
-  double e1enmax = 15.;   /* E1 energy max                                        */
-  int    j2a    = 1;      /* 2*j						  */
-  int    lmoma  = 1;      /* lmoma						  */
-  int    nodd   = 0;      /* nodd						  */
-  double wzz    = 4.0;    /* Z_c * Z_v in Sommerfeld parameter			  */
-  int    is2    = 1;      /* ?							  */
-  int    jhw    = 1;      /* ?							  */
-  double dmat   = 0.0;    /* ?							  */
-  double wrz    = wr0;    /* ?							  */
-  double pnloc  = 0.0;    /* ?							  */
-  double wr0ls  = wr0;    /* ?							  */
-  double wals   = wal;    /* ?                                                    */
   double chis[11];
   double ffr[6603][5];
   int    kcheck;
-  double u[6603], vv[6603];
-  gROOT->cd();
-  TH1D*  h[2];
-  h[0] = new TH1D("h0","h0",1601,-0.025,80.025);
-  h[1] = new TH1D("h1","h1",1601,-0.025,80.025);
-  bound(ia,ib,ic,is2,j2a,lmoma,nodd,nramax,jhw,cmass,vmass,
-	wzz,wal,wr0,wls,isof,ffr,vdepth,bengy,dmat,
-	kcheck,wrz,chis,drx,pnloc,wr0ls,wals);
-  u[1]=0.;
-  vv[1]=0.;
-  /*------------------------------------------------------------------------*/
-  for (int i=1; i<=nramax; i++) {
-    double r=(i-1)*drx;
-    u[i+1]= ffr[i][1];
-    vv[i+1]= ffr[i][3];
+  TH1D*  hist = new TH1D("h1","h1",1601,-0.025,80.025);
+  bound(0,0,1,1,1,1,0,1600,1,7.0,1.0,
+	0.0,0.65,1.25,wls,1,ffr,vdepth,bengy,0.0,
+	kcheck,0.65,chis,0.05,0.0,0.65,0.65);
+  /* *****Should be 2 ************************ */
+  /* ******** | ****************************** */
+  /* ******** V ****************************** */
+  for (int i =1; i <=1601; i++) {
+  /* ***************************************** */
+  /* ***************************************** */
+  /* ***************************************** */
+    hist->SetBinContent(i,ffr[i-1][1]);
   }
-  /*------------------------------------------------------------------------
-         check normalizations and calculate rms relative and of composite
-         ------------------------------------------------------------------------*/
-  for (int i=1; i<=nramax; i++) {
-    double r=(i-1)*drx;
-    u[i]=+r*u[i];
-    /*std::cout << r << ", " << u[i] << std::endl;*/
-    /*------------------------------------------------------------------------
-         for zero range check
-    ------------------------------------------------------------------------
-         u(i)=sqrt(2*bsalfa)*exp(-bsalfa*r)
-	 ------------------------------------------------------------------------*/
-  }
-
-  std::cout << "vdepth: " << vdepth << std::endl;
-  std::cout << "bengy: " << bengy << std::endl;
-  h[1]->SetBinContent(1, 0.);
-  for (int i =2; i <=nramax+1; i++) {
-    h[1]->SetBinContent(i,(i-1)*drx*ffr[i-1][1]);
-  }
-  double fmu=vmass*cmass/(vmass+cmass);
-  double wk=0.2195376*sqrt(fmu*bengy); /* sqrt(2*amu)/hbar*c = sqrt(2*938.27208816)/197.3269804 = 0.21952951919 */
-  double weta=0.7199262*wzz*wk/bengy; /* e^2/2.0 = 0.7199822 */
-  double fmu2 = (938.0 / 197.34) * fmu;
-  double G11sq = 0.013;
-  double G12sq = 0.069;
-  double C11sq = G11sq * pow(fmu2, 2) / (4.*atan(1.)); /* pi = 4.*atan(1.) */
-  double C12sq = G12sq * pow(fmu2, 2) / (4.*atan(1.));
-  double fac = sqrt(C11sq + C12sq); 
-  
-  /*std::cout << "ROOT::Math::sph_bessel(1,2.): " << ROOT::Math::sph_bessel(1,2.) << std::endl;*/
-  /*std::cout << "ROOT::Math::conf_hypergU(1.0, 1.0, 1.0): " << ROOT::Math::conf_hypergU(1.0, 1.5, 0.025) << std::endl;*/
-  
-  /*h[0]->SetBinContent(1, fac*WhittakerFunctionW(-weta, lmoma+1./2., 2*wk*drx));
-  for (int i =2 ; i <=nramax+1; i++) {
-    h[0]->SetBinContent(i, fac*WhittakerFunctionW(-weta, lmoma+1./2., 2*wk*(i-1)*drx));
-  }
-  TH1D* h1_norm = (TH1D*)h[1]->Clone("h1_norm");
-  double fac2 = h[0]->GetBinContent(1400)/h[1]->GetBinContent(1400); */
-  
-  TH1D* h1_norm = (TH1D*)h[1]->Clone("h1_norm");
-  double fac2 = 0.867402;
-  std::cout << "fac2: " << fac2 << std::endl;
-  h1_norm->Scale(fac2);
-
-  double bs2[6603],w[6603],A,B;
-  double ebe1 = 10.;
-  double conno1=0.2195376; /* sqrt(2*amu)/hbar*c = sqrt(2*938.27208816)/197.3269804 = 0.21952951919 */
-  double pi=4.*atan(1.);
-  double pmass=cmass+vmass;
-  double rmu=cmass*vmass/pmass;
-  double p1=4.*atan(1.);
-  double amu=938.0;
-  double hbarc=197.34;
-  double spin=is2/2.;
-  double rlmoma=lmoma;
-  double rja=j2a/2.;
-  
-  wr0=wr0*pow(cmass,0.333333333333);
-  double rcj=pow(zc/pmass,2)*(rmu*amu/hbarc/hbarc)*2./p1;
-  int ieb=0;
-  int llmin=lmoma-1;
-  int llmax=lmoma+1;
-  if(llmin<0) {llmin=llmax;}
-  int neb = e1enmax/0.01 + 0.0001;
-  double e1enmax2 = 0.01*neb;
-  TH1D* hbe1 = new TH1D("hbe1","hbe1",neb+1,-0.005,e1enmax2+0.005);
-  TH1D* sig = new TH1D("sig","sig",neb+1,-0.005,e1enmax2+0.005);
-  TH1D* sfac = new TH1D("sfac","sfac",neb+1,-0.005,e1enmax2+0.005);
-  TH1D *hbe1_lj[4];
-  hbe1_lj[0] = new TH1D("hbe1_ll_jl","hbe1_ll_jl",neb+1,-0.005,e1enmax2+0.005);
-  hbe1_lj[1] = new TH1D("hbe1_ll_ju","hbe1_ll_ju",neb+1,-0.005,e1enmax2+0.005);
-  hbe1_lj[2] = new TH1D("hbe1_lu_jl","hbe1_lu_jl",neb+1,-0.005,e1enmax2+0.005);
-  hbe1_lj[3] = new TH1D("hbe1_lu_ju","hbe1_lu_ju",neb+1,-0.005,e1enmax2+0.005);
-  TH2D *hwf[4];
-  TH2D *hbs2[4];
-  
-  hwf[0]  = new TH2D("hwf_ll_jl","hwf_ll_jl",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hwf[1]  = new TH2D("hwf_ll_ju","hwf_ll_ju",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hwf[2]  = new TH2D("hwf_lu_jl","hwf_lu_jl",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hwf[3]  = new TH2D("hwf_lu_ju","hwf_lu_ju",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hbs2[0] = new TH2D("hbs2_ll_jl","hbs2_ll_jl",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hbs2[1] = new TH2D("hbs2_ll_ju","hbs2_ll_ju",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hbs2[2] = new TH2D("hbs2_lu_jl","hbs2_lu_jl",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-  hbs2[3] = new TH2D("hbs2_lu_ju","hbs2_lu_ju",
-		     1600,-0.025,79.975,neb+1,-0.005,e1enmax2+0.005);
-
-  /*for( double ebe1=0.01; ebe1 <= e1enmax; ebe1+=0.01){*/
-  /*for (int ieb=100; ieb<=100; ieb++){*/
-    for (int ieb=1; ieb<=neb; ieb++){
-    double ebe1 = ieb*0.01;
-    wk=0.2195376*sqrt(fmu*ebe1); /* sqrt(2*amu)/hbar*c = sqrt(2*938.27208816)/197.3269804 = 0.21952951919 */
-    weta=0.7199262*wzz*wk/ebe1; /* e^2/2.0 = 0.7199822 */
-
-    std::cout << "ebe1 " << ebe1 << std::endl;
-    std::cout << "weta " << weta << std::endl;
-    std::cout << "exp(2.*pi*weta) " << exp(2.*pi*weta) << std::endl;
-
-    double qbe1=sqrt((pow(0.2195376,2)*rmu)*ebe1);
-    double be1dist=0.;
-    /*ieb=ieb+1;*/
-    int lj=0;
-    for (int lfin=llmin; lfin<=llmax; lfin+=3) {
-      for (int jstep=-1; jstep<=1; jstep+=2) {
-        /* double rlfin=lfin; */
-        int jvals=2*lfin+jstep;
-        double rjval=jvals/2.;
-        if(rjval<0) {continue;}
-	/*------------------------------------------------------------------------
-	  these lines for j-version only
-	  ------------------------------------------------------------------------*/
-        /* cgc=cleb(rjval,spin,rja,-spin,1.,0.)*stat2(rjval); */
-        double cgc=cleb(rjval,spin,rja,-spin,1.,0.)*sqrt(2.*rjval+1.);
-	if(fabs(cgc)<1.e-10) {continue;}
-        cgc=cgc*cgc/4./p1;
-        if(ieb==1) {
-	  /*  std::cout << " ang mom "
-		    << lfin << "," 
-		    << rjval << ","
-		    << cgc << std::endl; */
-	}
-
-	/*------------------------------------------------------------------------
-	         these lines for ell only
-	  ------------------------------------------------------------------------
-	         cgc=cleb(rlmoma,0.d0,1.d0,0.d0,rlfin,0.d0)
-	         if(abs(cgc).lt.1.d-10) goto 888
-	         cgc=cgc*cgc*3.d0/(4.d0*p1)
-	         if(ieb.eq.1) print*,' ang mom ',real(lfin),cgc
-	  ------------------------------------------------------------------------
-	         analytic result in zero range s-state case
-	  ------------------------------------------------------------------------
-	         rcc=3.d0*hbarc**2/(p1*p1*rmu*amu)*(zc/pmass)**2
-	         rcc=sqrt(bengy)*rcc*(ebe1)**1.5d0/(ebe1+bengy)**4
-	  ------------------------------------------------------------------------
-	         solve radial differential equation for this partial wave
-	  ------------------------------------------------------------------------*/
-	wf(w,drx,nramax,ebe1,jvals,lfin,A,B,
-	   weta,rmu,conno1,pi,vdepth,wal,wr0,wls,ib);
-	/*       print*,A,B
-		 delta=atan2(B,A)
-		 print*,lfin,jvals,'  delta (deg) = ',delta/pi*180.d0*/
-	for (int i=1; i<=nramax; i++) {
-	  double r=(i-1)*drx;
-	  /*---------------------------------------------------------------------
-	    BE1 transform integrand
-	    ---------------------------------------------------------------------*/
-	  bs2[i]=r*u[i]*w[i-1]/qbe1;
-	  /*       write(33,*) r,w(i-1)/qbe1,r*bes1(qbe1*r)
-	    ---------------------------------------------------------------------
-	           zero-range limit (numerically)
-	    ---------------------------------------------------------------------
-	           bs (i)=r*r*bes1(qbe1*r)*sqrt(2*bsalfa)*exp(-bsalfa*r)*/
-	  hwf[lj]->Fill(r,ebe1,w[i-1]);
-	  hbs2[lj]->Fill(r,ebe1,bs2[i]);
-	  /*std::cout << "w[i-1], " << w[i-1] << std::endl;*/
-	}
-	double rnorm2;
-	sim(bs2,rnorm2,1,nramax,drx);
-	/*       call sim(bs,rnorm,1,nramax,drx)
-		 print*,rnorm2*/
-	be1dist=be1dist+qbe1*pow(rnorm2,2)*rcj*cgc;
-	hbe1_lj[lj]->Fill(ebe1,qbe1*pow(rnorm2,2)*rcj*cgc);
-	lj++;
-      }
+  double ww[6603],AA,BB;
+  TH2D *hwf1  = new TH2D("hhhh","hhhh",
+		     160,-0.025,79.975,100,-0.005,100.);
+  for (int lll=0; lll<=1; lll++) {
+    for (int iii=0; iii<=1; iii++){
+      hwf1->Fill(0.,0.,0.);
+      wf1(ww,0.01,1600,0.01,1,1,AA,BB,
+	  0.,1.0,10.,3.14,10.,1.,10.,1.,0);
     }
-    hbe1->Fill(ebe1,be1dist);
-    double sig_cal = pow((ebe1+bengy),2)*be1dist/wk;
-    double sfac_cal = ebe1 * sig_cal * exp(2.*pi*weta); 
-    sig->Fill(ebe1,sig_cal);
-    sfac->Fill(ebe1,sfac_cal);
   }
-  hbe1->Draw();
   return;
 }
