@@ -12,6 +12,10 @@
       print*
 *     search well depth for ia=0, search energy for ia=1
       ia=0
+* Nobu added on Jan. 17, 2020 -->
+      print*,'search well depth for ia=0, search energy for ia=1'
+      read *, ia
+* --> Nobu
       ic=1
 *     read stuff
 *     print*,'potential type'
@@ -31,6 +35,11 @@
       hbarc2=hbarc*hbarc
       pi=4.d0*datan(1.d0)
       wzz=0.0d0
+* Nobu added on Jan. 17, 2020 -->
+      print*,'Z_c * Z_v in Sommerfeld parameter'
+      read *, wzz
+* --> Nobu
+
 *---------------------------------------------------------------------
 *     conno1=0.2196079d0
 *---------------------------------------------------------------------
@@ -44,8 +53,8 @@
       read*,cmass,vmass
       print*,'core charge '
       read*,zc
-      print*,'bengy'
-      read*,bengy
+      print*,'vdepth'
+      read*,vdepth
       print*,'maximum relative energy'
       read*,e1enmax
       print*,'2*j lmoma and nodd'
@@ -336,6 +345,10 @@
       go to 30
    20 bengy=vdepth-(3.1415926*(fnod+0.5*flmom1))**2/(0.048228*vmass
      1*radz*radz)
+      write(*,*) 'incr: ', incr
+      write(*,*) 'vdepth: ', vdepth 
+      write(*,*) 'bengy: ', bengy
+      write(*,*) 'eps7: ', eps7
       if(bengy-eps7) 25,25,30
    25 radz=radz+drz
       incr=incr+1
@@ -373,8 +386,9 @@
       dr12=0.1*dr56
       fl1=lmom*lmom1
   100 wrho=wdrho
-*      write(*,*) 'aft label100', wdrho
+      write(*,*) 'aft label100', wdrho
       wvc=vdepth/bengy
+      write(*,*) 'aft label100 wvc', wvc
       zer=1.0
       do 180 j=1,lmom2
       a1=-wvs*flns*wfsr(j)/(flmom1+flmom1)
@@ -390,6 +404,12 @@
       ffr(j,jhw)=(wrho**lmom1)*(1.0+a1*wrho+a2*wrho*wrho+a3*wrhosq*wrho
      1+a4*wrhosq*wrhosq+a5*wrho*wrhosq*wrhosq+a6*wrhosq**3)
   180 wrho=wrho+wdrho
+      write(*,*) 'wetac', wetac
+      write(*,*) 'a1', a1
+      write(*,*) 'b1', b1
+      write(*,*) 'b2', b2
+      write(*,*) 'a2', a2
+      write(*,*) 'wrho', wrho
       mat1=match+1
       x1=wdrho*flmom1
       x2=x1+wdrho
@@ -439,7 +459,7 @@
   240 dffr1=((ffr(match+3,jhw)-ffr(match-3,jhw))/60.0+3.0*(ffr(match-2,
      1jhw)-ffr(match+2,jhw))/20.0+3.0*(ffr(match+1,jhw)-ffr(match-1,jhw)
      2)/4.0)/wdrho
-*      write(*,*) 'aft dffr1', dffr1
+      write(*,*) 'aft dffr1', dffr1
       korec=0
       rhoa=wk*drd(jhw)*real(nramax)
       wrho=rhoa
@@ -476,12 +496,12 @@
       dffr2=((ffr(match+3,jhw+2)-ffr(match-3,jhw+2))/60.0+3.0*(ffr(match
      1-2,jhw+2)-ffr(match+2,jhw+2))/20.0+3.0*(ffr(match+1,jhw+2)
      2-ffr(match-1,jhw+2))/4.0)/wdrho
-*      write(*,*) 'aft dffr2', dffr2
+      write(*,*) 'aft dffr2', dffr2
       ratio=ffr(match,jhw)/ffr(match,jhw+2)
       tlogd1=dffr1/ffr(match,jhw)
       tlogd2=dffr2/ffr(match,jhw+2)
       difnce=dabs(tlogd1-tlogd2)
-*      write(*,*) 'difnce', difnce
+      write(*,*) 'difnce', difnce
       if(difnce-eps7) 510,510,400
   400 niter=niter+1
       if(niter-100) 410,410,405

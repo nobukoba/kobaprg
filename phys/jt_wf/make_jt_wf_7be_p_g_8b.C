@@ -512,6 +512,11 @@ void bound(const int ia, const int ib, const int ic,
 	while (true) {
 	  bengy=vdepth-pow(3.1415926*(fnod+0.5*flmom1),2)/
 	    (0.048228*vmass*radz*radz);
+	  printf("incr %d\n",incr);
+	  printf("bengy %f\n",bengy);
+	  printf("vdepth %f\n",vdepth);
+	  printf("eps7 %f\n",eps7);
+	  
 	  if((bengy-eps7)>0.) {
 	    break;
 	  }else{
@@ -568,8 +573,9 @@ void bound(const int ia, const int ib, const int ic,
       continue;
     }else if (line_number == 100){
       double wrho=wdrho; // label: 100
-      //printf("aft label100 %10.20f\n",wdrho);
+      printf("aft label100 %10.20f\n",wdrho);
       double wvc=vdepth/bengy;
+      printf("aft label100 wvc %10.20f\n",wvc);
       zer=1.0;
       for (int j=1; j<=lmom2; j++){ 
 	double a1=-wvs*flns*wfsr[j]/(flmom1+flmom1);
@@ -587,6 +593,14 @@ void bound(const int ia, const int ib, const int ic,
 	   a4*wrhosq*wrhosq+a5*wrho*wrhosq*wrhosq+a6*pow(wrhosq,3));
 	wrho=wrho+wdrho;
       }
+      printf("wetac %10.20f\n",wetac);
+      printf("a1 %10.20f\n",a1);
+      printf("b1 %10.20f\n",b1);
+      printf("b2 %10.20f\n",b2);
+      printf("a2 %10.20f\n",a2);
+      printf("a3 %10.20f\n",a3);
+      printf("wrho %10.20f\n",wrho);
+      
       int mat1=match+1;
       double x1=wdrho*flmom1;
       double x2=x1+wdrho;
@@ -649,7 +663,7 @@ void bound(const int ia, const int ib, const int ic,
       double dffr1=((ffr[match+3][jhw]-ffr[match-3][jhw])/60.0
 		    +3.0*(ffr[match-2][jhw]-ffr[match+2][jhw])/
 		    20.0+3.0*(ffr[match+1][jhw]-ffr[match-1][jhw])/4.0)/wdrho;
-      //printf("aft dffr1 %10.20f\n",dffr1);
+      printf("aft dffr1 %10.20f\n",dffr1);
       korec=0;
       double rhoa=wk*drd[jhw]*(double)(nramax);
       wrho=rhoa;
@@ -691,12 +705,12 @@ void bound(const int ia, const int ib, const int ic,
       double dffr2=((ffr[match+3][jhw+2]-ffr[match-3][jhw+2])/
 		    60.0+3.0*(ffr[match-2][jhw+2]-ffr[match+2][jhw+2])/20.0
 		    +3.0*(ffr[match+1][jhw+2]-ffr[match-1][jhw+2])/4.0)/wdrho;
-      //printf("aft dffr2 %10.20f\n",dffr2);
+      printf("aft dffr2 %10.20f\n",dffr2);
       ratio=ffr[match][jhw]/ffr[match][jhw+2];
       double tlogd1=dffr1/ffr[match][jhw];
       double tlogd2=dffr2/ffr[match][jhw+2];
       double difnce=fabs(tlogd1-tlogd2);
-      //printf("difnce %10.20f\n",difnce);
+      printf("difnce %10.20f\n",difnce);
       if((difnce-eps7)>0.) {//510,510,400
 	niter=niter+1;
 	if((niter-100)>0) {//410,410,405
@@ -739,11 +753,11 @@ void bound(const int ia, const int ib, const int ic,
 	double denom=sum*wdrho/3.0;
 	incr=0;
 	double ram1=fnum/denom;
-	//printf("bfr ramda vdepth: %10.20f\n",vdepth);
-	//printf("ramda: %10.20f\n",ramda);
-	//printf("denom: %10.20f\n",denom);
-	//printf("sum: %10.20f\n",sum);
-	//printf("wdrho: %10.20f\n",wdrho);
+	printf("bfr ramda vdepth: %10.20f\n",vdepth);
+	printf("ramda: %10.20f\n",ramda);
+	printf("denom: %10.20f\n",denom);
+	printf("sum: %10.20f\n",sum);
+	printf("wdrho: %10.20f\n",wdrho);
 	while (true) {
 	  ramda=1.0+ram1;
 	  if((ramda-eps7)<=0.) {//485,485,488
@@ -847,23 +861,23 @@ void bound(const int ia, const int ib, const int ic,
 }
 //c     ---------------------------------------------------------         
 
-void make_jt_wf() {
-  int    ia     = 0;      // search well depth for ia=0, search energy for ia=1
+void make_jt_wf_7be_p_g_8b() {
+  int    ia     = 1;      // search well depth for ia=0, search energy for ia=1
   int    ic     = 1;      // option for residual
   int    ib     = 0;      // potential type
   double wr0    = 1.25; // potential radius
-  double wal    = 0.7;    // potential diffuseness
+  double wal    = 0.65;    // potential diffuseness
   int    nramax = 1600;   // steps
   double drx    = 0.05;   // step
-  double wls    = 6.0;    // spin orbit strength in MeV
-  int    isof   = 0;      // fixed for isof = 1, hamamoto for isof = 0
-  double cmass  = 28;     // cmass
+  double wls    = 0.0;    // spin orbit strength in MeV
+  int    isof   = 1;      // fixed for isof = 1, hamamoto for isof = 0
+  double cmass  = 7;     // cmass
   double vmass  = 1;      // vmass
-  double bengy  = 0.963;  // bengy
+  double bengy  = 0.1;  // bengy
   int    j2a    = 1;      // 2*j
-  int    lmoma  = 0;      // lmoma
-  int    nodd   = 1;      // nodd
-  double wzz    = 0.0;    // Z_c * Z_v in Sommerfeld parameter
+  int    lmoma  = 1;      // lmoma
+  int    nodd   = 0;      // nodd
+  double wzz    = 4.0;    // Z_c * Z_v in Sommerfeld parameter
   int    is2    = 1;      // ?
   int    jhw    = 1;      // ?
   double dmat   = 0.0;    // ?
@@ -873,13 +887,14 @@ void make_jt_wf() {
   double wals   = wal;    // ?
   double chis[11];
   double ffr[6603][5];
-  double vdepth;
+  double vdepth = 46.56; /* for PRL73(1994)2029 */
   int    kcheck;
   bound(ia,ib,ic,is2,j2a,lmoma,nodd,nramax,jhw,cmass,vmass,
 	wzz,wal,wr0,wls,isof,ffr,vdepth,bengy,dmat,
 	kcheck,wrz,chis,drx,pnloc,wr0ls,wals);
   double u[6603],vv[6603];
   std::cout << "vdepth: " << vdepth << std::endl;
+  std::cout << "bengy: " << bengy << std::endl;
   u[1]=0.;
   vv[1]=0.;
   for (int i =1; i <=nramax; i++) {
@@ -889,7 +904,7 @@ void make_jt_wf() {
   for (int i =1; i <=nramax+1; i++) {
     double r=(i-1)*drx;
     u[i] = r*u[i];
-    std::cout << r << "," << u[i] << std::endl;
+    //std::cout << r << "," << u[i] << std::endl;
   }
   gROOT->cd();
   TH1D*  h = new TH1D("h0","h0",1601,-0.025,80.025);
@@ -915,7 +930,7 @@ void make_jt_wf() {
   
   for (int i =1; i <=nramax; i++) {
     double r=(i-1)*drx;
-    std::cout << r << "," << w[i-1] << std::endl;
+    //std::cout << r << "," << w[i-1] << std::endl;
   }
   TH1D*  h1 = new TH1D("h1","h1",1601,-0.025,80.025);
   for (int i =1; i <=nramax+1; i++) {
