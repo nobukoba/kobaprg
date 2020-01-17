@@ -659,7 +659,7 @@ void bound(const int ia, const int ib, const int ic,
 	while (true) {
 	  bengy=vdepth-pow(3.1415926*(fnod+0.5*flmom1),2)/
 	    (0.048228*vmass*radz*radz);
-	  if((bengy-eps7)<=0.) {
+	  if((bengy-eps7)>0.) {
 	    break;
 	  }else{
 	    radz=radz+drz;

@@ -1,18 +1,19 @@
-1
+0
 0
 4.0
-1.2500 0.65 1600 0.05
+0.53 0.65 1600 0.05
 0.0 1
 7 1
 10
-46.56
+0.1364
 15
 1 1 0
-                                                 
 						  
 this for the Hamamoto potential		  
 ---------------------------------------	  
+ia search well depth for ia=0, search energy for ia=1
 potential type (0=Woods-Saxon)			  
+Z_c * Z_v in Sommerfeld parameter
 radius  diffuseness  steps   step		  
 spin-orbit strength, and if fixed (1) **	  
 mass_core   mass_valence			  
