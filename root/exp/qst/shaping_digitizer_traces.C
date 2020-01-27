@@ -8,6 +8,10 @@ void shaping_digitizer_traces(){
 
   TFile *f = TFile::Open("./kobaprg/root/exp/qst/run0377.root");
   f->ls();
+
+  TList *grlist = new TList();
+  grlist->SetName("grlist");
+  gROOT->Add(grlist);
   
   TH1* h = (TH1 *)f->FindObjectAny("bo0_ch8_ev0");
   //std::cout << "gr->GetN(): "<< gr->GetN() <<std::endl;
@@ -15,22 +19,31 @@ void shaping_digitizer_traces(){
   //  std::cout << "gr->GetX(): "<< gr->GetX()[i] <<std::endl;
   //  std::cout << "gr->GetY(): "<< gr->GetY()[i] <<std::endl;
   //}
+<<<<<<< HEAD
+=======
 
   TList * grlist = new TList();
   grlist->SetName("grlist");
   gROOT->Add(grlist);
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
   
   TGraph *V_in = new TGraph();
   V_in->SetName("V_in");
   grlist->Add(V_in);
   Int_t k = 0;
   //for (Int_t i = 1; i <= h->GetNbinsX(); i++) {
+<<<<<<< HEAD
+  //for (Int_t i = 400000; i <= 700000; i++) {
+    for (Int_t i = 657000; i <= 658000; i++) {
+=======
   //for (Int_t i = 600000; i <= h->GetNbinsX(); i++) {
   for (Int_t i = 657000; i <= 658000; i++) {
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
     V_in->SetPoint(k,i,h->GetBinContent(i));
     k++;
   }
 
+  
   //for (Int_t i = 0; i < 400.; i++) {
   //  Double_t x = i;
   //  Double_t y = 0.;
@@ -44,6 +57,8 @@ void shaping_digitizer_traces(){
   //}
   
   TGraph *dV_in_dt = new TGraph();
+  dV_in_dt->SetName("dV_in_dt");
+  grlist->Add(dV_in_dt);
   Double_t y_prev = 0.;
   Double_t x_prev = -2.;
   for (Int_t i = 0; i < V_in->GetN(); i++) {
@@ -65,7 +80,11 @@ void shaping_digitizer_traces(){
   Double_t C_D  = 1.0;
   Double_t R_D  = 2.0;
   Double_t R_I  = 1.0;
+<<<<<<< HEAD
+  Double_t C_I  = 2.5;
+=======
   Double_t C_I  = 3.0;
+>>>>>>> c4785975daa3469f6cfdba21d5cba95466997792
   Double_t R_pz = 23.0;
   Double_t dt = 1.; /* in us*/
 
@@ -90,7 +109,8 @@ void shaping_digitizer_traces(){
   for (Int_t i = 0; i < dV_in_dt->GetN(); i ++) {
     Double_t x = dV_in_dt->GetX()[i];
     Double_t y = dV_in_dt->GetY()[i];
-    if (x - x_prev > 1.1) {
+    //if (x - x_prev > 1.1) {
+    if (i==0) {
       //std::cout << "x here"<<std::endl;
       i_t_prev = y*tau_prime/R_D;
       //i_t_prev = 0.0;
@@ -124,6 +144,8 @@ void shaping_digitizer_traces(){
   //return;
   
   TGraph *dV_mid_dt = new TGraph();
+  dV_mid_dt->SetName("dV_mid_dt");
+  grlist->Add(dV_mid_dt);
   y_prev = 0.;
   for (Int_t i = 0; i < V_mid->GetN(); i++) {
     Double_t x = V_mid->GetX()[i];
@@ -150,7 +172,8 @@ void shaping_digitizer_traces(){
   for (Int_t i = 0; i < dV_mid_dt->GetN(); i ++) {
     Double_t x = dV_mid_dt->GetX()[i];
     Double_t y = dV_mid_dt->GetY()[i];
-    if (x - x_prev > 1.1) {
+    //if (x - x_prev > 1.1) {
+    if (i==0) {
       std::cout << "x here"<<std::endl;
       i_I_t_prev = 0.0;
       y = 0.0;
@@ -202,7 +225,7 @@ void shaping_digitizer_traces(){
   }
   V_out_ave->SetMarkerStyle(20);
   V_out_ave->SetMarkerSize(0.5);
-  V_out_ave->Draw("ap");
+  V_out_ave->Draw("al");
   gPad->Update();  
   return;
 }

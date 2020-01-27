@@ -1,0 +1,34 @@
+0
+0
+4.0
+0.53 0.65 1600 0.05
+0.0 1
+7 1
+10
+0.1364
+15
+1 1 0
+						  
+this for the Hamamoto potential		  
+---------------------------------------	  
+ia search well depth for ia=0, search energy for ia=1
+potential type (0=Woods-Saxon)			  
+Z_c * Z_v in Sommerfeld parameter
+radius  diffuseness  steps   step		  
+spin-orbit strength, and if fixed (1) **	  
+mass_core   mass_valence			  
+core charge					  
+separation energy from projectile		  
+maximum relative (continuum) energy		  
+2*j_value l-value   nodes			  
+---------------------------------------	  
+** Spin orbit explanation			  
+if e.g.    7.0  1				  
+then spin-orbit fixed at 7 MeV			  
+of e.g.    7.0  0				  
+then spin-orbit calculated as per		  
+Hamamoto and 7.0 is not used			  
+---------------------------------------	  
+B(E1)  distribution to fort.21			  
+bound wave function to fort.19                   
+
