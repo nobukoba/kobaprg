@@ -1,7 +1,9 @@
 #!/bin/bash
 
 qstat_M_out=`qstat -M`
-user_name_list=($(echo "${qstat_M_out}" | awk 'NR>=6{print $0}' | sort -k2 | awk '(prev_name!=$2){print $2;prev_name=$2}'))
+#qstat_M_out=`cat qstat_log_20200127_213709.txt`
+
+user_name_list=($(echo "${qstat_M_out}" | awk 'NR>=6{print $2}' | sort | uniq))
 echo "Username Tot Que Run  Mem Que  Mem Run ncpu Que ncpu Run"
 echo "-------- --- --- --- -------- -------- -------- --------"
 for user_name in ${user_name_list[@]}
