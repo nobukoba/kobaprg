@@ -44,7 +44,7 @@ echo "--- -------- ---- -------- Memory ------- ---- ncpu ----"
 echo "Nod Status   Jobs   Total    Used    Free  Tot Used Free"
 echo "--- -------- ---- ------- ------- ------- ---- ---- ----"
 rslt2=`echo -e "${rslt}" | awk  -v umem=${umem} -v uncpu=${uncpu} '(NR>=2&&($6/1024/1024)>=umem&&$9>=uncpu){printf("%s %-7s  %4d %4d GB %4d GB %4d GB %4d %4d %4d\n",$1,$2,$3,$4/1024/1024,$5/1024/1024,$6/1024/1024,$7,$8,$9)}'`
-if [[ `echo "${rslt2}"| wc -l` = 1 ]]
+if [[ "${rslt2}" = "" ]]
 then
     echo "No available nodes"
 else
