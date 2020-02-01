@@ -1,7 +1,7 @@
 #!/bin/bash
 
-pbsnodes_a_out=`cat pbsnodes_a_20200201_0040.txt`
-#pbsnodes_a_out=`pbsnodes -a`
+#pbsnodes_a_out=`cat pbsnodes_a_20200201_0040.txt`
+pbsnodes_a_out=`pbsnodes -a`
 
 nodes=($(echo "${pbsnodes_a_out}" | grep "Mom = " | awk '{print $3}' | sort))
 for node in ${nodes[@]}
@@ -14,7 +14,7 @@ do
     then
 	amem=`echo "${pbsnodes_a_out}" | grep -A 13 "Mom = ${node}" | awk '(NR==14){sub("kb","",$3);print $3}'`
 	ancpu=`echo "${pbsnodes_a_out}" | grep -A 15 "Mom = ${node}" | awk '(NR==16){print $3}'`
-	ajobs=`echo "${pbsnodes_a_out}" | grep -A 4 "Mom = ${node}" | awk '(NR==5){sub("jobs = ","",$0);gsub(",","\n",$0);print $0}'| awk '{gsub("/.*","",$1);print $1}' | uniq | wc -l`
+	ajobs=`echo "${pbsnodes_a_out}" | grep -A 4 "Mom = ${node}" | awk '(NR==5){sub("jobs = ","",$0);gsub(",","\n",$0);print $0}'| awk '{gsub("/.*","",$1);print $1}' | sort | uniq | wc -l`
 	rmem=$((${tmem}-${amem}))
 	rncpu=$((${tncpu}-${ancpu}))
     else
@@ -24,11 +24,11 @@ do
 	rncpu=0
 	rmem=0
     fi
-    if [[ "${stat}" = "busy" ]]
-    then
-	rmem=0
-	amem=${tmem}
-    fi
+    #if [[ "${stat}" = "busy" ]]
+    #then
+    #	rmem=0
+    #	amem=${tmem}
+    #fi
     rslt="${rslt}\n${node} ${stat} ${tmem} ${amem} ${rmem} ${tncpu} ${ancpu} ${rncpu} ${ajobs}"
 done
 echo "------------ -------- Memory ------- ---- ncpu ---- ----"
