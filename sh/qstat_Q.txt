@@ -1,0 +1,15 @@
+Queue              Max   Tot Ena Str   Que   Run   Hld   Wat   Trn   Ext Type
+---------------- ----- ----- --- --- ----- ----- ----- ----- ----- ----- ----
+SY                   0     2 yes yes     1     1     0     0     0     0 Exec
+DL                   0   190 yes yes    25   165     0     0     0     0 Exec
+EL                   0     0 yes yes     0     0     0     0     0     0 Exec
+DS                   0     0 yes yes     0     0     0     0     0     0 Exec
+DM                   0   157 yes yes     5   152     0     0     0     0 Exec
+BL                   0   351 yes yes   139   212     0     0     0     0 Exec
+CS                   0     0 yes yes     0     0     0     0     0     0 Exec
+CM                   0     0 yes yes     0     0     0     0     0     0 Exec
+CL                   0     1 yes yes     0     1     0     0     0     0 Exec
+AM                   0     0 yes yes     0     0     0     0     0     0 Exec
+AS                   0    26 yes yes    26     0     0     0     0     0 Exec
+BS                   0     0 yes yes     0     0     0     0     0     0 Exec
+AL                   0   122 yes yes     1   121     0     0     0     0 Exec
