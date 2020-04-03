@@ -33,4 +33,4 @@ MyTFileDict.o: MyTFileDict.cxx
 	gfortran $(FFLAGS)   -c $<
 .PHONY : clean
 clean:
-	rm -rf *.o
+	rm -rf *.o *Dict.cxx *Dict.h
