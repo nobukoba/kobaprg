@@ -59,17 +59,17 @@ int open_file(const char* file_in) {
 
   TString file_in_str = file_in;
   TString file_in_dir = file_in; 
- file_in_dir.ReplaceAll("/","|");
+  file_in_dir.ReplaceAll("/","|");
   gROOT->cd();
   TDirectoryFile * dfile = (TDirectoryFile *) gROOT->FindObjectAny(file_in_dir);
   if (dfile){
     delete dfile; dfile = 0;
   }
   dfile = new TDirectoryFile(file_in_dir,file_in);
-
   if ((strrchr(file_in,'.') == NULL) && (strlen(file_in) <= 4) && (strlen(file_in) >= 1)) {
     file_in_str.ToUpper();
-    strcpy(shm_name,file_in_str.Data());
+    /* strcpy(shm_name,file_in_str.Data()); */ /* --> *** buffer overflow detected ***: ./roothb terminated Aborted (core dumped) */
+    strncpy(shm_name,file_in_str.Data(),4); /* Nobu 20200404*/
     hlimap(0,shm_name,4);
     if (quest[0]) {
       printf("Error cannot open the shared memory or the HBOOK file: %s\n",file_in_str.Data());

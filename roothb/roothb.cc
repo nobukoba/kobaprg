@@ -1,20 +1,20 @@
 #include <string.h>
 #include "TROOT.h"
 #include "TRint.h"
+#include "TApplication.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 #include "TString.h"
 #include "TPluginManager.h"
 
-void put_prefix(int argc, char **argv, char **argvm){
+
+void create_temp_file(int argc, char **argv){
   for (int i = 1; i < argc; i++) {
     TString str = argv[i];
-    if (str.EndsWith(".hb")||
-	str.EndsWith(".hbk")||
-	str.EndsWith(".hbook")) {
-      str = "file:" + str;
-      strcpy(argvm[i],str.Data());
-    }else if((strrchr(str,'.') == NULL) &&
-	     (strlen(str) <= 4) &&
-	     (strlen(str) >= 1)){
+    if((strrchr(str,'.') == NULL) &&
+       (str.BeginsWith("-") == 0) &&
+       (strlen(str) <= 4) &&
+       (strlen(str) >= 1)){
       FILE *fp;
       fp = fopen(str, "w");
       if( fp == NULL ) {
@@ -23,25 +23,36 @@ void put_prefix(int argc, char **argv, char **argvm){
       }
       fprintf(fp, "Temporary file made by roothb in order to read shared memory!");
       fclose(fp);
-      
-      str = "file:" + str;
-      strcpy(argvm[i],str.Data());
-    }else{
-      strcpy(argvm[i],str.Data());
     }
-    printf("argvm[%d] %s\n",i,argvm[i]);
+  }
+  return;
+}
+
+void put_prefix(TObjArray* objarr){
+  TIter next(objarr);
+  while (TObjString* fileObj = (TObjString*)next()) {
+    TString str = fileObj->String();
+    if (str.EndsWith(".hb")||
+	str.EndsWith(".hbk")||
+	str.EndsWith(".hbook")) {
+      str = "file:" + str;
+      fileObj->SetString(str.Data());
+    }else if((strrchr(str,'.') == NULL) &&
+	     (str.BeginsWith("-") == 0) &&
+	     (strlen(str) <= 4) &&
+	     (strlen(str) >= 1)){
+      str = "file:" + str;
+      fileObj->SetString(str.Data());
+    }
   }
   return;
 }
 
 int main(int argc, char **argv) {
-  char ** argvm = new char*[argc];
-  for (int i=0;i<argc;i++){argvm[i] = new char[1024];}
-  put_prefix(argc, argv, argvm);
-  TRint *theApp = new TRint("Rint", &argc, argvm);
-  for (int i=0;i<argc;i++){delete argvm[i];}
-  delete [] argvm;
+  create_temp_file(argc, argv);
+  TRint *theApp = new TRint("Rint", &argc, argv);
 
+  put_prefix(theApp->InputFiles());
   gROOT->GetListOfSpecials()->Add(theApp);
   gPluginMgr->AddHandler("TFile","^file:","MyTFile","MyTFile", "MyTFile(const char*,Option_t*,const char*,Int_t)");
   theApp->Run();
