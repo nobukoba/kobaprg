@@ -242,7 +242,8 @@ public:
       return;
     }
     Int_t px    = gPad->GetEventX();
-    Int_t py    = gPad->GetEventY()+1;
+    /* Int_t py    = gPad->GetEventY();+1*/
+    Int_t py    = gPad->GetEventY();
     Double_t b  = py - aprime*px;
     Int_t py1   = aprime*pxmin+b;
     Int_t py2   = aprime*pxmax+b;
