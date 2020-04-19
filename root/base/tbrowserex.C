@@ -203,12 +203,16 @@ public:
     Double_t x2 = f->GetX2();
     Double_t y1 = f->GetY1();
     Double_t y2 = f->GetY2();
+    Double_t dx = x2-x1;
+    Double_t dy = y2-y1;
+    /* Did not work
+       Rectangle_t rec = f->GetBBox();
+       std::cout << "rec.fHeight, rec.fWidth:  "
+       << rec.fHeight << ", " << rec.fWidth << std::endl; */
     Int_t i1 = ((TVirtualPad*) obj_in)->XtoPixel(x1);
     Int_t i2 = ((TVirtualPad*) obj_in)->XtoPixel(x2);
     Int_t j1 = ((TVirtualPad*) obj_in)->YtoPixel(y1);
     Int_t j2 = ((TVirtualPad*) obj_in)->YtoPixel(y2);
-    Double_t dx = x2-x1;
-    Double_t dy = y2-y1;
     Int_t di    = i2-i1;
     Int_t dj    = j2-j1;
     aprime = a *(dj/dy)*(dx/di);
