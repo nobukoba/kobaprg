@@ -47,8 +47,8 @@ E_x = 0.006585*X + 5.051251
 */
 
 void cagra_nim_coin_208pb_prox() {
-  TFile *f = new TFile("ROOT_Memory.root");
-  TH2 *hcln = (TH2*)f->Get("GXCEg_rgr_tg_thc_lw_add1_cln1_cln1");
+  TFile *f = new TFile("date20190727_merged2_w_bgsub.root");
+  TH2 *hcln = (TH2*)f->Get("histOut");
   //TH1 *hprx = (TH1*)f->Get("GXCEg_rgr_tg_thc_lw_add1_cut1_prx1");
   hcln->GetYaxis()->SetLimits(hcln->GetYaxis()->GetXmin()/1000.,
 			      hcln->GetYaxis()->GetXmax()/1000.);
