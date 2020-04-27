@@ -1,17 +1,19 @@
-#if defined(__CINT__) && !defined(__MAKECINT__)
-{
-  TBrowserEx *gBrowserEx_tmp = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
-  TString dir;
-  if (gBrowserEx_tmp) {
-    dir = gBrowserEx_tmp->GetInitialWorkingDir();
-    gSystem->cd(dir.Data());
-  }else{
-    return;
-  }
-  gSystem->CompileMacro("./kobaprg/root/ForActiveItems/add_active_dir.C","k");
-  add_active_dir();
-}
-#else
+//#if defined(__CINT__) && !defined(__MAKECINT__)
+//{
+//  TBrowserEx *gBrowserEx_tmp = (TBrowserEx *)gROOT->ProcessLine("gBrowserEx;");
+//  TString dir;
+//  if (gBrowserEx_tmp) {
+//    dir = gBrowserEx_tmp->GetInitialWorkingDir();
+//    gSystem->cd(dir.Data());
+//  }else{
+//    return;
+//  }
+//  /*gSystem->CompileMacro("./kobaprg/root/ForActiveItems/add_active_dir.C","k");*/
+//  /*add_active_dir();*/
+//  gROOT->ProcessLine(".L ./kobaprg/root/ForActiveItems/add_active_dir.C+");
+//  gROOT->ProcessLine("add_active_dir()");
+//}
+//#else
 
 #include <iostream>
 #include "TROOT.h"
@@ -121,9 +123,9 @@ void add_active_dir(){
   while(cur_ListTreeItem){
     if(cur_ListTreeItem->IsActive()){
       TObject *userdata = (TObject*)cur_ListTreeItem->GetUserData();
-      if (!userdata->InheritsFrom("TFolder")){
+      if (!userdata->InheritsFrom("TFolder") && !userdata->InheritsFrom("TDirectory")){
   	std::cout << "The active item: " << userdata->GetName()
-  		  << " does not inherits from TFolder. This item is skipped."
+  		  << " does not inherits from TFolder/TDirectory. This item is skipped."
   		  << std::endl;
   	cur_ListTreeItem = gBrowserEx->NextItem(cur_ListTreeItem);
   	continue;
@@ -192,4 +194,4 @@ void add_active_dir(){
   return;
 }
 
-#endif
+//#endif
