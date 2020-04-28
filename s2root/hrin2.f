@@ -73,12 +73,12 @@
 * Nobu added 2018/01/25 16:16:27 -->
          IF(INDEX(HFNAME(ICDIR),'memory').NE.0)THEN
             LOCQ=1-LOCF(IQUEST(1))-ICHTOP(ICDIR)
-            write(*,*) "LOCF(IQUEST(1)", LOCF(IQUEST(1))
-            write(*,*) "IQUEST(1)", IQUEST(1)
-            write(*,*) "LOC(IQUEST(1))", LOC(IQUEST(1))
-            write(*,*) "ICHTOP(ICDIR)", ICHTOP(ICDIR)
-            write(*,*) "ICDIR", ICDIR
-            write(*,*) "LOCQ", LOCQ
+*            write(*,*) "LOCF(IQUEST(1)", LOCF(IQUEST(1))
+*            write(*,*) "IQUEST(1)", IQUEST(1)
+*            write(*,*) "LOC(IQUEST(1))", LOC(IQUEST(1))
+*            write(*,*) "ICHTOP(ICDIR)", ICHTOP(ICDIR)
+*            write(*,*) "ICDIR", ICDIR
+*            write(*,*) "LOCQ", LOCQ
             CALL HCOPYU(IDD,IQUEST(LOCQ),IOFSET)
 *         ELSE
 *            LOCQ=1-LOCF(IQUEST(1))-ICHTOP(ICDIR)

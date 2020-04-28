@@ -284,11 +284,11 @@
 
 
 c Nobu
-      print*, 'IQWKTB(1)',IQWKTB(1)
-      print*, 'LOC(IQWKTB(1))',LOC(IQWKTB(1))
-      print*, 'LOC(LQPSTO)',LOC(LQPSTO)
-      print*, 'LOC(IQTABV(1))',LOC(IQTABV(1))
-      print*, 'LOC(LQFSTA(1))',LOC(LQFSTA(1))
+c      print*, 'IQWKTB(1)',IQWKTB(1)
+c      print*, 'LOC(IQWKTB(1))',LOC(IQWKTB(1))
+c      print*, 'LOC(LQPSTO)',LOC(LQPSTO)
+c      print*, 'LOC(IQTABV(1))',LOC(IQTABV(1))
+c      print*, 'LOC(LQFSTA(1))',LOC(LQFSTA(1))
 c Nobu
       LQWKTB = LOCF(IQWKTB(1)) - LQASTO
       LQWKFZ = LOCF(IQWKFZ(1)) - LQASTO
