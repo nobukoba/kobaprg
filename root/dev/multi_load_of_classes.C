@@ -1,11 +1,14 @@
-class TestClass{
+#include <iostream>
+class TestClassNobu{
 public:
-  TestClass(){
-    std::cout << " TestClass" << std::endl;
+  TestClassNobu(){
+    std::cout << "TestClassNobu" << std::endl;
   }
-  ~TestClass(){
+  ~TestClassNobu(){
   }
+  //ClassDef(TestClassNobu,1);
 };
+//ClassImp(TestClassNobu)
 
 void multi_load_of_classes(){
   std::cout << "aa" << std::endl;
