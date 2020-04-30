@@ -18,13 +18,13 @@ else
 PIEFLAGS  =
 endif
 
-CC        = gcc
+CC        = gcc $(PIEFLAGS)
 CXX       = g++
 FC        = gfortran
-CFLAGS    = $(PIEFLAGS)
-CXXFLAGS  = $(PIEFLAGS) $(shell root-config --cflags)
-FFLAGS    = $(PIEFLAGS) -std=legacy
-LFLAGS    = $(PIEFLAGS)
+CFLAGS    = 
+CXXFLAGS  = $(shell root-config --cflags)
+FFLAGS    = -std=legacy
+LFLAGS    = 
 
 all:	$(TARGET)
 

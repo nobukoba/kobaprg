@@ -7,13 +7,13 @@ else
 PIEFLAGS  =
 endif
 
-CC        = gcc
-CXX       = g++
-FC        = gfortran
-CFLAGS    = $(PIEFLAGS)
-CXXFLAGS  = $(PIEFLAGS) $(shell root-config --cflags)
-FFLAGS    = $(PIEFLAGS) -std=legacy
-LFLAGS    = $(PIEFLAGS)
+CC        = gcc $(PIEFLAGS)
+CXX       = g++ $(PIEFLAGS)
+FC        = gfortran $(PIEFLAGS)
+CFLAGS    = 
+CXXFLAGS  = $(shell root-config --cflags)
+FFLAGS    = -std=legacy
+LFLAGS    = 
 ROOTLIBS  = $(shell root-config --libs) -lgfortran
 
 all:	$(TARGETS)
