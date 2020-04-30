@@ -1,20 +1,30 @@
 TARGET    = roothb
-CC        = gcc -O -no-pie
-CXX       = g++ -O -no-pie
-FC        = gfortran -O -no-pie
-CXXFLAGS  = $(shell root-config --cflags)
-CFLAGS    = -m64
-FFLAGS    = -m64 -std=legacy
-LFLAGS    = -m64
-ifeq ($(shell root-config --version| cut -c 1),5)
+
+ROOT_VER_GTEQ_6 = $(shell expr `root-config --version|cut -f1 -d/` \>= 6.0)
+ifeq ($(ROOT_VER_GTEQ_6),1)
+#root version >= 6
+ROOTLIBS  = $(shell root-config --glibs) -lgfortran
+ROOTCINT  = rootcling
+else
 # root version 5
 ROOTLIBS  = -L$(shell root-config --libdir) -lCore -lCint -lRIO -lNet -lHist -lGraf -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic -lgfortran
 ROOTCINT  = rootcint
-else
-#root version 6
-ROOTLIBS  = $(shell root-config --glibs) -lgfortran
-ROOTCINT  = rootcling
 endif
+
+GCC_VER_GTEQ_6 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 6.0)
+ifeq ($(GCC_VER_GTEQ_6),1)
+PIEFLAGS  =  -O -no-pie
+else
+PIEFLAGS  =
+endif
+
+CC        = gcc
+CXX       = g++
+FC        = gfortran
+CFLAGS    = $(PIEFLAGS)
+CXXFLAGS  = $(PIEFLAGS) $(shell root-config --cflags)
+FFLAGS    = $(PIEFLAGS) -std=legacy
+LFLAGS    = $(PIEFLAGS)
 
 all:	$(TARGET)
 

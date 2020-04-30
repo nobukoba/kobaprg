@@ -1,11 +1,19 @@
 TARGETS   = s2root auto_s2root s2root_server
-CC        = gcc -O -no-pie
-CXX       = g++ -O -no-pie
-FC        = gfortran -O -no-pie
-CXXFLAGS  = $(shell root-config --cflags)
-CFLAGS    = -m64
-FFLAGS    = -m64 -std=legacy
-LFLAGS    = -m64
+
+GCC_VER_GTEQ_6 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 6.0)
+ifeq ($(GCC_VER_GTEQ_6),1)
+PIEFLAGS  =  -O -no-pie
+else
+PIEFLAGS  =
+endif
+
+CC        = gcc
+CXX       = g++
+FC        = gfortran
+CFLAGS    = $(PIEFLAGS)
+CXXFLAGS  = $(PIEFLAGS) $(shell root-config --cflags)
+FFLAGS    = $(PIEFLAGS) -std=legacy
+LFLAGS    = $(PIEFLAGS)
 ROOTLIBS  = $(shell root-config --libs) -lgfortran
 
 all:	$(TARGETS)
