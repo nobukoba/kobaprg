@@ -1,7 +1,7 @@
 TARGETS   = s2root auto_s2root s2root_server
 
-GCC_VER_GTEQ_6 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 6.0)
-ifeq ($(GCC_VER_GTEQ_6),1)
+GCC_VER_GTEQ_5 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 5.0)
+ifeq ($(GCC_VER_GTEQ_5),1)
 PIEFLAGS  =  -O -no-pie
 else
 PIEFLAGS  =

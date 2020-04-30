@@ -1,7 +1,7 @@
-FC = gfortran -O -no-pie
+FC = gfortran
 
-GCC_VER_GTEQ_6 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 6.0)
-ifeq ($(GCC_VER_GTEQ_6),1)
+GCC_VER_GTEQ_5 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 5.0)
+ifeq ($(GCC_VER_GTEQ_5),1)
 PIEFLAGS  =  -O -no-pie
 else
 PIEFLAGS  =
