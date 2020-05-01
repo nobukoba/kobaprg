@@ -513,7 +513,11 @@ void convert_1d(Int_t id)
       x = h1->GetBinCenter(i);
       yx = hi(id,i);
       h1->Fill(x,yx);
-      if (hcbits[8]) h1->SetBinError(i,hie(id,i));
+      std::cout << "here" << std::endl;
+      if (hcbits[8]) {
+	std::cout << "here in if" << std::endl;
+	h1->SetBinError(i,hie(id,i));
+      }
       if (gr && i>0 && i<=ncx) gr->SetPoint(i,x,hif(id,i));
    }
    Float_t yymin, yymax;
