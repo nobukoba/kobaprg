@@ -1,4 +1,4 @@
-TARGETS   = s2root auto_s2root s2root_server
+TARGETS   = s2root s2root_hname auto_s2root s2root_server
 
 GCC_VER_GTEQ_5 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 5.0)
 ifeq ($(GCC_VER_GTEQ_5),1)
@@ -18,6 +18,8 @@ ROOTLIBS  = $(shell root-config --libs) -lgfortran
 
 all:	$(TARGETS)
 s2root: s2root.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
+	$(CXX)     $(LFLAGS) -o $@ $^ $(ROOTLIBS)
+s2root_hname: s2root_hname.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
 	$(CXX)     $(LFLAGS) -o $@ $^ $(ROOTLIBS)
 auto_s2root: auto_s2root.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
 	$(CXX)     $(LFLAGS) -o $@ $^ $(ROOTLIBS)
