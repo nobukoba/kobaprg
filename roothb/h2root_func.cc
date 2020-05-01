@@ -264,11 +264,14 @@ void convert_1d(Int_t id, TDirectoryFile *dfile)
     h1->GetListOfFunctions()->Add(gr);
   }
 
-  Float_t x,yx;
+  /* Float_t x,yx; */
   for (Int_t i=0;i<=ncx+1;i++) {
-    x = h1->GetBinCenter(i);
-    yx = hi(id,i);
-    h1->Fill(x,yx);
+    /*For ROOT v6, the error calculation is wrong.
+      2020/05/01 Nobu
+      x = h1->GetBinCenter(i);
+      yx = hi(id,i);
+      h1->Fill(x,yx); */
+    h1->SetBinContent(i,hi(id,i));
     if (hcbits[8]) h1->SetBinError(i,hie(id,i));
     if (gr && i>0 && i<=ncx) gr->SetPoint(i,x,hif(id,i));
   }
@@ -322,11 +325,14 @@ void convert_2d(Int_t id, TDirectoryFile *dfile)
   Int_t lw = lq[lcont];
   if (lw) h2->Sumw2();
 
-  Float_t x = 0.0, y = 0.0;
+  /* Float_t x = 0.0, y = 0.0; */
   for (Int_t j=0;j<=ncy+1;j++) {
     for (Int_t i=0;i<=ncx+1;i++) {
-      hijxy(id,i,j,x,y);
-      h2->Fill(x+offsetx,y+offsety,hij(id,i,j));
+      /*For ROOT v6, the error calculation is wrong.
+	2020/05/01 Nobu
+	hijxy(id,i,j,x,y);
+	h2->Fill(x+offsetx,y+offsety,hij(id,i,j));*/
+      h2->SetBinContent(i,j,hij(id,i,j));
       if (lw) {
 	Double_t err2 = hije(id,i,j);
 	h2->SetCellError(i,j,err2);
