@@ -522,11 +522,12 @@ void convert_1d(Int_t id)
       h1->GetListOfFunctions()->Add(gr);
    }
 
-   Float_t x,yx;
+   /*Float_t x,yx;*/
+   Float_t x;
    for (i=0;i<=ncx+1;i++) {
+      x = h1->GetBinCenter(i);
       /*For ROOT v6, the error calculation is wrong.
 	2020/05/01 Nobu
-	x = h1->GetBinCenter(i);
 	yx = hi(id,i);
 	h1->Fill(x,yx); */
       h1->SetBinContent(i,hi(id,i));
