@@ -1,9 +1,0 @@
- macro get_rnum
-   APP COMIS QUIT
-      INTEGER FUNCTION get_rnum(i)
-      COMMON/PAWCR4/rnum
-      get_rnum=rnum
-      END
-   QUIT
- return $icall('get_rnum(1)')
- 

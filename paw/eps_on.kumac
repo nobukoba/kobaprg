@@ -1,8 +1,0 @@
-macro pson file=
- if [file].eq.'' then
-  fortran/file 66 
- else
-  fortran/file 66 [file]
- endif
- gra/meta 66 -113
-return

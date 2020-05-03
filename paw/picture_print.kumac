@@ -1,5 +1,0 @@
- macro picture_print
-   picture/print picture_print.ps
-   sh lpr picture_print.ps
-   sh rm -f picture_print.ps
- return

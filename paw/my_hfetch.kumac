@@ -1,5 +1,0 @@
- macro my_hfetch fname IOFSET=0
-   hi/file 44 [fname]
-   hrin 0 ! [IOFSET]
-   close 44
- return

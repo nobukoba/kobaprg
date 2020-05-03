@@ -1,6 +1,0 @@
- macro momd_mode   
-   pub
-   set mtyp 20			| marker type (20=closed circle)
-   set ksiz 0.10		| marker size (Hershey ch. size)
-   set errx 0.001		| x error bar 0
- return
