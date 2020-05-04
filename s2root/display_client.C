@@ -53,6 +53,10 @@ void display_client(const char* jobname = "job1", Long64_t maxcnt = 0)
          // Open connection to server
    Int_t status, version, kind;
    TSocket *sock = new TSocket("localhost", 9090);
+   //TSocket *sock = new TSocket("miho-1.rcnp.osaka-u.ac.jp", 9090);
+   //printf("here1\n");
+   //TSocket *sock = new TSocket("koba-desktop.rcnp.osaka-u.ac.jp", 9090);
+   //printf("here2\n");
    if (!sock->IsValid()) {
       Error("treeClient","Could not establish a connection with the server %s:%d.","localhost",9090);
       return;
@@ -110,25 +114,40 @@ void display_client(const char* jobname = "job1", Long64_t maxcnt = 0)
    Long64_t i = 0;
    TMemFile *transient = 0;
    while (true) {
-     sock->Send("test");
-     TMessage *mess2;
-     sock->Recv(mess2);
-     
-     Long64_t length;
-     TString filename;
-     Int_t clientId;
-     mess2->ReadInt(clientId);
-     mess2->ReadTString(filename);
-     mess2->ReadLong64(length); // '*mess >> length;' is broken in CINT for Long64_t.
-     
-     Info("fastMergeServer","Receive input from client %d for %s",clientId,filename.Data());
-     
-     TMemFile f(filename,mess2->Buffer() + mess2->Length(),length);
-     mess2->SetBufferOffset(mess2->Length()+length);
-     f.ls();
-     
+     i++;
+     if (i &&(i%kUPDATE)==0) {
+       TMessage *mess2;
+       sock->Send("test");
+       //mess.Reset();
+       //sock->Recv(&mess);
+       sock->Recv(mess2);
+       
+       Long64_t length;
+       TString filename;
+       Int_t clientId;
+       mess2->ReadInt(clientId);
+       mess2->ReadTString(filename);
+       mess2->ReadLong64(length); // '*mess >> length;' is broken in CINT for Long64_t.
+
+       //mess.ReadInt(clientId);
+       //mess.ReadTString(filename);
+       //mess.ReadLong64(length); // '*mess >> length;' is broken in CINT for Long64_t.
+
+       printf("here1\n");
+       Info("fastMergeServer","Receive input from client %d for %s",clientId,filename.Data());
+       printf("here2\n");
+       delete transient;
+       printf("here3\n");
+       transient = new TMemFile(filename,mess2->Buffer() + mess2->Length(),length);
+       //transient = new TMemFile(filename,mess.Buffer() + mess.Length(),length);
+       //mess2->SetBufferOffset(mess2->Length()+length);
+       delete mess2; 
+       printf("here4\n");
+       transient->ls();
+       /*sleep(1);*/
+       printf("here5\n");
+     }
      if (gSystem->ProcessEvents()) break;
-     sleep(1);
    }
    sock->Send("Finished");          // tell server we are finished
    

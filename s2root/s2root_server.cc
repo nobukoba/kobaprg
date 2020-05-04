@@ -408,6 +408,7 @@ int main(int argc, char **argv)
        file->CopyTo(mess2);
        s->Send(mess2);          // send message
        file->Close();
+       delete file;
      } else {
        printf("*** Unexpected message ***\n");
      }
@@ -592,8 +593,8 @@ void convert_1d(Int_t id)
       h1->SetMinimum(yymin);
    }
    h1->SetEntries(nentries);
-   h1->Write();
-   delete h1;
+   /*h1->Write();*/
+   /* delete h1; */
 }
 
 //____________________________________________________________________________
@@ -630,8 +631,8 @@ void convert_2d(Int_t id)
       }
    }
    h2->SetEntries(nentries);
-   h2->Write();
-   delete h2;
+   /*h2->Write();*/
+   /* delete h2; */
 }
 
 //____________________________________________________________________________
