@@ -380,11 +380,22 @@ int main(int argc, char **argv)
      s->Recv(mess);
      if (mess==0) {
        Error("fastMergeServer","The client did not send a message\n");
-     } else if (mess->What() == kMESS_STRING) {
+     }  else if (mess->What() == kMESS_STRING) {
        char str[64];
        mess->ReadString(str, 64);
-       printf("Client: %s\n", str);
-
+       printf("Client %d: %s\n", clientCount, str);
+       mon->Remove(s);
+       printf("Client %d: bytes recv = %d, bytes sent = %d\n", clientCount, s->GetBytesRecv(),
+	      s->GetBytesSent());
+       s->Close();
+       --clientCount;
+       if (mon->GetActive() == 0 || clientCount == 0) {
+	 printf("No more active clients... stopping\n");
+	 break;
+       }
+     } else if (mess->What() == kMESS_ANY) {
+       printf("mess->What() == kMESS_ANY\n");
+       
        pid_t process_id = getpid();
        hlimap(0,shm_name,strlen(shm_name));
        //if (ier) printf (" Error on hlimap was %d \n", ier);
