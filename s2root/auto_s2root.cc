@@ -353,17 +353,23 @@ int main(int argc, char **argv)
      struct tm *tm = localtime(&t);
      printf("Writting to %s at %s\n",file_out_temp,asctime(tm));
      convert_directory("//example");
-     hfile->Write();
+     printf("Here 1\n");
+     /*hfile->Write();*/
+     printf("Here 2\n");
      hfile->ls();
+     printf("Here 3\n");
      hfile->Close();
-     delete hfile;
-
+     printf("Here 4\n");
+     hfile->Close();
+     delete hfile; /* For avoid memory leak */
+     
      int ret = rename(file_out_temp, file_out);
      if(ret != 0) {
        printf("Error: unable to rename the file");
        return 1;
      }
-     sleep(1);
+     /* c/o for checking memory leak */
+     /* sleep(1); */
    }
    return(0);
 }
@@ -545,7 +551,8 @@ void convert_1d(Int_t id)
    }
    h1->SetEntries(nentries);
    h1->Write();
-   delete h1;
+   /* To avoid memory leak, h1 should NOT deleted here */
+   /* delete h1;*/
 }
 
 //____________________________________________________________________________
@@ -583,7 +590,8 @@ void convert_2d(Int_t id)
    }
    h2->SetEntries(nentries);
    h2->Write();
-   delete h2;
+   /* To avoid memory leak, h2 should NOT deleted here */
+   /* delete h2;*/
 }
 
 //____________________________________________________________________________
