@@ -88,10 +88,9 @@ void display_client(const char* jobname = "job1", Long64_t maxcnt = 0)
 
    // http server with port 8080, use jobname as top-folder name
    THttpServer* serv = new THttpServer(Form("http:8080?top=%s", jobname));
-
+   
    // fastcgi server with port 9000, use jobname as top-folder name
    // THttpServer* serv = new THttpServer(Form("fastcgi:9000?top=%s_fastcgi", jobname));
-
    // dabc agent, connects to DABC master_host:1237, works only when DABC configured
    // THttpServer* serv = new THttpServer(Form("dabc:master_host:1237?top=%s_dabc", jobname));
 
