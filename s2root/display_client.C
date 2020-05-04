@@ -54,7 +54,7 @@ void display_client(const char* jobname = "job1", Long64_t maxcnt = 0) {
    //TSocket *sock = new TSocket("miho-1.rcnp.osaka-u.ac.jp", 9090);
    //printf("here1\n");
    //TSocket *sock = new TSocket("koba-desktop.rcnp.osaka-u.ac.jp", 9090);
-   TSocket *sock = new TSocket("localhost", 9090);
+   TSocket *sock = new TSocket("192.168.179.6", 9090);
    //printf("here2\n");
    if (!sock->IsValid()) {
       Error("treeClient","Could not establish a connection with the server %s:%d.","localhost",9090);
@@ -100,9 +100,12 @@ void display_client(const char* jobname = "job1", Long64_t maxcnt = 0) {
    const int kUPDATE = 1000;
    Long64_t i = 0;
    TMemFile *transient = 0;
+   TMessage mess(kMESS_OBJECT);
    while (true) {
      i++;
      if (i &&(i%kUPDATE)==0) {
+       mess.Reset(kMESS_ANY);              // re-use TMessage object
+       sock->Send(mess);          // send message
        TMessage *mess2;
        sock->Recv(mess2);
        Long64_t length;
