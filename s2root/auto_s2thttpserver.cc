@@ -48,7 +48,7 @@
 // as in the Fortran definition in hbook.f and zebra
 // Also, the arrays must be declared extern like on Windows
 #ifndef WIN32
-#define PAWC_SIZE 4000000
+#define PAWC_SIZE 32000000
 #  define bigbuf bigbuf_
 #  define pawc pawc_
 #  define quest quest_
@@ -68,7 +68,7 @@ extern "C" int hcbook[51];
 extern "C" int rzcl[11];
 #else
 // on windows /pawc/ must have the same length as in libPacklib.a !!
-#define PAWC_SIZE 4000000
+#define PAWC_SIZE 32000000
 #  define bigbuf BIGBUF
 #  define pawc   PAWC
 #  define quest  QUEST

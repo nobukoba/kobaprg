@@ -21,7 +21,7 @@
       INTEGER     NWPAW,IXPAWC,IHDIV,IXHIGZ,IXKU,        LMAIN
       REAL                                       FENC   ,      HCV
       COMMON/PAWC/NWPAW,IXPAWC,IHDIV,IXHIGZ,IXKU,FENC(5),LMAIN,
-     +HCV(4000000-11)
+     +HCV(32000000-11)
       INTEGER   IQ        ,LQ
       REAL            Q
       DIMENSION IQ(2),Q(2),LQ(8000)
