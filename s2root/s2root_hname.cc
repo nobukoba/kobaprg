@@ -330,6 +330,8 @@ int main(int argc, char **argv)
    hlimap(0,shm_name,strlen(shm_name));
 
    //if (ier) printf (" Error on hlimap was %d \n", ier);
+   hrin2(0,9999,0);
+   hdelet(0);
    if (quest[0]) {
       printf("Error cannot open the shared memory: %s\n",shm_name);
       return 1;
