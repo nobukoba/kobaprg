@@ -36,7 +36,7 @@
 #include "TError.h" /* --> Nobu added 2020/04/30 */
 #include <time.h> /* Nobu 2020/04/15 */
 
-void display_client(const char * shm_name = "TEST", const char* jobname = "job1", Long64_t maxcnt = 0) {
+void display_client2(const char * shm_name = "TEST", const char* jobname = "job1", Long64_t maxcnt = 0) {
 //  TString filename = Form("%s.root", jobname);
 //   TFile *hfile = new TMemFile(filename,"RECREATE","Demo ROOT file with histograms");
 //
