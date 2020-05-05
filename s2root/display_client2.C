@@ -36,7 +36,7 @@
 #include "TError.h" /* --> Nobu added 2020/04/30 */
 #include <time.h> /* Nobu 2020/04/15 */
 
-void display_client(const char * shm_name = "TEST", const char* jobname = "job1", Long64_t maxcnt = 0) {
+void display_client2(const char * shm_name = "TEST", const char* jobname = "job1", Long64_t maxcnt = 0) {
 //  TString filename = Form("%s.root", jobname);
 //   TFile *hfile = new TMemFile(filename,"RECREATE","Demo ROOT file with histograms");
 //
@@ -50,12 +50,8 @@ void display_client(const char * shm_name = "TEST", const char* jobname = "job1"
 
          // Open connection to server
    Int_t status, version, kind;
-   //TSocket *sock = new TSocket("localhost", 9090);
-   //TSocket *sock = new TSocket("miho-1.rcnp.osaka-u.ac.jp", 9090);
-   //printf("here1\n");
-   //TSocket *sock = new TSocket("koba-desktop.rcnp.osaka-u.ac.jp", 9090);
-   TSocket *sock = new TSocket("192.168.179.6", 9090);
-   //printf("here2\n");
+   TSocket *sock = new TSocket("localhost", 9090);
+   /*TSocket *sock = new TSocket("192.168.179.6", 9090);*/
    if (!sock->IsValid()) {
       Error("treeClient","Could not establish a connection with the server %s:%d.","localhost",9090);
       return;
