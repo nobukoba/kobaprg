@@ -1,4 +1,4 @@
-TARGETS   = s2root auto_s2root s2root_server
+TARGETS   = s2root auto_s2root s2root_server s2root_server2
 
 GCC_VER_GTEQ_5 = $(shell expr `gcc -dumpversion | cut -f1-2 -d.` \>= 5.0)
 ifeq ($(GCC_VER_GTEQ_5),1)
@@ -22,6 +22,8 @@ s2root: s2root.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hc
 auto_s2root: auto_s2root.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
 	$(CXX)     $(LFLAGS) -o $@ $^ $(ROOTLIBS)
 s2root_server: s2root_server.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
+	$(CXX)     $(LFLAGS)  -o $@ $^ $(ROOTLIBS)
+s2root_server2: s2root_server2.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
 	$(CXX)     $(LFLAGS)  -o $@ $^ $(ROOTLIBS)
 .cc.o:
 	$(CXX)     $(CXXFLAGS) -c $<
