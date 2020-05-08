@@ -33,7 +33,7 @@ void display_client2_multi_shm(const char * shm_names = "TEST",
    Int_t status, version, kind;
    TSocket *sock = new TSocket(roothost, rootport);
    if (!sock->IsValid()) {
-      Error("display_client2","Could not establish a connection with the server %s:%d.",rootname,rootport);
+      Error("display_client2","Could not establish a connection with the server %s:%d.",roothost,rootport);
       return;
    }
 
