@@ -1,0 +1,55 @@
+*
+* $Id: hidall.F,v 1.1.1.1 1996/01/16 17:07:39 mclareni Exp $
+*
+* $Log: hidall.F,v $
+* Revision 1.1.1.1  1996/01/16 17:07:39  mclareni
+* First import
+*
+*
+* c/o Nobu -->
+*#include "hbook/pilot.h"
+*
+*CMZ :  4.10/05 21/02/89  16.14.49  by  Rene Brun
+*-- Author :
+      SUBROUTINE HIDALL(IDVECT,N)
+*.==========>
+*.           RETURN IN IDVECT LIST OF ALL IDS
+*..=========> ( R.Brun )
+* c/o Nobu -->
+*#include "hbook/hcbook.inc"
+* --> c/o Nobu
+* --> Added by Nobu
+      INTEGER     NWPAW,IXPAWC,IHDIV,IXHIGZ,IXKU,        LMAIN
+      REAL                                       FENC   ,      HCV
+      COMMON/PAWC/NWPAW,IXPAWC,IHDIV,IXHIGZ,IXKU,FENC(5),LMAIN,
+     +HCV(32000000-11)
+      INTEGER   IQ        ,LQ
+      REAL            Q
+      DIMENSION IQ(2),Q(2),LQ(8000)
+      EQUIVALENCE (LQ(1),LMAIN),(IQ(1),LQ(9)),(Q(1),IQ(1))
+      INTEGER       HVERSN,IHWORK,LHBOOK,LHPLOT,LGTIT,LHWORK,
+     +LCDIR,LSDIR,LIDS,LTAB,LCID,LCONT,LSCAT,LPROX,LPROY,LSLIX,
+     +LSLIY,LBANX,LBANY,LPRX,LPRY,LFIX,LLID,LR1,LR2,LNAME,LCHAR,LINT,
+     +LREAL,LBLOK,LLBLK,LBUFM,LBUF,LTMPM,LTMP,LTMP1,LHPLIP,LHDUM,
+     +LHFIT,LFUNC,LHFCO,LHFNA,LCIDN
+      COMMON/HCBOOK/HVERSN,IHWORK,LHBOOK,LHPLOT,LGTIT,LHWORK,
+     +LCDIR,LSDIR,LIDS,LTAB,LCID,LCONT,LSCAT,LPROX,LPROY,LSLIX,
+     +LSLIY,LBANX,LBANY,LPRX,LPRY,LFIX,LLID,LR1,LR2,LNAME,LCHAR,LINT,
+     +LREAL,LBLOK,LLBLK,LBUFM,LBUF,LTMPM,LTMP,LTMP1,LHPLIP,LHDUM(9),
+     +LHFIT,LFUNC,LHFCO,LHFNA,LCIDN
+      INTEGER   KNCX   ,KXMIN  ,KXMAX  ,KMIN1  ,KMAX1 ,KNORM  , KTIT1,
+     +          KNCY   ,KYMIN  ,KYMAX  ,KMIN2  ,KMAX2 ,KSCAL2 , KTIT2,
+     +          KNBIT  ,KNOENT ,KSTAT1 ,KNSDIR  ,KNRH ,
+     +          KCON1  ,KCON2  ,KBITS  ,KNTOT
+      PARAMETER(KNCX=3,KXMIN=4,KXMAX=5,KMIN1=7,KMAX1=8,KNORM=9,KTIT1=10,
+     +          KNCY=7,KYMIN=8,KYMAX=9,KMIN2=6,KMAX2=10,KSCAL2=11,
+     +          KTIT2=12,KNBIT=1,KNOENT=2,KSTAT1=3,KNSDIR=5,KNRH=6,
+     +          KCON1=9,KCON2=3,KBITS=1,KNTOT=2)
+* --> c/o Nobu
+      DIMENSION IDVECT(1)
+*.___________________________________________
+      N=IQ(LCDIR+KNRH)
+      DO 10 I=1,N
+         IDVECT(I)=IQ(LTAB+I)
+  10  CONTINUE
+      END
