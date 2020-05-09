@@ -1,6 +1,5 @@
 // @(#)root/main:$Id$
 // Author: Rene Brun   20/09/96
-// Modified by Nobu on Jan. 28, 2018
 /////////////////////////////////////////////////////////////////////////
 //      Program to convert an HBOOK in the shared memoty into a ROOT file
 //                      Author: Rene Brun
@@ -19,13 +18,16 @@
 //  if tolower = 2 same as tolower=1 except that the first character is also
 //                convertex to lower case
 /////////////////////////////////////////////////////////////////////////
+//
+// Modified by Nobu on Jan. 28, 2018
+// Version 1.0 08-May-2020 Nobu Kobayashi
+//
+/////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h> /* Nobu 2020/04/14 4:31AM */
-#include <unistd.h> /* Nobu 2020/04/14 4:15AM */
-#include <time.h> /* Nobu 2020/04/14 4:51AM */
 
 #include "Riostream.h"
 #include "TFile.h"
@@ -43,7 +45,7 @@
 #include "TSystem.h"
 #include "THttpServer.h"
 #include "TString.h"
-
+#include "TStyle.h"
 
 //  Define the names of the Fortran common blocks for the different OSs
 // Note that with gcc3.4 or above the size of PAWC_SIZE must be the same 
@@ -334,8 +336,10 @@ int main(int argc, char **argv)
 --> End */
 
    // http server with port 8080, use jobname as top-folder name
-   pid_t process_id = getpid();
-   THttpServer* serv = new THttpServer(Form("http:%d?top=job_pid%d", port, process_id));
+   THttpServer* serv = new THttpServer(Form("http:%d?top=job_pid%d_at_%s",
+					    port,
+					    gSystem->GetPid(),
+					    gSystem->HostName()));
    
    // fastcgi server with port 9000, use jobname as top-folder name
    // THttpServer* serv = new THttpServer(Form("fastcgi:9000?top=%s_fastcgi", jobname));
@@ -349,6 +353,7 @@ int main(int argc, char **argv)
    // serv->SetJSROOT("https://root.cern.ch/js/latest/");
    // serv->SetJSROOT("http://jsroot.gsi.de/latest/");
 
+   gStyle->SetOptLogz(1);
    TString str_shm_names = shm_names;
    TList shm_name_list;
    while(1){
