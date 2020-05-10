@@ -28,6 +28,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h> /* Nobu 2020/04/14 4:31AM */
+#include <sstream> /* Nobu 2020/05/10 4:31AM */
+#include <string> /* Nobu 2020/05/10 4:31AM */
 
 #include "Riostream.h"
 #include "TFile.h"
@@ -277,10 +279,10 @@ int main(int argc, char **argv)
    //Program to convert an HBOOK in shm into a ROOT file
    if (argc < 2) {
       printf("******Error in invoking shm_display\n");
-      printf("===>  shm_display shm_name_list [port] [compress] [tolower] [lrecl] [bufsize] [optcwn] \n");
-      printf("      i.e., shm_display TEST,FRED 8080\n");
-      printf("      shm_name_list should be separated by comma with no space\n");
-      printf("      port     = 8080 by default\n");
+      printf("===>  shm_display port [shm_name_list] [compress] [tolower] [lrecl] [bufsize] [optcwn] \n");
+      printf("      i.e., shm_display 8080 TEST,FRED\n");
+      printf("      port for THttpServer\n");
+      printf("      shm_name_list should be separated by comma with no space. If no value is given, all shared memories will be read.\n");
       printf("      compress = 1 by default (use 0 for no compression)\n");
       printf("      tolower  = 1 by default (use 0 to keep case of column names)\n");
       printf("      lrecl =0 by default (must be specified if >8092)\n");
@@ -295,9 +297,9 @@ int main(int argc, char **argv)
 
    Int_t compress = 1;
    int ier=0, record_size=0;
-   const char* shm_names = "TEST";
+   const char* shm_names = "";
    Int_t  port = 8080;
-
+   
    if (argc > 7) {
       optcwn = atoi(argv[7]);
    }
@@ -314,9 +316,9 @@ int main(int argc, char **argv)
       compress = atoi(argv[3]);
    }
    if (argc > 2) {
-      port = atoi(argv[2]);
+     shm_names = argv[2];
    }
-   shm_names = argv[1];
+   port = atoi(argv[1]);
 
 #if defined(_HIUX_SOURCE) && !defined(__GNUC__)
    hf_fint((char *)NULL);
@@ -355,27 +357,44 @@ int main(int argc, char **argv)
 
    gStyle->SetOptLogz(1);
    TString str_shm_names = shm_names;
+   Int_t all_read_flag = 0;
+   if (str_shm_names.Length() == 0) {
+     all_read_flag = 1;
+   }
    TList shm_name_list;
-   while(1){
-     Int_t pos = str_shm_names.First(',');
-     if(pos < 0){break;}
-     TString substr = str_shm_names(0,pos);
-     shm_name_list.Add(new TObjString(substr.Data()));
-     str_shm_names=str_shm_names(pos+1,str_shm_names.Length());
-   }
-   shm_name_list.Add(new TObjString(str_shm_names.Data()));
-   TIter next(&shm_name_list);
-   TObjString * ostr;
-   std::cout << "List of shared memory names:" << std::endl;
-   while ((ostr = (TObjString*)next())){
-     std::cout << "  " <<  ostr->GetString().Data() << std::endl;
-   }
-   std::cout << std::endl;
+   if (all_read_flag == 0){
+     while(1){
+       Int_t pos = str_shm_names.First(',');
+       if(pos < 0){break;}
+       TString substr = str_shm_names(0,pos);
+       shm_name_list.Add(new TObjString(substr.Data()));
+       str_shm_names=str_shm_names(pos+1,str_shm_names.Length());
+     }
+     shm_name_list.Add(new TObjString(str_shm_names.Data()));
 
+     TIter next(&shm_name_list);
+     TObjString * ostr;
+     std::cout << "List of shared memory names:" << std::endl;
+     while ((ostr = (TObjString*)next())){
+       std::cout << "  " <<  ostr->GetString().Data() << std::endl;
+     }
+     std::cout << std::endl;
+   }
+   
    TMemFile *transient = 0;
    TList file_list;
    TObjString * ostr2;
    while (1){
+     if(all_read_flag == 1){
+       shm_name_list.Delete();
+       TString cmd = "ipcs -m | perl -alne 'if($.>3){@arr = @F[0] =~ /.{2}/g; foreach(@arr){$_ =~ s/00//;}printf(\"%s \",pack(\"H*\", @arr[4].@arr[3].@arr[2].@arr[1]));}'";
+       TString cmd_out = gSystem->GetFromPipe(cmd.Data());
+       std::stringstream ss(cmd_out.Data());
+       std::string std_str;
+       while (ss >> std_str){
+	 shm_name_list.Add(new TObjString(std_str.c_str()));
+       }
+     }
      TIter next2(&shm_name_list);
      while ((ostr2 = (TObjString*)next2())){
        TString shm_name = ostr2->GetString();
@@ -383,11 +402,11 @@ int main(int argc, char **argv)
        hrin2(0,9999,0);
        hdelet(0);
        if (quest[0]) {
-	 printf("Error: cannot open the shared memory: %s\n",shm_name.Data());
-	 return 1;
+	 printf("Warning: cannot open the shared memory: %s\n",shm_name.Data());
+	 continue;
        }
        TString filename = Form("%s",shm_name.Data());
-       TObject * tmp = file_list.FindObject(filename.Data());
+       TMemFile * tmp = (TMemFile *)file_list.FindObject(filename.Data());
        if (tmp) {
 	 file_list.Remove(tmp);
 	 delete tmp;
@@ -400,8 +419,18 @@ int main(int argc, char **argv)
        file_list.Add(transient);
        convert_directory("//example");
        transient->Write();
-       if (gSystem->ProcessEvents()) return 1;
+       if (gSystem->ProcessEvents()) {
+	 printf("Error: gSystem->ProcessEvents() is null\n");
+	 return 1;
+       }
        transient->ls();
+     }
+     TIter next3(&file_list);
+     while ((transient = (TMemFile*)next3())){
+       if (!shm_name_list.FindObject(transient->GetName())) {
+	 file_list.Remove(transient);
+	 delete transient;
+       }
      }
      gSystem->Sleep(1000); /* Sleep for 1000 ms */ 
    }
