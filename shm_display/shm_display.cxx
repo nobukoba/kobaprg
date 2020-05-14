@@ -401,7 +401,7 @@ int main(int argc, char **argv)
        }
        TString filename = Form("%s",shm_name.Data());
        if(all_read_flag == 1){
-	 TString cmd = Form("ipcs -m | grep `perl -e '@arr=\"%s\"=~/.{1}/g;printf(\"0x%%s\",unpack(\"H*\",@arr[3].@arr[2].@arr[1].@arr[0]));'` | perl -anle '{printf(\"%%s\", @F[2])}'", shm_name.Data());
+	 TString cmd = Form("ipcs -m | grep `perl -e '$str=sprintf(\"%%-4s\",\"%s\");@arr=$str=~/.{1}/g;printf(\"0x%%s\",unpack(\"H*\",@arr[3].@arr[2].@arr[1].@arr[0]));'` | perl -anle '{printf(\"%%s\", @F[2])}'", shm_name.Data());
 	 TString cmd_out = gSystem->GetFromPipe(cmd.Data());
 	 filename = Form("%s_%s",shm_name.Data(),cmd_out.Data());
 	 file_name_list.Add(new TObjString(filename.Data()));
