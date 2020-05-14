@@ -337,25 +337,6 @@ int main(int argc, char **argv)
 #endif
 --> End */
 
-   // http server with port 8080, use jobname as top-folder name
-   THttpServer* serv = new THttpServer(Form("http:%d?top=job_pid%d_at_%s",
-					    port,
-					    gSystem->GetPid(),
-					    gSystem->HostName()));
-   
-   // fastcgi server with port 9000, use jobname as top-folder name
-   // THttpServer* serv = new THttpServer(Form("fastcgi:9000?top=%s_fastcgi", jobname));
-   // dabc agent, connects to DABC master_host:1237, works only when DABC configured
-   // THttpServer* serv = new THttpServer(Form("dabc:master_host:1237?top=%s_dabc", jobname));
-
-   // when read-only mode disabled one could execute object methods like TTree::Draw()
-   serv->SetReadOnly(kFALSE);
-
-   // One could specify location of newer version of JSROOT
-   // serv->SetJSROOT("https://root.cern.ch/js/latest/");
-   // serv->SetJSROOT("http://jsroot.gsi.de/latest/");
-
-   gStyle->SetOptLogz(1);
    TString str_shm_names = shm_names;
    Int_t all_read_flag = 0;
    if (str_shm_names.Length() == 0) {
@@ -380,13 +361,26 @@ int main(int argc, char **argv)
      }
      std::cout << std::endl;
    }
+
+   // http server with port, use jobname as top-folder name
+   TString thttpserver_str;
+   if (all_read_flag == 1) {
+     thttpserver_str = Form("http:%d?top=job_all_pid%d_at_%s", port, gSystem->GetPid(), gSystem->HostName());
+   }else{
+     thttpserver_str = Form("http:%d?top=job_pid%d_at_%s", port, gSystem->GetPid(), gSystem->HostName());
+   }
+   THttpServer* serv = new THttpServer(thttpserver_str.Data());
+   // when read-only mode disabled one could execute object methods like TTree::Draw()
+   serv->SetReadOnly(kFALSE);
    
    TMemFile *transient = 0;
    TList file_list;
+   TList file_name_list;
    TObjString * ostr2;
    while (1){
      if(all_read_flag == 1){
        shm_name_list.Delete();
+       file_name_list.Delete();
        TString cmd = "ipcs -m | perl -alne 'if($.>3){@arr = @F[0] =~ /.{2}/g; foreach(@arr){$_ =~ s/00//;}printf(\"%s \",pack(\"H*\", @arr[4].@arr[3].@arr[2].@arr[1]));}'";
        TString cmd_out = gSystem->GetFromPipe(cmd.Data());
        std::stringstream ss(cmd_out.Data());
@@ -406,6 +400,12 @@ int main(int argc, char **argv)
 	 continue;
        }
        TString filename = Form("%s",shm_name.Data());
+       if(all_read_flag == 1){
+	 TString cmd = Form("ipcs -m | grep `perl -e '@arr=\"%s\"=~/.{1}/g;printf(\"0x%%s\",unpack(\"H*\",@arr[3].@arr[2].@arr[1].@arr[0]));'` | perl -anle '{printf(\"%%s\", @F[2])}'", shm_name.Data());
+	 TString cmd_out = gSystem->GetFromPipe(cmd.Data());
+	 filename = Form("%s_%s",shm_name.Data(),cmd_out.Data());
+	 file_name_list.Add(new TObjString(filename.Data()));
+       }
        TMemFile * tmp = (TMemFile *)file_list.FindObject(filename.Data());
        if (tmp) {
 	 file_list.Remove(tmp);
@@ -427,7 +427,7 @@ int main(int argc, char **argv)
      }
      TIter next3(&file_list);
      while ((transient = (TMemFile*)next3())){
-       if (!shm_name_list.FindObject(transient->GetName())) {
+       if (!file_name_list.FindObject(transient->GetName())) {
 	 file_list.Remove(transient);
 	 delete transient;
        }

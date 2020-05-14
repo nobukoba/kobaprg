@@ -19,11 +19,11 @@ ROOTLIBS  = $(shell root-config --libs) -lRHTTP -lgfortran
 all:	$(TARGETS)
 shm_display: shm_display.o hlimap.o hidall.o mzwork.o hcreatem.o hshm.o hmapm.o hrin2.o hcopyu.o hcopyn.o hcopyt.o zebra.o hbook.o cernlib.o kernlib.o
 	$(CXX)     $(LFLAGS) -o $@ $^ $(ROOTLIBS)
-.cc.o:
+%.o: %.cxx
 	$(CXX)     $(CXXFLAGS) -c $<
-.c.o:
+%.o: %.c
 	$(CC)      $(CFLAGS)   -c $<
-.f.o:
+%.o: %.f
 	$(FC)      $(FFLAGS)   -c $<
 .PHONY : clean
 clean:
