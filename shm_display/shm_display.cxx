@@ -46,6 +46,7 @@
 #include "TMemFile.h"
 #include "TSystem.h"
 #include "THttpServer.h"
+#include "TServerSocket.h"
 #include "TString.h"
 #include "TStyle.h"
 
@@ -369,6 +370,20 @@ int main(int argc, char **argv)
    }else{
      thttpserver_str = Form("http:%d?top=job_pid%d_at_%s", port, gSystem->GetPid(), gSystem->HostName());
    }
+   
+   std::cout << "Check availability of the port: " << port << std::endl;
+   TServerSocket *ssocket = new TServerSocket(port);
+   if(!ssocket->IsValid()){
+     std::cout << "TServerSocket::GetErrorCode(): " << ssocket->GetErrorCode() << std::endl;
+     std::cout << "Probably port: " << port << " is already in use." << std::endl;
+     std::cout << "Exit."<< std::endl;
+     delete ssocket;
+     return 1;
+   }else{
+     std::cout << "The port is free." << std::endl;
+     delete ssocket;
+   }
+   
    THttpServer* serv = new THttpServer(thttpserver_str.Data());
    // when read-only mode disabled one could execute object methods like TTree::Draw()
    serv->SetReadOnly(kFALSE);
