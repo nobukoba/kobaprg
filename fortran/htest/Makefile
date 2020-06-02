@@ -8,9 +8,9 @@ endif
 FC = gfortran $(PIEFLAGS)
 
 CERNLIB = $(shell cernlib packlib)
+#CERNLIB = -lgfortran -L$(HOME)/cern/cernlib_2005_minipacklib_hbook/2005/lib -lpacklib
 # on miho-1
-#CERNLIB = -lgfortran -L/home/tamidaq/cern/cernlib-2005-paw-128mb/2005/lib -lpacklib
-#CERNLIB = -lgfortran -L/home/kobayash/cern/cernlib_2005_minipacklib_hbook/2005/lib -lpacklib
+#CERNLIB = -lgfortran -L$(HOME)/cern/cernlib-2005-paw-128mb/2005/lib -lpacklib
 
 all: htest
 htest: htest.o
