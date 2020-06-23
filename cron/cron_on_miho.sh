@@ -3,10 +3,10 @@
 hostname=`hostname`
 shm_monitor_port_miho_1="8083"
 shm_monitor_port_miho_2="8084"
-shm_monitor_cmd_miho_1="/home/kobayash/nobukoba/kobaprg/shm_monitor/shm_monitor ${shm_monitor_port_miho_1} >/dev/null 2>&1 &"
-shm_monitor_cmd_miho_2="/home/kobayash/nobukoba/kobaprg/shm_monitor/shm_monitor ${shm_monitor_port_miho_2} >/dev/null 2>&1 &"
-#shm_monitor_cmd_miho_1="/home/kobayash/nobukoba/kobaprg/shm_monitor/shm_monitor ${shm_monitor_port_miho_1}"
-#shm_monitor_cmd_miho_2="/home/kobayash/nobukoba/kobaprg/shm_monitor/shm_monitor ${shm_monitor_port_miho_2}"
+shm_monitor_cmd_miho_1="/home/kobayash/nobukoba/shm_monitor/shm_monitor ${shm_monitor_port_miho_1} >/dev/null 2>&1 &"
+shm_monitor_cmd_miho_2="/home/kobayash/nobukoba/shm_monitor/shm_monitor ${shm_monitor_port_miho_2} >/dev/null 2>&1 &"
+#shm_monitor_cmd_miho_1="/home/kobayash/nobukoba/shm_monitor/shm_monitor ${shm_monitor_port_miho_1}"
+#shm_monitor_cmd_miho_2="/home/kobayash/nobukoba/shm_monitor/shm_monitor ${shm_monitor_port_miho_2}"
 ssh_R_cmd_miho_1="ssh -fNR 1${shm_monitor_port_miho_1}:miho-1:${shm_monitor_port_miho_1} quser@oxygen"
 ssh_R_cmd_miho_2="ssh -fNR 1${shm_monitor_port_miho_2}:miho-2:${shm_monitor_port_miho_2} quser@oxygen"
 if [ "${hostname}" == "miho-1" ]; then
