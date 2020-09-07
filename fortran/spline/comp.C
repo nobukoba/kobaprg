@@ -14,8 +14,9 @@ void comp(){
   gr[0] = new TGraph("spline.txt");
   gr[1] = new TGraph(10, x, y);
   TF1 *f  = new TF1("f",spl,0,10,0);
-  f->SetNpx(100);
+  f->SetNpx(1000);
   f->Draw();
+  gr[1]->Draw("*");
   gr[0]->Draw("l");
   
   return;
