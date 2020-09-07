@@ -1,6 +1,24 @@
       program main
+      integer i
+      real x, y, spline
+
+      open(60, file='spline.txt', status='replace')
+      do i=1,1001,1
+         x = (i-1) * 0.01
+         y = spline(x)
+         write(*,*) 'i, x, y = ', i, x, y
+         write(60,*) x, y
+      enddo
+      close(60)
+      end
+      
+      real function spline(x_in)
+      real x_in
       integer n
       parameter (n=9)
+      integer i,j,i_cur
+      real c(0:n,3), h(0:n), al(0:n), l(0:n), mu(0:n), z(0:n)
+      
       real x(0:n), a(0:n)
       data x/
      &     0.0, 1.0, 2.0,  3.0, 4.0,
@@ -8,31 +26,6 @@
       data a/
      &     2.0, 1.0, 3.0, 4.0, 5.0,
      &     4.0, 2.0, 3.0, 5.0, 9.0/
-      common /comxa/ x,a
-      integer i
-      real xx, yy, spline
-      
-      do i=1,1001,1
-         xx = (i-1) * 0.01
-         yy = spline(xx)
-         write(*,*) 'i, x, y = ', i, xx, yy
-         write(20,*) xx, yy
-      enddo
-
-      do i=0,n
-         write(21,*) x(i), a(i)
-      enddo
-
-      end
-      
-      real function spline(x_in)
-      real x_in
-      integer n
-      parameter (n=9)
-      real x(0:n), a(0:n)
-      real c(0:n,3), h(0:n), al(0:n), l(0:n), mu(0:n), z(0:n)
-      integer i,j,i_cur
-      common /comxa/ x,a
       
       i_cur = 0
       do i=0, n
