@@ -1,0 +1,43 @@
+ macro main
+ exe sub1
+* exe sub2
+   
+ return
+ 
+ macro sub1
+   hi/file 1 cellulose.hb
+   hi/file 2 circle_cut.hbook
+   hi/file 3 mebae.hb
+   hi/li
+   hi/pl 6
+   hi/li
+   hi/pl 6   
+ return
+ 
+ macro sub2
+   hi/file 1 cellulose.hb
+   hi/li
+   hi/copy 12 1
+   hi/file 2 cellulose_392_0deg.hb 
+   hi/li
+   hi/copy 6 2
+   hi/copy 7 3
+   hi/pl 2
+   hi/pl 3
+   hi/file 3 mebae.hb
+   hi/li
+   hi/copy 6 4
+   hi/pl 4
+   
+ hi/file 4 com.hb ! N
+   hrout 1
+   hrout 2
+   hrout 3
+   hrout 4
+   
+   close 4
+   close 1
+   close 2
+   close 3
+ return
+ 
