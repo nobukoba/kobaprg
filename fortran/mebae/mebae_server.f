@@ -18,9 +18,23 @@
       call hbook2(104,'test4',30,-3.,3.,30,-3.,3.,0.)
       call hbook2(105,'test5',30,-3.,3.,30,-3.,3.,0.)
 
-      call hcopy(1,11,'histo1')
-      call hcopy(2,12,'histo2')
-      call hcopy(3,13,'histo3')
+      call hcopy(1,11,
+     &     'Cellulose data for 392-MeV proton beam;'//
+     &     'Excitation Energy (MeV);Counts')
+      call hcopy(2,12,
+     &     'Cellulose for 392-MeV proton beam;'//
+     &     'Grand Raiden X hit pos. (mm);'//
+     &     'Y angle (deg.)')
+      call hbook2(13,
+     &     'Cellulose for 392-MeV proton beam;'//
+     &     'Grand Raiden X hit pos. (mm);'//
+     &     'Y pos. (mm)',
+     &     300,-600.,600.,300,-450.,450.,0.)
+*      call hcopy(3,13,
+*     &     'Cellulose data for 392-MeV proton beam;'//
+*     &     'Cellulose for 392-MeV proton;'//
+*     &     'Grand Raiden X position (mm);'//
+*     &     ' Y position (mm)')
       call hcopy(4,14,'histo4')
       
       call hreset(11,' ')

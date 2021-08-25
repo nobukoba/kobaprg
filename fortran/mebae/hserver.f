@@ -12,13 +12,17 @@
 
       
       call hlimap(nwords,'MEBA')
-      call hbook1(1,'test1',100,-4.,4.,0.)
-      call hcopy(1,2,'test2')
-      call hcopy(1,3,'test3')
-      call hbook2(4,'test4',30,-3.,3.,30,-3.,3.,0.)
-      call hbook2(5,'test5',30,-3.,3.,30,-3.,3.,0.)
+      call hbook1(1,'Gaussian Distribution;X axis;Y axis',
+     &     100,-4.,4.,0.)
+      call hcopy(1,2,'Gaussian Distribution;X axis;Y axis')
+      call hcopy(1,3,'Gaussian Distribution;X axis;Y axis')
+      call hbook2(4,'Gaussian Distribution;X axis;Y axis',
+     &     30,-3.,3.,30,-3.,3.,0.)
+      call hbook2(5,'Gaussian Distribution;X axis;Y xis',
+     &     30,-3.,3.,30,-3.,3.,0.)
       call hbook2(6,'mebae',205,1,206,51,1,52,0.)
-      call hbook2(7,'mebae2',205,1,206,51,1,52,0.)
+      call hbook2(7,'Mebae Histogram;X axis;Y axis',
+     &     205,1,206,51,1,52,0.)
       
       open(100, FILE='mebae.dat')
       do j = 1, 51
