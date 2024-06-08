@@ -6,4 +6,4 @@ if [  "$num" != "" ]; then
     kill -HUP $num
 fi
 sleep 60
-ssh -o FowardX11=yes -o ServerAliveInterval=60 -fNR ${port_num}:localhost:22 username@servername
+ssh -o ServerAliveInterval=60 -fNR ${port_num}:localhost:22 username@servername
